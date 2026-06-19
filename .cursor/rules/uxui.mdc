@@ -1,0 +1,287 @@
+---
+description: UX/UI design principles for building clear, usable, accessible web applications
+globs: **/*.{tsx,ts,jsx,js,css,scss,mdx}
+alwaysApply: true
+---
+
+# UX/UI Design Principles
+
+You are building production web software for real users. Do not only make the UI "work"; make it clear, usable, accessible, fast, and hard to misuse.
+
+## Core UX Standard
+
+Before implementing or changing any screen, component, or flow, ask:
+
+1. What is the user's goal?
+2. What is the primary action?
+3. What information does the user need before acting?
+4. What can be removed, grouped, hidden, or delayed?
+5. What could confuse the user?
+6. What could go wrong, and how does the UI recover?
+
+Prefer obvious interfaces over clever ones.
+
+## Hierarchy
+
+Every screen must have a clear visual hierarchy.
+
+- One primary purpose per screen or section.
+- One visually dominant primary action.
+- Secondary actions must look secondary.
+- Destructive actions must be visually distinct and require confirmation when meaningful.
+- Important information should appear before controls that depend on it.
+- Do not give every element equal weight.
+
+Use size, spacing, contrast, alignment, and grouping to communicate importance.
+
+## Layout
+
+Use simple, predictable layouts.
+
+- Prefer grid, flex, and consistent spacing tokens.
+- Align related elements.
+- Group related controls and content together.
+- Separate unrelated sections with spacing, dividers, cards, or headings.
+- Avoid dense, wall-of-controls interfaces unless the user explicitly needs expert-level density.
+- Keep forms and flows linear when possible.
+- Do not create unnecessary modals, tabs, drawers, or nested navigation.
+
+A user should be able to scan the page and understand what it is for within a few seconds.
+
+## Cognitive Load
+
+Reduce thinking wherever possible.
+
+- Use plain language.
+- Prefer recognition over recall.
+- Do not make users remember values from previous screens.
+- Keep labels close to the thing they describe.
+- Use sensible defaults.
+- Show examples for ambiguous inputs.
+- Break complex flows into clear steps.
+- Reveal advanced options progressively instead of showing everything at once.
+- Avoid custom interactions when standard controls solve the problem.
+
+## Consistency
+
+Use consistent patterns across the app.
+
+- Same action = same label.
+- Same concept = same component.
+- Same status = same visual treatment.
+- Same spacing scale across similar layouts.
+- Same validation and error behavior across forms.
+- Same empty/loading/error/success patterns across data views.
+
+Do not invent a new UI pattern when an existing app pattern already exists.
+
+## Affordance and Feedback
+
+The UI must make possible actions obvious.
+
+- Clickable things should look clickable.
+- Disabled controls should explain why they are disabled when practical.
+- Loading states must appear when actions take noticeable time.
+- Successful actions should give feedback.
+- Failed actions should explain what happened and what to do next.
+- Inputs must show validation errors near the relevant field.
+- Long-running actions should show progress or clear pending state.
+- Optimistic updates must have rollback/error handling.
+
+Every user action should produce an understandable response.
+
+## Forms
+
+Forms should be designed to prevent errors, not merely report them.
+
+- Use explicit labels, not placeholder-only labels.
+- Use the correct input type.
+- Group related fields.
+- Mark optional fields instead of marking every required field.
+- Validate as close to the field as possible.
+- Preserve user input after errors.
+- Explain formatting requirements before submission.
+- Use autocomplete where appropriate.
+- Do not ask for information that is not necessary.
+- Submit buttons should describe the action, not say only "Submit."
+
+Examples:
+- Prefer "Create account" over "Submit."
+- Prefer "Save billing address" over "Save."
+- Prefer "Send invite" over "OK."
+
+## Navigation and Information Architecture
+
+Navigation should match the user's mental model.
+
+- Use clear, concrete page names.
+- Keep navigation labels short and familiar.
+- Do not bury primary workflows.
+- Show where the user is.
+- Provide clear back/cancel behavior.
+- Avoid surprising route changes.
+- Preserve state when users return to a previous list, search, or workflow.
+- Use breadcrumbs for deep hierarchical content when useful.
+
+## Accessibility
+
+Accessibility is not optional.
+
+- Use semantic HTML before custom components.
+- Buttons are for actions; links are for navigation.
+- Every input needs an accessible label.
+- Every meaningful image needs alt text.
+- Decorative images should be ignored by assistive tech.
+- Ensure keyboard navigation works.
+- Ensure visible focus states.
+- Do not trap focus except in intentional modal/dialog contexts.
+- Ensure dialogs use correct ARIA semantics.
+- Maintain sufficient color contrast.
+- Do not communicate meaning by color alone.
+- Respect reduced-motion preferences.
+- Use aria attributes only when semantic HTML is insufficient.
+
+Do not produce UI that only works with a mouse.
+
+## Visual Design
+
+Prefer clean, restrained, high-signal interfaces.
+
+- Use whitespace deliberately.
+- Use fewer borders; prefer spacing and background contrast where possible.
+- Use color sparingly to communicate state, brand, or priority.
+- Use typography scale consistently.
+- Avoid tiny text for important content.
+- Avoid excessive shadows, gradients, animations, and decorative effects.
+- Icons must support comprehension, not replace clear labels unless the action is universally understood.
+- Data-heavy screens should prioritize readability over decoration.
+
+The interface should feel calm, intentional, and easy to scan.
+
+## Mobile and Responsive Design
+
+Build mobile-responsive interfaces by default.
+
+- Design for narrow screens before adding wide-screen enhancements.
+- Avoid horizontal scrolling except for intentional data tables.
+- Ensure tap targets are large enough.
+- Stack complex layouts cleanly on small screens.
+- Keep primary actions reachable.
+- Do not rely on hover-only interactions.
+- Test empty, short, normal, and long content.
+
+## Data Display
+
+Data views should help users decide and act.
+
+- Format dates, numbers, money, and percentages clearly.
+- Align numeric values for comparison.
+- Use table columns only when they help comparison.
+- Provide sorting/filtering/search when data sets are large.
+- Show empty states with useful next actions.
+- Show loading skeletons or placeholders for async data.
+- Show error states with retry actions where possible.
+- Avoid raw IDs unless they are meaningful to the user.
+- Truncate carefully; provide access to the full value when needed.
+
+## Error, Empty, Loading, and Success States
+
+Every meaningful async or conditional UI must handle:
+
+1. Loading
+2. Empty
+3. Error
+4. Success
+5. Permission denied / unavailable when relevant
+
+Error messages should be specific, human-readable, and actionable.
+
+Bad:
+- "Error"
+- "Something went wrong"
+
+Better:
+- "We couldn't load your projects. Check your connection and try again."
+- "This email is already invited. Use a different email or remove the existing invite."
+
+## Copywriting
+
+UI copy should be concise, specific, and useful.
+
+- Use verbs for actions.
+- Avoid vague labels like "Continue" when a specific label is possible.
+- Avoid internal implementation language.
+- Avoid blaming the user.
+- Explain consequences before destructive actions.
+- Confirm destructive or irreversible actions with clear wording.
+- Prefer "You don't have access to this project" over "Unauthorized."
+
+## Performance Perception
+
+Perceived speed matters.
+
+- Avoid layout shift.
+- Keep interactions responsive.
+- Show immediate feedback after user actions.
+- Lazy-load noncritical content.
+- Avoid blocking the whole screen when only one section is loading.
+- Keep animations fast and purposeful.
+- Do not add heavy UI libraries for small interactions.
+
+## Component Design
+
+Components should be reusable, predictable, and composable.
+
+- Prefer small components with clear responsibility.
+- Keep visual variants explicit.
+- Do not duplicate component logic across screens.
+- Extract repeated UI patterns into shared components.
+- Components must support loading, disabled, error, and empty states when relevant.
+- Component APIs should make correct usage easy and incorrect usage difficult.
+- Do not hardcode copy, colors, or spacing when app-level tokens/components exist.
+
+## Product Behavior
+
+When making product decisions:
+
+- Optimize for the user's goal, not the database model.
+- Prefer fewer, clearer choices.
+- Make dangerous actions harder than safe actions.
+- Make common actions fast.
+- Make uncommon actions discoverable but not dominant.
+- Preserve user work.
+- Avoid dead ends.
+- Provide a clear next step after every completed flow.
+
+## Design Review Checklist
+
+Before considering UI work complete, verify:
+
+- The primary user goal is obvious.
+- The primary action is obvious.
+- The screen has clear hierarchy.
+- Labels are understandable.
+- The layout works on mobile and desktop.
+- Loading, empty, error, and success states exist.
+- Forms preserve input after errors.
+- The UI works with keyboard navigation.
+- Focus states are visible.
+- Color is not the only signal.
+- Copy is specific and concise.
+- Components reuse existing patterns.
+- The result is simpler than the first draft.
+
+## Implementation Behavior
+
+When asked to build UI:
+
+1. First inspect existing components and patterns.
+2. Reuse the existing design system when available.
+3. If no design system exists, create minimal reusable primitives.
+4. Avoid one-off styling unless necessary.
+5. Prefer semantic HTML and accessible components.
+6. Include responsive behavior.
+7. Include realistic states, not only the happy path.
+8. Do not over-engineer.
+
+When unsure, choose the simpler, more conventional interaction.

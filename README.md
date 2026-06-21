@@ -2,7 +2,7 @@
 
 A genetic-algorithm framework for **LLM robustness testing**. It represents adversarial prompt *strategies* as structured genomes, renders each into a prompt, sends it to a target LLM, scores whether the model broke a policy, and evolves the population over generations — so we can measure *which* prompt traits cause failures, not just that they do.
 
-> **Status — design stage.** No implementation yet; there is no build, test, or run command. The repo currently holds the design docs and scaffolding listed below. **Start by reading [`proposal.md`](proposal.md) (technical design) and [`PRD.md`](PRD.md) (scope, workstreams, tickets), then follow [`CLAUDE.md`](CLAUDE.md) for stack and conventions.**
+> **Status — design stage, spec frozen.** No implementation yet; there is no build, test, or run command. [`PRD.md`](PRD.md) is the **compile-ready v1 spec** (the `prd-compile` target). **Start there**, with [`proposal.md`](proposal.md) and [`PRD.design.md`](PRD.design.md) as the deeper design record, then follow [`CLAUDE.md`](CLAUDE.md) for stack and conventions.
 
 ## Safety scope
 
@@ -23,14 +23,15 @@ The genome has two channels — **semantic** (strategy) and **perturbation** (su
 }
 ```
 
-Authoritative schema and the full enum set live in [`proposal.md` §3](proposal.md). Genomes, rendered prompts, responses, scores, and lineage are all stored, and the genetic search is compared against a **random-search baseline** to test whether evolution actually helps.
+The frozen schema and full enum set are the boundary contract in [`PRD.md` §3](PRD.md). Genomes, rendered prompts, responses, scores, and lineage are all stored, and the genetic search is compared against a **random-search baseline** to test whether evolution actually helps.
 
 ## Repository layout
 
 | Path | What |
 | --- | --- |
-| [`proposal.md`](proposal.md) | Technical design — GA primer, two-channel genome, system components, evaluation plan. Source of truth for the genome schema. |
-| [`PRD.md`](PRD.md) | Design doc — problem, in/out of scope, architecture diagram, per-person workstreams and tickets. |
+| [`PRD.md`](PRD.md) | **Compile-ready v1 spec** — frozen scope, boundary contract, claims→oracles. The `prd-compile` build target; source of truth for the genome schema. |
+| [`PRD.design.md`](PRD.design.md) | Original design doc — problem, in/out of scope, architecture diagram, per-person workstreams and tickets. Team research record. |
+| [`proposal.md`](proposal.md) | Technical design — GA primer, two-channel genome rationale, system components, evaluation plan. |
 | [`CLAUDE.md`](CLAUDE.md) | Stack rules and conventions for agents. Read before writing any code. |
 | `.gitignore`, `.repomixignore` | Ignore rules; `.repomixignore` keeps the repomix pack code-only. |
 | `README.md` | This file. |

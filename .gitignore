@@ -1,0 +1,91 @@
+# --- Repomix output (never commit the packed codebase) ---
+repomix-codebase.xml
+repomix-*.xml
+repomix-output.*
+
+# --- Secrets / local env ---
+.env
+.env.*
+!.env.example
+
+# --- Python bytecode & build artifacts ---
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Test / type / lint caches ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.hypothesis/
+.coverage
+htmlcov/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Model weights & local LLM caches (large binaries) ---
+*.safetensors
+*.gguf
+*.ggml
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.h5
+models/
+checkpoints/
+.hf_cache/
+
+# --- Generated experiment store: genomes, prompts, responses, scores, lineage ---
+runs/
+results/
+outputs/
+*.sqlite
+*.sqlite3
+*.db
+*.parquet
+*.jsonl
+*.npy
+*.npz
+
+# --- Datasets (large / regenerable / external) ---
+data/
+datasets/
+
+# --- Generated visualization renders (committed diagrams stay tracked) ---
+figures/
+plots/
+
+# --- Logs ---
+logs/
+*.log
+
+# --- JS dashboard (if a web viz frontend is added) ---
+node_modules/
+.next/
+.vite/
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- OS & editor cruft ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

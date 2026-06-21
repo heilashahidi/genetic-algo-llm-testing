@@ -1,6 +1,34 @@
-# Patterns excluded from the repomix pack. Goal: feed an LLM all source +
-# design docs, drop binaries, generated experiment data, caches, and locks.
+# Patterns excluded from the repomix pack. Goal: a CODE-ONLY pack — code is the
+# single source of truth, so prose docs, binaries, generated experiment data,
+# caches, and locks are all dropped.
 # (No .gitignore exists in this repo, so this file carries the full load.)
+
+# --- Documentation & prose (code is the source of truth, not the prose) ---
+*.md
+*.mdx
+*.markdown
+*.rst
+*.adoc
+*.asciidoc
+*.txt
+!requirements*.txt        # dependency manifests are config, not docs
+!constraints*.txt
+docs/
+doc/
+documentation/
+# Generated doc-site output
+site/
+_site/
+_build/
+# Extensionless legal/credit files (not caught by *.md)
+LICENSE*
+COPYING*
+NOTICE*
+AUTHORS*
+
+# --- Repomix's own output (never pack the pack into itself) ---
+repomix-codebase.xml
+repomix-output.*
 
 # --- Python runtime/build artifacts ---
 __pycache__/

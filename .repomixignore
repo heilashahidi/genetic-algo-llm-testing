@@ -1,0 +1,83 @@
+# Patterns excluded from the repomix pack. Goal: feed an LLM all source +
+# design docs, drop binaries, generated experiment data, caches, and locks.
+# (No .gitignore exists in this repo, so this file carries the full load.)
+
+# --- Python runtime/build artifacts ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# --- Tooling caches ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.cache/
+
+# --- Model weights & local LLM caches (large, opaque to an LLM reader) ---
+*.safetensors
+*.gguf
+*.ggml
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.h5
+models/
+checkpoints/
+.hf_cache/
+**/huggingface/
+
+# --- Generated experiment store: genomes, prompts, responses, scores, lineage ---
+runs/
+results/
+outputs/
+experiments/**/results/
+*.sqlite
+*.db
+*.parquet
+*.jsonl
+*.npy
+*.npz
+
+# --- Datasets (source of truth is the generator, not the dumped data) ---
+data/
+datasets/
+
+# --- Visualization & report renders (the chart code is the signal, not the image) ---
+figures/
+plots/
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.pdf
+*.gif
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Secrets / local config (LLM API keys live here) ---
+.env
+.env.*
+
+# --- Dependency locks (low signal, high token cost) ---
+poetry.lock
+uv.lock
+Pipfile.lock
+requirements*.lock
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# --- JS dashboard build output (if a web viz frontend is added) ---
+node_modules/
+.next/
+.vite/

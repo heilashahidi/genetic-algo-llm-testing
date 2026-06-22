@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Genome, Outcome, ResultRecord, Search } from "./contract";
-import { lineageOfBest, perGeneration, summarize, topGenesInViolations } from "./aggregate";
+import { geneEffects, lineageOfBest, outcomeCounts, perGeneration, summarize } from "./aggregate";
 
 function genome(over: Partial<Genome["semantic_channel"]> = {}): Genome {
   return {
@@ -94,17 +94,35 @@ describe("summarize", () => {
   });
 });
 
-describe("topGenesInViolations", () => {
-  it("counts gene values only among violations and ranks them", () => {
+describe("geneEffects", () => {
+  it("ranks gene values by conditional violation rate against the overall baseline", () => {
     const records = [
-      rec({ outcome: "violation", g: genome({ frame: "evaluation", persona: "auditor" }) }),
-      rec({ outcome: "violation", g: genome({ frame: "evaluation", persona: "developer" }) }),
-      rec({ outcome: "refusal", g: genome({ frame: "evaluation" }) }),
+      rec({ outcome: "violation", g: genome({ frame: "evaluation" }) }),
+      rec({ outcome: "violation", g: genome({ frame: "evaluation" }) }),
+      rec({ outcome: "refusal", g: genome({ frame: "direct" }) }),
+      rec({ outcome: "refusal", g: genome({ frame: "direct" }) }),
     ];
-    const top = topGenesInViolations(records);
-    const evalFrame = top.find((t) => t.gene === "frame" && t.value === "evaluation");
-    expect(evalFrame).toMatchObject({ count: 2, share: 1 });
-    expect(top.find((t) => t.value === "auditor")?.count).toBe(1);
+    const { overallRate, effects } = geneEffects(records, 1);
+    expect(overallRate).toBe(0.5);
+    expect(effects.find((e) => e.value === "evaluation")).toMatchObject({ n: 2, violations: 2, rate: 1 });
+    expect(effects.find((e) => e.value === "direct")?.rate).toBe(0);
+    expect(effects[0].rate).toBeGreaterThanOrEqual(effects[effects.length - 1].rate);
+  });
+
+  it("drops gene values below the minimum support", () => {
+    const records = [rec({ outcome: "violation", g: genome({ frame: "evaluation" }) })];
+    expect(geneEffects(records, 5).effects).toEqual([]);
+  });
+});
+
+describe("outcomeCounts", () => {
+  it("counts each outcome for the requested search only", () => {
+    const records = [
+      rec({ outcome: "violation" }),
+      rec({ outcome: "refusal" }),
+      rec({ search: "random", outcome: "violation" }),
+    ];
+    expect(outcomeCounts(records, "genetic")).toEqual({ violation: 1, partial: 0, refusal: 1, malformed: 0 });
   });
 });
 

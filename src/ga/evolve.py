@@ -7,25 +7,27 @@ from .contract import Genome, PerturbationChannel, SemanticChannel, categorical_
 # two-channel structure (genes never leave their channel), which lets the partial
 # building blocks of §5/C8 recombine into a full solution.
 
+# Gene domains are static (closed enum sets) — derive them once at import.
+_SEM, _PER = categorical_values()
+
 
 def random_genome(rng: random.Random) -> Genome:
-    sem, per = categorical_values()
     return Genome(
         semantic_channel=SemanticChannel(
-            frame=rng.choice(sem["frame"]),
-            persona=rng.choice(sem["persona"]),
-            task_style=rng.choice(sem["task_style"]),
-            instruction_pressure=rng.choice(sem["instruction_pressure"]),
+            frame=rng.choice(_SEM["frame"]),
+            persona=rng.choice(_SEM["persona"]),
+            task_style=rng.choice(_SEM["task_style"]),
+            instruction_pressure=rng.choice(_SEM["instruction_pressure"]),
             demo_count=rng.randint(0, 5),
-            conversation_mode=rng.choice(sem["conversation_mode"]),
-            context_source=rng.choice(sem["context_source"]),
+            conversation_mode=rng.choice(_SEM["conversation_mode"]),
+            context_source=rng.choice(_SEM["context_source"]),
         ),
         perturbation_channel=PerturbationChannel(
-            format=rng.choice(per["format"]),
-            delimiter_style=rng.choice(per["delimiter_style"]),
+            format=rng.choice(_PER["format"]),
+            delimiter_style=rng.choice(_PER["delimiter_style"]),
             noise_enabled=rng.choice([True, False]),
-            noise_type=rng.choice(per["noise_type"]),
-            noise_position=rng.choice(per["noise_position"]),
+            noise_type=rng.choice(_PER["noise_type"]),
+            noise_position=rng.choice(_PER["noise_position"]),
             noise_ratio=round(rng.random(), 2),
         ),
     )
@@ -41,14 +43,13 @@ def crossover(a: Genome, b: Genome, rng: random.Random) -> Genome:
 
 
 def mutate(genome: Genome, rng: random.Random, rate: float = 0.15) -> Genome:
-    sem, per = categorical_values()
     d = genome.model_dump()
-    for gene, vals in sem.items():
+    for gene, vals in _SEM.items():
         if rng.random() < rate:
             d["semantic_channel"][gene] = rng.choice(vals)
     if rng.random() < rate:
         d["semantic_channel"]["demo_count"] = rng.randint(0, 5)
-    for gene, vals in per.items():
+    for gene, vals in _PER.items():
         if rng.random() < rate:
             d["perturbation_channel"][gene] = rng.choice(vals)
     if rng.random() < rate:

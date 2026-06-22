@@ -40,7 +40,7 @@ export default function LineChart({
           </g>
         ))}
         <line x1={pad.l} y1={pad.t} x2={pad.l} y2={H - pad.b} stroke="#e7e8ea" strokeWidth={1} />
-        {[0, Math.round(xMax / 2), xMax].map((g) => (
+        {[...new Set([0, Math.round(xMax / 2), xMax])].map((g) => (
           <text key={g} x={sx(g)} y={H - pad.b + 16} textAnchor="middle" className="fill-muted-2 text-[9px]">
             {g}
           </text>

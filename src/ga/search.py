@@ -1,7 +1,7 @@
 import random
 from pathlib import Path
 
-from .contract import ResultRecord
+from .contract import Genome, ResultRecord
 from .evolve import crossover, mutate, random_genome, tournament
 from .harness import evaluate
 from .model_client import ModelClient
@@ -34,7 +34,7 @@ def run_genetic(
     records: list[ResultRecord] = []
 
     for gen in range(generations):
-        scored: list[tuple] = []
+        scored: list[tuple[Genome, float]] = []
         for g in population:
             rec = evaluate(
                 g,

@@ -79,3 +79,18 @@ def test_local_client_raises_on_shape_drift():
     c = LocalModelClient("http://x/v1", "m", max_retries=0, transport=httpx.MockTransport(handler))
     with pytest.raises(RuntimeError):
         c.complete("s", "p", genome=Genome(**base()), seed=1)
+
+
+def test_local_client_retries_then_succeeds(monkeypatch):
+    monkeypatch.setattr("ga.model_client.time.sleep", lambda *_: None)
+    calls = {"n": 0}
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return httpx.Response(503)
+        return httpx.Response(200, json={"choices": [{"message": {"content": "ok"}}]})
+
+    c = LocalModelClient("http://x/v1", "m", max_retries=2, transport=httpx.MockTransport(handler))
+    assert c.complete("s", "p", genome=Genome(**base()), seed=1) == "ok"
+    assert calls["n"] == 2

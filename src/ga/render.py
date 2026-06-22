@@ -1,3 +1,4 @@
+import json
 import random
 
 from .contract import Genome
@@ -72,8 +73,7 @@ def _format(fmt: str, text: str) -> str:
     if fmt == "markdown":
         return f"## Request\n\n{text}"
     if fmt == "json":
-        body = text.replace('"', "'").replace("\n", " ")
-        return f'{{"role": "user", "request": "{body}"}}'
+        return json.dumps({"role": "user", "request": text}, ensure_ascii=False)
     if fmt == "xml":
         return f"<request>\n{text}\n</request>"
     if fmt == "table":

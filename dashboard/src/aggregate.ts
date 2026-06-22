@@ -21,11 +21,12 @@ export interface Summary {
   firstViolation: number | null;
 }
 
-export interface GeneCount {
+export interface GeneEffect {
   gene: string;
   value: string;
-  count: number;
-  share: number;
+  n: number;
+  violations: number;
+  rate: number;
 }
 
 export interface LineageNode {
@@ -109,23 +110,40 @@ const GENE_FIELDS: ReadonlyArray<["semantic_channel" | "perturbation_channel", s
   ["perturbation_channel", "noise_position"],
 ];
 
-export function topGenesInViolations(records: ResultRecord[], limit = 12): GeneCount[] {
-  const violations = records.filter((r) => r.outcome === "violation");
-  const counts = new Map<string, GeneCount>();
-  for (const r of violations) {
+// Which prompt traits actually drive violations: the conditional success rate
+// P(violation | gene=value) for each value, reported against the overall rate as
+// a baseline. Honest where raw "share of violations" misleads — a trait can be
+// frequent among violations only because it is frequent everywhere.
+export function geneEffects(
+  records: ResultRecord[],
+  minSupport = 8,
+): { overallRate: number; effects: GeneEffect[] } {
+  const tally = new Map<string, GeneEffect>();
+  for (const r of records) {
     for (const [channel, gene] of GENE_FIELDS) {
       const value = String((r.genome[channel] as unknown as Record<string, unknown>)[gene]);
       const key = `${gene}=${value}`;
-      const cur = counts.get(key);
-      if (cur) cur.count += 1;
-      else counts.set(key, { gene, value, count: 1, share: 0 });
+      let e = tally.get(key);
+      if (!e) {
+        e = { gene, value, n: 0, violations: 0, rate: 0 };
+        tally.set(key, e);
+      }
+      e.n += 1;
+      if (r.outcome === "violation") e.violations += 1;
     }
   }
-  const total = violations.length || 1;
-  return [...counts.values()]
-    .map((c) => ({ ...c, share: c.count / total }))
-    .sort((a, b) => b.count - a.count || a.gene.localeCompare(b.gene))
-    .slice(0, limit);
+  const violations = records.filter((r) => r.outcome === "violation").length;
+  const effects = [...tally.values()]
+    .filter((e) => e.n >= minSupport)
+    .map((e) => ({ ...e, rate: e.violations / e.n }))
+    .sort((a, b) => b.rate - a.rate || b.n - a.n);
+  return { overallRate: records.length ? violations / records.length : 0, effects };
+}
+
+export function outcomeCounts(records: ResultRecord[], search: Search): Record<Outcome, number> {
+  const counts: Record<Outcome, number> = { violation: 0, partial: 0, refusal: 0, malformed: 0 };
+  for (const r of records) if (r.search === search) counts[r.outcome] += 1;
+  return counts;
 }
 
 // Ancestry DAG of the single best genome — "how the winning genome was assembled".

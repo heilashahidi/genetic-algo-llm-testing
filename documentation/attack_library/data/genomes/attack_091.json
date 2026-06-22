@@ -5,21 +5,31 @@
   "source_url": "https://github.com/0xk1h0/ChatGPT_DAN",
   "provenance": "collected",
   "char_length": 7066,
-  "schema_version": 1,
+  "schema_version": 2,
   "channels": {
     "semantic": {
       "primary_strategy": "role_hijack",
-      "persona_archetype": "do_anything",
-      "framing_type": "authority_directive",
-      "override_mechanism": "ignore_previous",
+      "persona_archetype": [
+        "do_anything",
+        "fictional_character"
+      ],
+      "framing_type": [
+        "authority_directive"
+      ],
+      "override_mechanism": [
+        "ignore_previous",
+        "policy_nullification"
+      ],
       "refusal_suppression": true,
       "stay_in_character": true,
       "confirmation_handshake": true,
-      "response_format": "dual_tagged",
+      "response_format": [
+        "dual_tagged"
+      ],
       "input_delivery": "command_trigger"
     },
     "perturbation": {
-      "encoding_method": "none",
+      "encoding_method": [],
       "formatting_style": "tagged_delimiters",
       "token_system": true,
       "caps_emphasis": true,
@@ -30,15 +40,25 @@
   },
   "genome": {
     "primary_strategy": "role_hijack",
-    "persona_archetype": "do_anything",
-    "framing_type": "authority_directive",
-    "override_mechanism": "ignore_previous",
+    "persona_archetype": [
+      "do_anything",
+      "fictional_character"
+    ],
+    "framing_type": [
+      "authority_directive"
+    ],
+    "override_mechanism": [
+      "ignore_previous",
+      "policy_nullification"
+    ],
     "refusal_suppression": true,
     "stay_in_character": true,
     "confirmation_handshake": true,
-    "response_format": "dual_tagged",
+    "response_format": [
+      "dual_tagged"
+    ],
     "input_delivery": "command_trigger",
-    "encoding_method": "none",
+    "encoding_method": [],
     "formatting_style": "tagged_delimiters",
     "token_system": true,
     "caps_emphasis": true,
@@ -46,34 +66,39 @@
     "prefix_injection": false,
     "length_class": "long"
   },
-  "vector": [
-    "role_hijack",
-    "do_anything",
-    "authority_directive",
-    "ignore_previous",
-    true,
-    true,
-    true,
-    "dual_tagged",
-    "command_trigger",
-    "none",
-    "tagged_delimiters",
-    true,
-    true,
-    true,
-    false,
-    "long"
-  ],
   "vector_indices": [
     0,
     1,
-    5,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
     1,
     1,
     1,
     1,
-    1,
+    0,
+    0,
     2,
+    0,
+    0,
+    0,
+    0,
     0,
     2,
     1,

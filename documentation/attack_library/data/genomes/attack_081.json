@@ -5,21 +5,27 @@
   "source_url": "https://github.com/verazuo/jailbreak_llms",
   "provenance": "collected",
   "char_length": 1818,
-  "schema_version": 1,
+  "schema_version": 2,
   "channels": {
     "semantic": {
       "primary_strategy": "role_hijack",
-      "persona_archetype": "amoral_advisor",
-      "framing_type": "none",
-      "override_mechanism": "replace_rules",
+      "persona_archetype": [
+        "amoral_advisor"
+      ],
+      "framing_type": [],
+      "override_mechanism": [
+        "replace_rules"
+      ],
       "refusal_suppression": true,
       "stay_in_character": true,
       "confirmation_handshake": false,
-      "response_format": "persona_prefixed",
+      "response_format": [
+        "persona_prefixed"
+      ],
       "input_delivery": "inline"
     },
     "perturbation": {
-      "encoding_method": "none",
+      "encoding_method": [],
       "formatting_style": "plain",
       "token_system": false,
       "caps_emphasis": false,
@@ -30,15 +36,21 @@
   },
   "genome": {
     "primary_strategy": "role_hijack",
-    "persona_archetype": "amoral_advisor",
-    "framing_type": "none",
-    "override_mechanism": "replace_rules",
+    "persona_archetype": [
+      "amoral_advisor"
+    ],
+    "framing_type": [],
+    "override_mechanism": [
+      "replace_rules"
+    ],
     "refusal_suppression": true,
     "stay_in_character": true,
     "confirmation_handshake": false,
-    "response_format": "persona_prefixed",
+    "response_format": [
+      "persona_prefixed"
+    ],
     "input_delivery": "inline",
-    "encoding_method": "none",
+    "encoding_method": [],
     "formatting_style": "plain",
     "token_system": false,
     "caps_emphasis": false,
@@ -46,33 +58,38 @@
     "prefix_injection": true,
     "length_class": "medium"
   },
-  "vector": [
-    "role_hijack",
-    "amoral_advisor",
-    "none",
-    "replace_rules",
-    true,
-    true,
-    false,
-    "persona_prefixed",
-    "inline",
-    "none",
-    "plain",
-    false,
-    false,
-    false,
-    true,
-    "medium"
-  ],
   "vector_indices": [
     0,
-    2,
     0,
-    2,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
     1,
     1,
     0,
-    2,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
     0,
     0,
     0,

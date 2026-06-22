@@ -5,21 +5,27 @@
   "source_url": "https://github.com/verazuo/jailbreak_llms",
   "provenance": "collected",
   "char_length": 3010,
-  "schema_version": 1,
+  "schema_version": 2,
   "channels": {
     "semantic": {
       "primary_strategy": "hypothetical_framing",
-      "persona_archetype": "none",
-      "framing_type": "roleplay",
-      "override_mechanism": "persona_supremacy",
+      "persona_archetype": [],
+      "framing_type": [
+        "roleplay"
+      ],
+      "override_mechanism": [
+        "persona_supremacy"
+      ],
       "refusal_suppression": false,
       "stay_in_character": false,
       "confirmation_handshake": false,
-      "response_format": "structured_template",
+      "response_format": [
+        "structured_template"
+      ],
       "input_delivery": "inline"
     },
     "perturbation": {
-      "encoding_method": "none",
+      "encoding_method": [],
       "formatting_style": "plain",
       "token_system": false,
       "caps_emphasis": true,
@@ -30,15 +36,21 @@
   },
   "genome": {
     "primary_strategy": "hypothetical_framing",
-    "persona_archetype": "none",
-    "framing_type": "roleplay",
-    "override_mechanism": "persona_supremacy",
+    "persona_archetype": [],
+    "framing_type": [
+      "roleplay"
+    ],
+    "override_mechanism": [
+      "persona_supremacy"
+    ],
     "refusal_suppression": false,
     "stay_in_character": false,
     "confirmation_handshake": false,
-    "response_format": "structured_template",
+    "response_format": [
+      "structured_template"
+    ],
     "input_delivery": "inline",
-    "encoding_method": "none",
+    "encoding_method": [],
     "formatting_style": "plain",
     "token_system": false,
     "caps_emphasis": true,
@@ -46,33 +58,38 @@
     "prefix_injection": false,
     "length_class": "long"
   },
-  "vector": [
-    "hypothetical_framing",
-    "none",
-    "roleplay",
-    "persona_supremacy",
-    false,
-    false,
-    false,
-    "structured_template",
-    "inline",
-    "none",
-    "plain",
-    false,
-    true,
-    false,
-    false,
-    "long"
-  ],
   "vector_indices": [
     1,
     0,
-    3,
-    4,
     0,
     0,
     0,
-    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
     0,
     0,
     0,

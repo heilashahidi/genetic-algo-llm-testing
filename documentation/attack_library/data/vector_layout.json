@@ -1,0 +1,162 @@
+{
+  "schema_version": 2,
+  "chromosome_length": 39,
+  "slots": [
+    {
+      "gene": "primary_strategy",
+      "allele": null
+    },
+    {
+      "gene": "persona_archetype",
+      "allele": "do_anything"
+    },
+    {
+      "gene": "persona_archetype",
+      "allele": "amoral_advisor"
+    },
+    {
+      "gene": "persona_archetype",
+      "allele": "evil_confidant"
+    },
+    {
+      "gene": "persona_archetype",
+      "allele": "demonic"
+    },
+    {
+      "gene": "persona_archetype",
+      "allele": "developer_mode"
+    },
+    {
+      "gene": "persona_archetype",
+      "allele": "fictional_character"
+    },
+    {
+      "gene": "persona_archetype",
+      "allele": "unrestricted_ai"
+    },
+    {
+      "gene": "persona_archetype",
+      "allele": "opposite_inverter"
+    },
+    {
+      "gene": "persona_archetype",
+      "allele": "expert_specialist"
+    },
+    {
+      "gene": "framing_type",
+      "allele": "hypothetical_world"
+    },
+    {
+      "gene": "framing_type",
+      "allele": "fiction_story"
+    },
+    {
+      "gene": "framing_type",
+      "allele": "roleplay"
+    },
+    {
+      "gene": "framing_type",
+      "allele": "research_benchmark"
+    },
+    {
+      "gene": "framing_type",
+      "allele": "authority_directive"
+    },
+    {
+      "gene": "framing_type",
+      "allele": "maintenance_mode"
+    },
+    {
+      "gene": "framing_type",
+      "allele": "game"
+    },
+    {
+      "gene": "override_mechanism",
+      "allele": "ignore_previous"
+    },
+    {
+      "gene": "override_mechanism",
+      "allele": "replace_rules"
+    },
+    {
+      "gene": "override_mechanism",
+      "allele": "policy_nullification"
+    },
+    {
+      "gene": "override_mechanism",
+      "allele": "persona_supremacy"
+    },
+    {
+      "gene": "refusal_suppression",
+      "allele": null
+    },
+    {
+      "gene": "stay_in_character",
+      "allele": null
+    },
+    {
+      "gene": "confirmation_handshake",
+      "allele": null
+    },
+    {
+      "gene": "response_format",
+      "allele": "dual_tagged"
+    },
+    {
+      "gene": "response_format",
+      "allele": "persona_prefixed"
+    },
+    {
+      "gene": "response_format",
+      "allele": "structured_template"
+    },
+    {
+      "gene": "input_delivery",
+      "allele": null
+    },
+    {
+      "gene": "encoding_method",
+      "allele": "base64"
+    },
+    {
+      "gene": "encoding_method",
+      "allele": "rot13"
+    },
+    {
+      "gene": "encoding_method",
+      "allele": "leetspeak"
+    },
+    {
+      "gene": "encoding_method",
+      "allele": "unicode_substitution"
+    },
+    {
+      "gene": "encoding_method",
+      "allele": "translation"
+    },
+    {
+      "gene": "formatting_style",
+      "allele": null
+    },
+    {
+      "gene": "token_system",
+      "allele": null
+    },
+    {
+      "gene": "caps_emphasis",
+      "allele": null
+    },
+    {
+      "gene": "emoji_markers",
+      "allele": null
+    },
+    {
+      "gene": "prefix_injection",
+      "allele": null
+    },
+    {
+      "gene": "length_class",
+      "allele": null
+    }
+  ]
+}

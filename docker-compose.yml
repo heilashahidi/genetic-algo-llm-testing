@@ -1,0 +1,40 @@
+services:
+  ga:
+    build: .
+    volumes:
+      - ./experiments:/app/experiments
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ga-dry-run:
+    extends:
+      service: ga
+    command:
+      - "--dry-run"
+      - "--generations"
+      - "3"
+      - "--population"
+      - "20"
+      - "--experiment-id"
+      - "docker_dry_run"
+
+  ga-ollama:
+    extends:
+      service: ga
+    command:
+      - "--config"
+      - "experiments/configs/docker-ollama.json"
+
+  ga-lmstudio:
+    extends:
+      service: ga
+    command:
+      - "--config"
+      - "experiments/configs/docker-lmstudio.json"
+
+  test:
+    build: .
+    entrypoint: ["pytest"]
+    command: ["tests/ga/", "-q"]
+    volumes:
+      - ./experiments:/app/experiments

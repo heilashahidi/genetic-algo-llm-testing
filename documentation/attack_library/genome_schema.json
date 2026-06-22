@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "description": "Discrete, fixed-length genome for adversarial prompt strategies. Each gene is categorical or boolean with an enumerated allele set, so a genome is an integer vector suitable for genetic-algorithm crossover and mutation. Genes are split into a semantic channel (high-level strategy) and a perturbation channel (surface transformations).",
+  "version": 2,
+  "description": "Discrete, fixed-length genome for adversarial prompt strategies. Each gene is categorical, multi_categorical, or boolean with an enumerated allele set. Multi-valued genes store an ordered list of selected alleles (empty list = default). The GA chromosome is a flat multi-hot vector (see vector_layout.json). Genes are split into a semantic channel (high-level strategy) and a perturbation channel (surface transformations).",
   "length_class_thresholds": {
     "short_max_chars": 1000,
     "medium_max_chars": 3000
@@ -26,11 +26,11 @@
     {
       "name": "persona_archetype",
       "channel": "semantic",
-      "type": "categorical",
-      "default": "none",
-      "description": "Type of identity the model is told to adopt. The literal persona name is kept in attack metadata, not as a gene.",
+      "type": "multi_categorical",
+      "default": [],
+      "empty_alias": "none",
+      "description": "Type(s) of identity the model is told to adopt. The literal persona name is kept in attack metadata, not as a gene.",
       "alleles": [
-        "none",
         "do_anything",
         "amoral_advisor",
         "evil_confidant",
@@ -45,11 +45,11 @@
     {
       "name": "framing_type",
       "channel": "semantic",
-      "type": "categorical",
-      "default": "none",
-      "description": "Narrative or contextual frame the request is wrapped in.",
+      "type": "multi_categorical",
+      "default": [],
+      "empty_alias": "none",
+      "description": "Narrative or contextual frame(s) the request is wrapped in.",
       "alleles": [
-        "none",
         "hypothetical_world",
         "fiction_story",
         "roleplay",
@@ -62,11 +62,11 @@
     {
       "name": "override_mechanism",
       "channel": "semantic",
-      "type": "categorical",
-      "default": "none",
+      "type": "multi_categorical",
+      "default": [],
+      "empty_alias": "none",
       "description": "How the prompt attempts to displace prior instructions or safety policy.",
       "alleles": [
-        "none",
         "ignore_previous",
         "replace_rules",
         "policy_nullification",
@@ -97,11 +97,11 @@
     {
       "name": "response_format",
       "channel": "semantic",
-      "type": "categorical",
-      "default": "single",
-      "description": "Structural shape demanded of the model's replies.",
+      "type": "multi_categorical",
+      "default": [],
+      "empty_alias": "single",
+      "description": "Structural shape(s) demanded of the model's replies.",
       "alleles": [
-        "single",
         "dual_tagged",
         "persona_prefixed",
         "structured_template"
@@ -123,11 +123,11 @@
     {
       "name": "encoding_method",
       "channel": "perturbation",
-      "type": "categorical",
-      "default": "none",
-      "description": "Obfuscation transform applied so intent survives but is masked.",
+      "type": "multi_categorical",
+      "default": [],
+      "empty_alias": "none",
+      "description": "Obfuscation transform(s) applied so intent survives but is masked.",
       "alleles": [
-        "none",
         "base64",
         "rot13",
         "leetspeak",

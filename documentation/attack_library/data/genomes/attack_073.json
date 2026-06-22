@@ -5,21 +5,30 @@
   "source_url": "https://github.com/verazuo/jailbreak_llms",
   "provenance": "collected",
   "char_length": 4468,
-  "schema_version": 1,
+  "schema_version": 2,
   "channels": {
     "semantic": {
       "primary_strategy": "role_hijack",
-      "persona_archetype": "do_anything",
-      "framing_type": "authority_directive",
-      "override_mechanism": "ignore_previous",
+      "persona_archetype": [
+        "do_anything",
+        "fictional_character"
+      ],
+      "framing_type": [
+        "authority_directive"
+      ],
+      "override_mechanism": [
+        "ignore_previous"
+      ],
       "refusal_suppression": true,
       "stay_in_character": false,
       "confirmation_handshake": true,
-      "response_format": "dual_tagged",
+      "response_format": [
+        "dual_tagged"
+      ],
       "input_delivery": "command_trigger"
     },
     "perturbation": {
-      "encoding_method": "none",
+      "encoding_method": [],
       "formatting_style": "tagged_delimiters",
       "token_system": false,
       "caps_emphasis": true,
@@ -30,15 +39,24 @@
   },
   "genome": {
     "primary_strategy": "role_hijack",
-    "persona_archetype": "do_anything",
-    "framing_type": "authority_directive",
-    "override_mechanism": "ignore_previous",
+    "persona_archetype": [
+      "do_anything",
+      "fictional_character"
+    ],
+    "framing_type": [
+      "authority_directive"
+    ],
+    "override_mechanism": [
+      "ignore_previous"
+    ],
     "refusal_suppression": true,
     "stay_in_character": false,
     "confirmation_handshake": true,
-    "response_format": "dual_tagged",
+    "response_format": [
+      "dual_tagged"
+    ],
     "input_delivery": "command_trigger",
-    "encoding_method": "none",
+    "encoding_method": [],
     "formatting_style": "tagged_delimiters",
     "token_system": false,
     "caps_emphasis": true,
@@ -46,34 +64,39 @@
     "prefix_injection": false,
     "length_class": "long"
   },
-  "vector": [
-    "role_hijack",
-    "do_anything",
-    "authority_directive",
-    "ignore_previous",
-    true,
-    false,
-    true,
-    "dual_tagged",
-    "command_trigger",
-    "none",
-    "tagged_delimiters",
-    false,
-    true,
-    true,
-    false,
-    "long"
-  ],
   "vector_indices": [
     0,
     1,
-    5,
+    0,
+    0,
+    0,
+    0,
     1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
     1,
     0,
     1,
     1,
+    0,
+    0,
     2,
+    0,
+    0,
+    0,
+    0,
     0,
     2,
     0,

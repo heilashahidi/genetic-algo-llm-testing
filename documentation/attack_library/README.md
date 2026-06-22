@@ -27,6 +27,7 @@ attack_library/
   data/
     genomes/         # one encoded genome per attack (attack_NNN.json)
     genomes.jsonl    # all genomes, one per line (GA-ingestion friendly)
+    vector_layout.json     # flat 39-slot chromosome layout for GA operators
     gene_frequency.csv     # per-gene allele coverage
     phenotypes/            # prompt rendered back from each genome (attack_NNN.md)
     phenotype_comparison.csv  # per-attack round-trip gene fidelity
@@ -74,13 +75,13 @@ python3 documentation/attack_library/scripts/encode_genomes.py
 python3 documentation/attack_library/scripts/test_encoding_fidelity.py
 ```
 
-The collector downloads source data, deduplicates near-identical prompts, stratifies samples across families, and writes attack files plus `manifest.csv`. The encoder maps each attack to a discrete 16-gene genome per [genome_schema.json](genome_schema.json). See [genome_schema.md](genome_schema.md) for the design.
+The collector downloads source data, deduplicates near-identical prompts, stratifies samples across families, and writes attack files plus `manifest.csv`. The encoder maps each attack to a discrete 16-gene genome (schema v2, five multi-valued genes) per [genome_schema.json](genome_schema.json). See [genome_schema.md](genome_schema.md) for the design.
 
 ## Validating the encoding (phenotype round-trip)
 
 `render_genome.py` is the inverse of the encoder: it turns a genome (genotype) back into a prompt (phenotype) by emitting, for each gene allele, the marker the encoder's detectors recognise. Because the genome is a lossy abstraction (it stores strategy and structure, not verbatim wording), a phenotype is a *same-class* attack, not a character-identical copy.
 
-`test_encoding_fidelity.py` validates the encoding by round-tripping every attack: render a phenotype from its genome, re-encode that phenotype, and compare the recovered genome to the original gene by gene. Current result: **all 16 genes match for all 121 attacks (100% gene fidelity)**, confirming the genome is a faithful, self-consistent code that fully captures each attack's recognised traits. Rendered prompts are written to `data/phenotypes/` for inspection.
+`test_encoding_fidelity.py` validates the encoding by round-tripping every attack: render a phenotype from its genome, re-encode that phenotype, and compare the recovered genome to the original gene by gene (multi genes compared as sets). Current result: **all 16 genes match for all 121 attacks (100% gene fidelity)**. The GA chromosome is a flat 39-slot `vector_indices` vector documented in `data/vector_layout.json`. Rendered prompts are written to `data/phenotypes/` for inspection.
 
 ## Usage
 

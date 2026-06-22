@@ -5,21 +5,34 @@
   "source_url": "https://github.com/verazuo/jailbreak_llms",
   "provenance": "collected",
   "char_length": 3941,
-  "schema_version": 1,
+  "schema_version": 2,
   "channels": {
     "semantic": {
       "primary_strategy": "role_hijack",
-      "persona_archetype": "developer_mode",
-      "framing_type": "maintenance_mode",
-      "override_mechanism": "ignore_previous",
+      "persona_archetype": [
+        "developer_mode",
+        "fictional_character"
+      ],
+      "framing_type": [
+        "roleplay",
+        "research_benchmark",
+        "maintenance_mode"
+      ],
+      "override_mechanism": [
+        "ignore_previous",
+        "replace_rules",
+        "policy_nullification"
+      ],
       "refusal_suppression": true,
       "stay_in_character": true,
       "confirmation_handshake": true,
-      "response_format": "dual_tagged",
+      "response_format": [
+        "dual_tagged"
+      ],
       "input_delivery": "inline"
     },
     "perturbation": {
-      "encoding_method": "none",
+      "encoding_method": [],
       "formatting_style": "tagged_delimiters",
       "token_system": false,
       "caps_emphasis": false,
@@ -30,15 +43,28 @@
   },
   "genome": {
     "primary_strategy": "role_hijack",
-    "persona_archetype": "developer_mode",
-    "framing_type": "maintenance_mode",
-    "override_mechanism": "ignore_previous",
+    "persona_archetype": [
+      "developer_mode",
+      "fictional_character"
+    ],
+    "framing_type": [
+      "roleplay",
+      "research_benchmark",
+      "maintenance_mode"
+    ],
+    "override_mechanism": [
+      "ignore_previous",
+      "replace_rules",
+      "policy_nullification"
+    ],
     "refusal_suppression": true,
     "stay_in_character": true,
     "confirmation_handshake": true,
-    "response_format": "dual_tagged",
+    "response_format": [
+      "dual_tagged"
+    ],
     "input_delivery": "inline",
-    "encoding_method": "none",
+    "encoding_method": [],
     "formatting_style": "tagged_delimiters",
     "token_system": false,
     "caps_emphasis": false,
@@ -46,33 +72,38 @@
     "prefix_injection": false,
     "length_class": "long"
   },
-  "vector": [
-    "role_hijack",
-    "developer_mode",
-    "maintenance_mode",
-    "ignore_previous",
-    true,
-    true,
-    true,
-    "dual_tagged",
-    "inline",
-    "none",
-    "tagged_delimiters",
-    false,
-    false,
-    true,
-    false,
-    "long"
-  ],
   "vector_indices": [
     0,
-    5,
-    6,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    1,
+    0,
+    1,
+    1,
+    1,
+    0,
     1,
     1,
     1,
     1,
-    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     0,
     0,
     2,

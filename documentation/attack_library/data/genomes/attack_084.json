@@ -5,21 +5,27 @@
   "source_url": "https://github.com/verazuo/jailbreak_llms",
   "provenance": "collected",
   "char_length": 2580,
-  "schema_version": 1,
+  "schema_version": 2,
   "channels": {
     "semantic": {
       "primary_strategy": "role_hijack",
-      "persona_archetype": "fictional_character",
-      "framing_type": "roleplay",
-      "override_mechanism": "policy_nullification",
+      "persona_archetype": [
+        "fictional_character"
+      ],
+      "framing_type": [
+        "roleplay"
+      ],
+      "override_mechanism": [
+        "policy_nullification"
+      ],
       "refusal_suppression": true,
       "stay_in_character": true,
       "confirmation_handshake": false,
-      "response_format": "single",
+      "response_format": [],
       "input_delivery": "inline"
     },
     "perturbation": {
-      "encoding_method": "none",
+      "encoding_method": [],
       "formatting_style": "tagged_delimiters",
       "token_system": false,
       "caps_emphasis": false,
@@ -30,15 +36,21 @@
   },
   "genome": {
     "primary_strategy": "role_hijack",
-    "persona_archetype": "fictional_character",
-    "framing_type": "roleplay",
-    "override_mechanism": "policy_nullification",
+    "persona_archetype": [
+      "fictional_character"
+    ],
+    "framing_type": [
+      "roleplay"
+    ],
+    "override_mechanism": [
+      "policy_nullification"
+    ],
     "refusal_suppression": true,
     "stay_in_character": true,
     "confirmation_handshake": false,
-    "response_format": "single",
+    "response_format": [],
     "input_delivery": "inline",
-    "encoding_method": "none",
+    "encoding_method": [],
     "formatting_style": "tagged_delimiters",
     "token_system": false,
     "caps_emphasis": false,
@@ -46,31 +58,36 @@
     "prefix_injection": false,
     "length_class": "medium"
   },
-  "vector": [
-    "role_hijack",
-    "fictional_character",
-    "roleplay",
-    "policy_nullification",
-    true,
-    true,
-    false,
-    "single",
-    "inline",
-    "none",
-    "tagged_delimiters",
-    false,
-    false,
-    false,
-    false,
-    "medium"
-  ],
   "vector_indices": [
     0,
-    6,
-    3,
-    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
     1,
     1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     0,
     0,
     0,

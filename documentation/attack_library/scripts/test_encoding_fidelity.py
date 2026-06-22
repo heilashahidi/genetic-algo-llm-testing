@@ -34,7 +34,7 @@ def load_records() -> list[dict]:
     return [json.loads(line) for line in GENOMES_JSONL.open(encoding="utf-8")]
 
 
-def reencode(record: dict, phenotype: str, thresholds: dict) -> dict:
+def reencode(record: dict, phenotype: str, thresholds: dict, schema: dict) -> dict:
     attack = Attack(
         attack_id=record["id"],
         family=record["family"],
@@ -42,20 +42,33 @@ def reencode(record: dict, phenotype: str, thresholds: dict) -> dict:
         source_url=record["source_url"],
         prompt=phenotype,
     )
-    return encode_genome(attack, thresholds)
+    return encode_genome(attack, thresholds, schema)
 
 
-def compare(original: dict, recovered: dict, gene_names: list[str]) -> list[str]:
-    return [name for name in gene_names if original[name] != recovered[name]]
+def genes_match(gene: dict, original: object, recovered: object) -> bool:
+    if gene["type"] == "multi_categorical":
+        return set(original) == set(recovered)
+    return original == recovered
+
+
+def compare(original: dict, recovered: dict, schema: dict) -> list[str]:
+    mismatches: list[str] = []
+    for gene in schema["genes"]:
+        name = gene["name"]
+        if not genes_match(gene, original[name], recovered[name]):
+            mismatches.append(name)
+    return mismatches
 
 
 def write_phenotype(record: dict, phenotype: str) -> None:
     path = PHENOTYPES_DIR / f"{record['id']}.md"
+    persona = record["genome"]["persona_archetype"]
+    persona_display = ", ".join(persona) if persona else "none"
     content = (
         f"# {record['id']} phenotype (rendered from genome)\n\n"
         f"- family: {record['family']}\n"
         f"- primary_strategy: {record['genome']['primary_strategy']}\n"
-        f"- persona_archetype: {record['genome']['persona_archetype']}\n\n"
+        f"- persona_archetype: {persona_display}\n\n"
         "---\n\n"
         f"{phenotype}\n"
     )
@@ -84,8 +97,8 @@ def main() -> None:
     for record in records:
         phenotype = render(record["genome"], thresholds)
         write_phenotype(record, phenotype)
-        recovered = reencode(record, phenotype, thresholds)
-        mismatches = compare(record["genome"], recovered, gene_names)
+        recovered = reencode(record, phenotype, thresholds, schema)
+        mismatches = compare(record["genome"], recovered, schema)
         matched = len(gene_names) - len(mismatches)
         total_matched += matched
         perfect += 1 if not mismatches else 0

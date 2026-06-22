@@ -5,21 +5,27 @@
   "source_url": "https://github.com/verazuo/jailbreak_llms",
   "provenance": "collected",
   "char_length": 432,
-  "schema_version": 1,
+  "schema_version": 2,
   "channels": {
     "semantic": {
       "primary_strategy": "role_hijack",
-      "persona_archetype": "developer_mode",
-      "framing_type": "maintenance_mode",
-      "override_mechanism": "none",
+      "persona_archetype": [
+        "developer_mode"
+      ],
+      "framing_type": [
+        "maintenance_mode"
+      ],
+      "override_mechanism": [],
       "refusal_suppression": false,
       "stay_in_character": true,
       "confirmation_handshake": true,
-      "response_format": "dual_tagged",
+      "response_format": [
+        "dual_tagged"
+      ],
       "input_delivery": "inline"
     },
     "perturbation": {
-      "encoding_method": "none",
+      "encoding_method": [],
       "formatting_style": "plain",
       "token_system": false,
       "caps_emphasis": false,
@@ -30,15 +36,21 @@
   },
   "genome": {
     "primary_strategy": "role_hijack",
-    "persona_archetype": "developer_mode",
-    "framing_type": "maintenance_mode",
-    "override_mechanism": "none",
+    "persona_archetype": [
+      "developer_mode"
+    ],
+    "framing_type": [
+      "maintenance_mode"
+    ],
+    "override_mechanism": [],
     "refusal_suppression": false,
     "stay_in_character": true,
     "confirmation_handshake": true,
-    "response_format": "dual_tagged",
+    "response_format": [
+      "dual_tagged"
+    ],
     "input_delivery": "inline",
-    "encoding_method": "none",
+    "encoding_method": [],
     "formatting_style": "plain",
     "token_system": false,
     "caps_emphasis": false,
@@ -46,33 +58,38 @@
     "prefix_injection": false,
     "length_class": "short"
   },
-  "vector": [
-    "role_hijack",
-    "developer_mode",
-    "maintenance_mode",
-    "none",
-    false,
-    true,
-    true,
-    "dual_tagged",
-    "inline",
-    "none",
-    "plain",
-    false,
-    false,
-    false,
-    false,
-    "short"
-  ],
   "vector_indices": [
     0,
-    5,
-    6,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
     0,
     0,
     1,
     1,
     1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     0,
     0,
     0,

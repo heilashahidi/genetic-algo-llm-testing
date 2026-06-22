@@ -5,21 +5,30 @@
   "source_url": "https://github.com/verazuo/jailbreak_llms",
   "provenance": "collected",
   "char_length": 3335,
-  "schema_version": 1,
+  "schema_version": 2,
   "channels": {
     "semantic": {
       "primary_strategy": "role_hijack",
-      "persona_archetype": "amoral_advisor",
-      "framing_type": "hypothetical_world",
-      "override_mechanism": "ignore_previous",
+      "persona_archetype": [
+        "amoral_advisor",
+        "fictional_character",
+        "expert_specialist"
+      ],
+      "framing_type": [
+        "hypothetical_world",
+        "fiction_story"
+      ],
+      "override_mechanism": [
+        "ignore_previous"
+      ],
       "refusal_suppression": true,
       "stay_in_character": false,
       "confirmation_handshake": false,
-      "response_format": "single",
+      "response_format": [],
       "input_delivery": "inline"
     },
     "perturbation": {
-      "encoding_method": "none",
+      "encoding_method": [],
       "formatting_style": "plain",
       "token_system": true,
       "caps_emphasis": true,
@@ -30,15 +39,24 @@
   },
   "genome": {
     "primary_strategy": "role_hijack",
-    "persona_archetype": "amoral_advisor",
-    "framing_type": "hypothetical_world",
-    "override_mechanism": "ignore_previous",
+    "persona_archetype": [
+      "amoral_advisor",
+      "fictional_character",
+      "expert_specialist"
+    ],
+    "framing_type": [
+      "hypothetical_world",
+      "fiction_story"
+    ],
+    "override_mechanism": [
+      "ignore_previous"
+    ],
     "refusal_suppression": true,
     "stay_in_character": false,
     "confirmation_handshake": false,
-    "response_format": "single",
+    "response_format": [],
     "input_delivery": "inline",
-    "encoding_method": "none",
+    "encoding_method": [],
     "formatting_style": "plain",
     "token_system": true,
     "caps_emphasis": true,
@@ -46,30 +64,35 @@
     "prefix_injection": false,
     "length_class": "long"
   },
-  "vector": [
-    "role_hijack",
-    "amoral_advisor",
-    "hypothetical_world",
-    "ignore_previous",
-    true,
-    false,
-    false,
-    "single",
-    "inline",
-    "none",
-    "plain",
-    true,
-    true,
-    false,
-    false,
-    "long"
-  ],
   "vector_indices": [
     0,
-    2,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
     1,
     1,
     1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
     0,
     0,
     0,

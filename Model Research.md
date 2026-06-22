@@ -20,15 +20,15 @@ Pick small (1B–9B) open-weight **instruct/chat** models that (a) follow a syst
 
 ### Generational ladder (v2 — "does GA find version-specific holes?")
 
-A v2 experiment, not part of the v1 model set: it answers a secondary research question and is downstream of the v1 loop working. v1's strong target (Llama-3.3-8B) becomes the newest rung, so building the ladder in v2 adds only the two older rungs.
+A v2 experiment, not part of the v1 model set: it answers a secondary research question and is downstream of the v1 loop working. v1's strong target (Llama-3.1-8B) becomes the newest rung, so building the ladder in v2 adds only the two older rungs.
 
 | Model | Size | Safety posture | Role |
 |---|---|---|---|
-| Llama-2-7B-chat | 7B | Older, *over-refuses* but with well-documented bypasses | Oldest rung |
-| Llama-3.1-8B-Instruct | 8B | Strong; HarmBench median ASR ≈ 4% | Middle rung |
-| Llama-3.3-8B-Instruct | 8B | Current small-model safety default, largest fine-tune ecosystem | **Newest rung** (= v1's strong target) |
+| Llama-2-7B-chat | 7B | Well-aligned but *over-refuses* benign prompts (~19% at 7B); resilient to jailbreaks without adaptive attacks | Oldest rung |
+| Llama-3-8B-Instruct | 8B | Stronger alignment than Llama-2 | Middle rung |
+| Llama-3.1-8B-Instruct | 8B | Strongest open **8B** Llama; this is the v1 strong target | **Newest rung** (= v1's strong target) |
 
-The newest rung must be genuinely current for the "weaknesses newer alignment closed" axis to hold, so it is **Llama-3.3-8B-Instruct** — the current safest small model thanks to its fine-tune ecosystem. ([SLMs under 10B, 2026](https://www.labellerr.com/blog/best-small-language-models-under-10b-parameters/)) Llama-3 (2024) is omitted to keep the ladder at three rungs.
+The newest rung is **Llama-3.1-8B-Instruct** — the strongest open-weight Llama *at 8B*. Note: **Llama 3.3 ships only as a 70B model — there is no 3.3-8B SKU** ([Meta model card](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct), verified 3-0), so the small-model ladder tops out at 3.1-8B. Llama-3.2 adds only 1B/3B at this tier, so Llama-3-8B fills the middle rung. ([Llama-3.1-8B card](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct))
 
 Llama is the right family for this axis: consistent chat template across generations, the largest fine-tune/red-team literature to compare against, and a clear alignment-improved-over-time story. ([open-weight overview](https://huggingface.co/blog/daya-shankar/open-source-llm-models-to-run-locally))
 
@@ -43,7 +43,7 @@ Ordered by **measured HarmBench attack-success-rate (ASR)**, median across attac
 | Mistral-7B/8B-Instruct | 7–8B | **26% / >90%** — weakest | Deliberate "easy" target to bring up the pipeline — GA finds successes fast, proving the loop before we point it at hard models |
 | Qwen2.5-7B-Instruct | 7B | **10% / >60%** — moderate | Transfer target — different lineage than Llama |
 | Gemma-2-9B-it | 9B | **4% / 35%** — strong | Hard target; tests whether GA wins survive a tough model ([Phi-3.5/Gemma context](https://www.bentoml.com/blog/the-best-open-source-small-language-models)) |
-| Llama-3.1-8B-Instruct | 8B | **4% / 40%** — strong | Strong target; honest "GA vs random" test (v2 ladder middle rung) |
+| Llama-3.1-8B-Instruct | 8B | **4% / 40%** — strong | Strong target; honest "GA vs random" test (v2 ladder newest rung) |
 | Llama-3.2-3B-Instruct | 3B | **2% / 14%** — strongest small | Hardest + fastest; speed tier and toughest stress test |
 
 The median/max gap matters for *us specifically*: a model like Mistral with 26% median but >90% max means the soft target is easy on average but the **ceiling is high everywhere** — every model has a >35% reachable max, so there is real headroom for the GA to climb even on the hard targets. That headroom is precisely what the GA is searching for.
@@ -55,7 +55,7 @@ Optional speed tier for cheap iteration / edge demo: **Llama-3.2-3B-Instruct** (
 v1 optimizes for **fast iteration, exact scoring, and interpretable ablations** over model size or count, on the synthetic-policy track (secret/phrase leakage; real safety-refusal testing is v2). It is the thinnest set that proves the core thesis — *GA beats random search, and the genome makes wins interpretable* — which needs a soft target to validate the loop, one strong aligned target for the comparison, and one cross-family target for transfer.
 
 - **Model A (pipeline bring-up): Mistral-7B-Instruct-v0.2** — soft, fast-signal target to validate the GA loop (fitness, mutation, crossover, lineage). Pin v0.2 specifically — the "weakly aligned" premise is version-specific.
-- **Model B (headline comparator): Llama-3.3-8B-Instruct** (or **Llama-3.1-8B-Instruct** if the 3.3-8B SKU isn't confirmed) — the primary GA-vs-random result on a strong, current aligned target, and the future ladder's newest rung.
+- **Model B (headline comparator): Llama-3.1-8B-Instruct** — the primary GA-vs-random result on a strong aligned target, and the future ladder's newest rung. (Llama 3.3 has no 8B SKU — it ships 70B-only — so 3.1-8B is the strongest open 8B Llama.)
 - **Model C (cross-family transferability): Qwen2.5-7B-Instruct** — different lineage; tests whether winning genomes generalize beyond Llama.
 
 ### Scope guardrails
@@ -64,7 +64,7 @@ v1 optimizes for **fast iteration, exact scoring, and interpretable ablations** 
 - **Recommended for v1:** A + B + C (adds cross-family transfer).
 - **Stretch for v1:** A + B + C + Gemma-2-9B-it (hard-target stress test, only after stable A/B/C runs).
 - **Do not exceed 4 models in v1** (call volume + analysis complexity).
-- **Generational ladder evaluation (Llama-2 → 3.1 → 3.3) is deferred to v2.** It answers a *secondary* research question (version-specific weaknesses) and is strictly downstream of the loop working; keeping it out of v1 avoids two extra model setups, Llama-2's over-refusal/template friction, and dependence on the unconfirmed 3.3-8B SKU.
+- **Generational ladder evaluation (Llama-2 → 3 → 3.1) is deferred to v2.** It answers a *secondary* research question (version-specific weaknesses) and is strictly downstream of the loop working; keeping it out of v1 avoids two extra model setups and Llama-2's over-refusal/template friction.
 
 Tradeoff framing: Mistral (A) can inflate apparent success rates and is a validation model only; Llama (B) carries the headline comparison; Qwen (C) carries cross-family transfer.
 

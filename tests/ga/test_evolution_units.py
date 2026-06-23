@@ -206,3 +206,24 @@ def test_should_stop_respects_stop_on_success():
     assert should_stop(pop, 0, config) is False  # keep evolving
     # max_generations still terminates regardless of the flag
     assert should_stop(pop, 9, config) is True
+
+
+def test_should_stop_respects_min_generations():
+    """A success before min_generations does not stop the run early."""
+    from ga.config import ExperimentConfig
+    from ga.evolution import should_stop
+    from ga.individual import Individual
+
+    config = ExperimentConfig()
+    config.ga.max_generations = 10
+    config.ga.stop_on_success = True
+    config.ga.min_generations = 3
+    pop = [
+        Individual(id="a", generation=0, vector_indices=[], genome={}, origin="seed", fitness=1.0)
+    ]
+
+    # Success at generation 0/1 (fewer than 3 completed) keeps going.
+    assert should_stop(pop, 0, config) is False
+    assert should_stop(pop, 1, config) is False
+    # Once 3 generations are complete (index 2), success halts the run.
+    assert should_stop(pop, 2, config) is True

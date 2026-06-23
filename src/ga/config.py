@@ -57,6 +57,9 @@ class GAConfig:
     crossover_rate: float = 0.85
     mutation_rate: float = 0.15
     max_generations: int = 30
+    # Run at least this many generations before a success is allowed to stop the
+    # run early (only relevant when stop_on_success is True). 0 = no minimum.
+    min_generations: int = 0
     channel_aware_crossover_rate: float = 0.3
     seed_stratified_count: int = 70
     seed_recombinant_count: int = 30

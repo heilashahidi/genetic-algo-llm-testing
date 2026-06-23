@@ -14,6 +14,8 @@ export interface FormFields {
   base_url: string;
   population_size: number;
   max_generations: number;
+  min_generations: number;
+  stop_on_success: boolean;
   mutation_rate: number;
   crossover_rate: number;
   elite_count: number;
@@ -49,6 +51,8 @@ export const DEFAULT_FORM: FormFields = {
   base_url: "http://localhost:11434/v1",
   population_size: 12,
   max_generations: 5,
+  min_generations: 0,
+  stop_on_success: true,
   mutation_rate: 0.15,
   crossover_rate: 0.85,
   elite_count: 5,
@@ -114,6 +118,8 @@ export function buildConfig(fields: FormFields): Record<string, unknown> {
       crossover_rate: fields.crossover_rate,
       mutation_rate: fields.mutation_rate,
       max_generations: fields.max_generations,
+      min_generations: fields.min_generations,
+      stop_on_success: fields.stop_on_success,
     },
     harness: {
       provider: fields.provider,

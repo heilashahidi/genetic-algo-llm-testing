@@ -160,6 +160,8 @@ def should_stop(population: list[Individual], generation: int, config: Experimen
         return True
     if not config.ga.stop_on_success:
         return False
+    if generation + 1 < config.ga.min_generations:
+        return False
     best = max(individual.fitness or 0.0 for individual in population)
     return best >= 1.0
 

@@ -189,6 +189,29 @@ export function NewRunPage() {
           </div>
           <div className="field-row">
             <label className="field">
+              <span>Min generations</span>
+              <input
+                type="number"
+                min={0}
+                value={fields.min_generations}
+                onChange={num("min_generations")}
+              />
+              <small className="field__hint">
+                Run at least this many generations even if a success is found
+                early (0 = no minimum).
+              </small>
+            </label>
+            <label className="field field--checkbox">
+              <input
+                type="checkbox"
+                checked={fields.stop_on_success}
+                onChange={(e) => update("stop_on_success", e.target.checked)}
+              />
+              <span>Stop on first success</span>
+            </label>
+          </div>
+          <div className="field-row">
+            <label className="field">
               <span>Elite count</span>
               <input
                 type="number"

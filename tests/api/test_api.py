@@ -42,6 +42,7 @@ def recorder(monkeypatch):
     )
     monkeypatch.setattr(routes.run_lifecycle, "list_runs", record("list_runs", []))
     monkeypatch.setattr(routes.run_lifecycle, "get_run", record("get_run", None))
+    monkeypatch.setattr(routes.run_lifecycle, "delete_run", record("delete_run", False))
     monkeypatch.setattr(routes.run_lifecycle, "set_control", record("set_control", None))
     monkeypatch.setattr(
         routes.run_lifecycle, "list_generations", record("list_generations", [])
@@ -158,6 +159,33 @@ def test_get_run_404(client, recorder):
     # default get_run returns None -> 404
     resp = client.get("/runs/missing")
     assert resp.status_code == 404
+
+
+# --- delete run -------------------------------------------------------------
+
+
+def test_delete_run_204(client, recorder, fake_conn):
+    recorder["monkeypatch"].setattr(
+        routes.run_lifecycle,
+        "delete_run",
+        recorder["record"]("delete_run", True),
+    )
+    resp = client.delete("/runs/run-456")
+    assert resp.status_code == 204
+    assert resp.content == b""  # 204 carries no body
+
+    args, _ = recorder["calls"]["delete_run"][0]
+    assert args[0] is fake_conn
+    assert args[1] == "run-456"
+
+
+def test_delete_run_404_when_missing(client, recorder):
+    # default delete_run returns False -> 404
+    resp = client.delete("/runs/missing")
+    assert resp.status_code == 404
+    # the lifecycle call was still attempted with the right id
+    args, _ = recorder["calls"]["delete_run"][0]
+    assert args[1] == "missing"
 
 
 # --- control: stop / pause / resume ----------------------------------------

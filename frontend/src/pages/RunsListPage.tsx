@@ -20,6 +20,7 @@ export function RunsListPage() {
   const navigate = useNavigate();
   const [runs, setRuns] = useState<RunRecord[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
     api
@@ -34,6 +35,26 @@ export function RunsListPage() {
   }, []);
 
   usePolling(refresh, 3000, true);
+
+  const handleDelete = useCallback(
+    async (runId: string) => {
+      if (
+        !window.confirm("Delete this run and all its data? This cannot be undone.")
+      ) {
+        return;
+      }
+      setDeleting(runId);
+      try {
+        await api.deleteRun(runId);
+        refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to delete run.");
+      } finally {
+        setDeleting(null);
+      }
+    },
+    [refresh],
+  );
 
   return (
     <section>
@@ -93,6 +114,14 @@ export function RunsListPage() {
                     onChanged={refresh}
                     onError={setError}
                   />
+                  <button
+                    type="button"
+                    className="btn btn--danger"
+                    disabled={deleting === run.id}
+                    onClick={() => handleDelete(run.id)}
+                  >
+                    {deleting === run.id ? "Deleting…" : "Delete"}
+                  </button>
                 </td>
               </tr>
             ))}

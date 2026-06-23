@@ -108,6 +108,12 @@ export const api = {
     });
   },
 
+  async deleteRun(runId: string): Promise<void> {
+    await request<void>(`/runs/${encodeURIComponent(runId)}`, {
+      method: "DELETE",
+    });
+  },
+
   getGenerations(runId: string): Promise<GenerationRecord[]> {
     return request(`/runs/${encodeURIComponent(runId)}/generations`);
   },

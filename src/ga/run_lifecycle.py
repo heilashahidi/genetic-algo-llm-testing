@@ -84,6 +84,12 @@ _LIST_INDIVIDUALS = (
     "FROM individuals WHERE run_id = %(run_id)s "
 )
 
+_DELETE_RUN = "DELETE FROM runs WHERE id = %(run_id)s RETURNING experiment_id"
+_EXPERIMENT_HAS_RUNS = (
+    "SELECT 1 FROM runs WHERE experiment_id = %(experiment_id)s LIMIT 1"
+)
+_DELETE_EXPERIMENT = "DELETE FROM experiments WHERE id = %(experiment_id)s"
+
 _VALID_CONTROL = ("none", "pause", "stop")
 _TERMINAL_STATUS = ("completed", "stopped", "failed")
 
@@ -225,6 +231,27 @@ def list_runs(conn) -> list[dict[str, Any]]:
         cur.execute(_LIST_RUNS)
         rows = cur.fetchall()
     return [_run_record(row) for row in rows]
+
+
+def delete_run(conn, run_id: str) -> bool:
+    """Delete a run and all its data; clean up an orphaned experiment.
+
+    Deleting the run cascades to its generations and individuals (FK
+    ``ON DELETE CASCADE``). The deleted run's ``experiment_id`` is captured via
+    ``RETURNING``; if that experiment has no remaining runs afterwards, the
+    experiment row is deleted too (our flow creates one experiment per run, so
+    this keeps the DB tidy). Returns False if no run matched ``run_id``.
+    """
+    with conn.cursor() as cur:
+        cur.execute(_DELETE_RUN, {"run_id": run_id})
+        row = cur.fetchone()
+        if row is None:
+            return False
+        experiment_id = row[0]
+        cur.execute(_EXPERIMENT_HAS_RUNS, {"experiment_id": experiment_id})
+        if cur.fetchone() is None:
+            cur.execute(_DELETE_EXPERIMENT, {"experiment_id": experiment_id})
+    return True
 
 
 def list_generations(conn, run_id: str) -> list[dict[str, Any]]:

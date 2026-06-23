@@ -47,6 +47,80 @@ def created_experiments(conn):
         conn.commit()
 
 
+def _seed_generation_with_individuals(conn, run_id):
+    """Insert one generation row and two individual rows for a run (test data)."""
+    import uuid
+
+    with conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO generations "
+            "(id, run_id, generation, best_fitness, avg_fitness, success_rate) "
+            "VALUES (%s, %s, 0, 0.5, 0.2, 0.0)",
+            (str(uuid.uuid4()), run_id),
+        )
+        for label in ("ind-a", "ind-b"):
+            cur.execute(
+                "INSERT INTO individuals "
+                "(id, run_id, individual_id, generation, genome, origin) "
+                "VALUES (%s, %s, %s, 0, %s, 'seed')",
+                (str(uuid.uuid4()), run_id, label, "{}"),
+            )
+
+
+def test_delete_run_removes_data_and_orphan_experiment(conn, created_experiments):
+    from ga import run_lifecycle as rl
+
+    config = ExperimentConfig(experiment_id="delete_it").to_dict()
+    experiment_id = rl.create_experiment(conn, "delete_it", config)
+    created_experiments.append(experiment_id)
+    run_id = rl.enqueue_run(conn, experiment_id)
+    _seed_generation_with_individuals(conn, run_id)
+
+    # Sanity: data exists before deletion.
+    assert rl.get_run(conn, run_id) is not None
+    assert len(rl.list_generations(conn, run_id)) == 1
+    assert len(rl.list_individuals(conn, run_id)) == 2
+
+    assert rl.delete_run(conn, run_id) is True
+
+    # Run, generations, and individuals are all gone (cascade).
+    assert rl.get_run(conn, run_id) is None
+    assert rl.list_generations(conn, run_id) == []
+    assert rl.list_individuals(conn, run_id) == []
+
+    # The experiment had no other runs, so it was cleaned up too.
+    with conn.cursor() as cur:
+        cur.execute("SELECT 1 FROM experiments WHERE id = %s", (experiment_id,))
+        assert cur.fetchone() is None
+
+
+def test_delete_run_keeps_experiment_with_other_runs(conn, created_experiments):
+    from ga import run_lifecycle as rl
+
+    config = ExperimentConfig(experiment_id="delete_multi_it").to_dict()
+    experiment_id = rl.create_experiment(conn, "delete_multi_it", config)
+    created_experiments.append(experiment_id)
+    run_one = rl.enqueue_run(conn, experiment_id)
+    run_two = rl.enqueue_run(conn, experiment_id)
+
+    assert rl.delete_run(conn, run_one) is True
+
+    # The deleted run is gone, but the sibling run and experiment remain.
+    assert rl.get_run(conn, run_one) is None
+    assert rl.get_run(conn, run_two) is not None
+    with conn.cursor() as cur:
+        cur.execute("SELECT 1 FROM experiments WHERE id = %s", (experiment_id,))
+        assert cur.fetchone() is not None
+
+
+def test_delete_run_returns_false_for_unknown_id(conn):
+    import uuid
+
+    from ga import run_lifecycle as rl
+
+    assert rl.delete_run(conn, str(uuid.uuid4())) is False
+
+
 def test_lifecycle_round_trip(conn, created_experiments):
     from ga import run_lifecycle as rl
 
@@ -121,6 +195,10 @@ def test_worker_round_trip(conn, created_experiments):
         dry_run=True,
         target_query="Describe the synthetic benchmark setup.",
     )
+    # This test verifies generation progression, not leak detection. Disable
+    # forbidden-output scoring so the mock harness's leak response is not scored
+    # as a success that would early-stop the run at generation 0.
+    config.fitness.forbidden_outputs = []
     config.ga.population_size = 12
     config.ga.elite_count = 2
     config.ga.seed_stratified_count = 8
@@ -169,6 +247,10 @@ def test_worker_stop_finalizes_stopped(conn, created_experiments):
         dry_run=True,
         target_query="Describe the synthetic benchmark setup.",
     )
+    # This test verifies cooperative stop, not leak detection. Disable
+    # forbidden-output scoring so a mock leak doesn't early-stop on success
+    # before the control=stop flag is honored at the generation boundary.
+    config.fitness.forbidden_outputs = []
     config.ga.population_size = 12
     config.ga.elite_count = 2
     config.ga.seed_stratified_count = 8

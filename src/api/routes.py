@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from ga import run_lifecycle
 from ga.config import ExperimentConfig
@@ -86,6 +86,21 @@ def get_run(run_id: str, conn=Depends(get_conn)) -> dict[str, Any]:
             detail=f"run {run_id} not found",
         )
     return run
+
+
+@router.delete(
+    "/runs/{run_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_auth)],
+)
+def delete_run(run_id: str, conn=Depends(get_conn)) -> Response:
+    deleted = run_lifecycle.delete_run(conn, run_id)
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"run {run_id} not found",
+        )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 def _set_control_and_return(

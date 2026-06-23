@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
 import { isTerminal } from "../types";
 import type {
@@ -21,9 +21,11 @@ function formatTime(value: string | null): string {
 
 export function RunDetailPage() {
   const { runId = "" } = useParams();
+  const navigate = useNavigate();
   const [run, setRun] = useState<RunRecord | null>(null);
   const [generations, setGenerations] = useState<GenerationRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [selectedGen, setSelectedGen] = useState<number | null>(null);
   const [userPickedGen, setUserPickedGen] = useState(false);
@@ -87,6 +89,22 @@ export function RunDetailPage() {
   }, [runId]);
 
   usePolling(refresh, 3000, polling);
+
+  const handleDelete = useCallback(async () => {
+    if (
+      !window.confirm("Delete this run and all its data? This cannot be undone.")
+    ) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      await api.deleteRun(runId);
+      navigate("/runs");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete run.");
+      setDeleting(false);
+    }
+  }, [runId, navigate]);
 
   const latestGen = useMemo(
     () =>
@@ -160,12 +178,22 @@ export function RunDetailPage() {
             <h1>
               Run <code>{run.id}</code>
             </h1>
-            <RunControls
-              runId={run.id}
-              status={run.status}
-              onChanged={refresh}
-              onError={setError}
-            />
+            <div className="controls">
+              <RunControls
+                runId={run.id}
+                status={run.status}
+                onChanged={refresh}
+                onError={setError}
+              />
+              <button
+                type="button"
+                className="btn btn--danger"
+                disabled={deleting}
+                onClick={handleDelete}
+              >
+                {deleting ? "Deleting…" : "Delete run"}
+              </button>
+            </div>
           </div>
 
           <div className="meta-grid card">

@@ -605,3 +605,247 @@ legend {
 .scroll-block--short {
   max-height: 140px;
 }
+
+/* Tabs -------------------------------------------------------------------- */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  border: none;
+  background: none;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tab--active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Fitness chip (detail panel + offspring) --------------------------------- */
+.fitness-chip {
+  display: inline-block;
+  min-width: 38px;
+  text-align: center;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.fitness-chip--sm {
+  min-width: 32px;
+  font-size: 0.72rem;
+}
+
+.offspring-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.offspring-list li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.88rem;
+}
+
+/* GA Explorer layout (tree + side panel) ---------------------------------- */
+.ga-explorer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 980px) {
+  .ga-explorer {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    align-items: start;
+  }
+}
+
+.ga-explorer__graph {
+  overflow: hidden;
+}
+
+.ga-explorer__panel {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+.ga-explorer__panel-title {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+
+/* Lineage tree ------------------------------------------------------------ */
+.lineage__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.lineage__zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lineage__scroll {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(90deg, #fbfdff 0 1px, transparent 1px 100%) 0 0 / 150px
+      100%,
+    var(--surface);
+}
+
+.lineage__svg {
+  display: block;
+}
+
+.lineage__col-label {
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--muted);
+}
+
+/* Edges */
+.lineage__edge {
+  stroke: #cbd5e1;
+  stroke-width: 1.5;
+}
+
+.lineage__edge--crossover {
+  stroke: #93c5fd;
+}
+.lineage__edge--mutation {
+  stroke: #fcd34d;
+}
+.lineage__edge--elite {
+  stroke: #86efac;
+}
+.lineage__edge--recombinant {
+  stroke: #5eead4;
+}
+
+.lineage__edge--dim {
+  stroke: #e2e8f0;
+  opacity: 0.4;
+}
+
+/* Nodes */
+.lineage__node {
+  cursor: pointer;
+}
+
+.lineage__node-circle {
+  stroke: #ffffff;
+  stroke-width: 2;
+  transition: stroke 0.1s ease;
+}
+
+.lineage__node:hover .lineage__node-circle {
+  stroke: #0f172a;
+}
+
+.lineage__node-circle--selected {
+  stroke: #0f172a;
+  stroke-width: 3;
+}
+
+.lineage__node-ring {
+  stroke: #f59e0b;
+  stroke-width: 2;
+}
+
+.lineage__node-text {
+  font-size: 10px;
+  font-weight: 700;
+  fill: #ffffff;
+  pointer-events: none;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.lineage__node--dim {
+  opacity: 0.28;
+}
+
+/* Legend */
+.lineage__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 0.82rem;
+}
+
+.lineage__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lineage__legend-title {
+  font-weight: 600;
+}
+
+.lineage__legend-scale {
+  display: inline-flex;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.lineage__legend-swatch {
+  width: 18px;
+  height: 12px;
+  display: inline-block;
+}
+
+.lineage__legend-swatch--gray {
+  border-radius: 3px;
+}
+
+.lineage__legend-ticks {
+  display: inline-flex;
+  gap: 18px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.lineage__legend-ring {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 2px solid #f59e0b;
+  display: inline-block;
+}

@@ -12,6 +12,10 @@ import { StatusBadge } from "../components/StatusBadge";
 import { RunControls } from "../components/RunControls";
 import { FitnessCharts } from "../components/FitnessCharts";
 import { GenomeModal } from "../components/GenomeModal";
+import { LineageTree } from "../components/LineageTree";
+import { IndividualDetail } from "../components/IndividualDetail";
+
+type ViewTab = "tree" | "table";
 
 function formatTime(value: string | null): string {
   if (!value) return "—";
@@ -27,11 +31,21 @@ export function RunDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const [view, setView] = useState<ViewTab>("tree");
+
+  // All individuals across every generation — powers the tree + offspring.
+  const [allIndividuals, setAllIndividuals] = useState<IndividualRecord[]>([]);
+  const [allError, setAllError] = useState<string | null>(null);
+
+  // Single source of truth for which individual is selected (by id).
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Table-view state (per-generation listing).
   const [selectedGen, setSelectedGen] = useState<number | null>(null);
   const [userPickedGen, setUserPickedGen] = useState(false);
   const [individuals, setIndividuals] = useState<IndividualRecord[] | null>(null);
   const [individualsError, setIndividualsError] = useState<string | null>(null);
-  const [selectedIndividual, setSelectedIndividual] =
+  const [modalIndividual, setModalIndividual] =
     useState<IndividualRecord | null>(null);
 
   // Cache of individuals per generation so walking ancestry stays cheap.
@@ -77,15 +91,23 @@ export function RunDetailPage() {
   const polling = run === null || !isTerminal(run.status);
 
   const refresh = useCallback(() => {
-    Promise.all([api.getRun(runId), api.getGenerations(runId)])
-      .then(([runData, genData]) => {
+    Promise.all([
+      api.getRun(runId),
+      api.getGenerations(runId),
+      api.getIndividuals(runId), // ALL individuals across all generations
+    ])
+      .then(([runData, genData, allData]) => {
         setRun(runData);
         setGenerations(genData);
+        setAllIndividuals(allData);
+        setAllError(null);
         setError(null);
       })
-      .catch((err: unknown) =>
-        setError(err instanceof Error ? err.message : "Failed to load run."),
-      );
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : "Failed to load run.";
+        setError(msg);
+        setAllError(msg);
+      });
   }, [runId]);
 
   usePolling(refresh, 3000, polling);
@@ -121,7 +143,7 @@ export function RunDetailPage() {
     }
   }, [latestGen, userPickedGen]);
 
-  // Load individuals for the selected generation.
+  // Load individuals for the selected generation (Table view).
   useEffect(() => {
     if (selectedGen === null) {
       setIndividuals(null);
@@ -134,7 +156,6 @@ export function RunDetailPage() {
         if (!cancelled) {
           setIndividuals(data);
           setIndividualsError(null);
-          // Keep the lineage cache fresh for the generation being viewed.
           genCache.current.set(selectedGen, data);
         }
       })
@@ -148,8 +169,30 @@ export function RunDetailPage() {
     return () => {
       cancelled = true;
     };
-    // Re-fetch when the run advances so a followed generation stays fresh.
   }, [runId, selectedGen, run?.current_generation]);
+
+  // Index of every individual by id, and children index for offspring.
+  const byId = useMemo(() => {
+    const map = new Map<string, IndividualRecord>();
+    for (const ind of allIndividuals) map.set(String(ind.individual_id), ind);
+    return map;
+  }, [allIndividuals]);
+
+  const selectedIndividual = selectedId ? byId.get(selectedId) ?? null : null;
+
+  const offspring = useMemo(() => {
+    if (!selectedId) return [];
+    return allIndividuals
+      .filter(
+        (ind) =>
+          String(ind.parent_a_id) === selectedId ||
+          String(ind.parent_b_id) === selectedId,
+      )
+      .sort((a, b) => {
+        if (a.generation !== b.generation) return a.generation - b.generation;
+        return String(a.individual_id).localeCompare(String(b.individual_id));
+      });
+  }, [selectedId, allIndividuals]);
 
   if (error && run === null) {
     return (
@@ -225,91 +268,146 @@ export function RunDetailPage() {
             <FitnessCharts data={generations} />
           </div>
 
-          <div className="card">
-            <div className="page-head">
-              <h2>Individuals</h2>
-              <label className="field field--inline">
-                <span>Generation</span>
-                <select
-                  value={selectedGen ?? ""}
-                  disabled={generations.length === 0}
-                  onChange={(e) => {
-                    setUserPickedGen(true);
-                    setSelectedGen(Number(e.target.value));
-                  }}
-                >
-                  {generations.map((g) => (
-                    <option key={g.generation} value={g.generation}>
-                      Generation {g.generation}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            {individualsError && (
-              <div className="alert alert--error">{individualsError}</div>
-            )}
-
-            {selectedGen === null && (
-              <p className="muted">No generations available yet.</p>
-            )}
-
-            {individuals !== null && individuals.length === 0 && (
-              <p className="muted">No individuals for this generation.</p>
-            )}
-
-            {individuals !== null && individuals.length > 0 && (
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Individual</th>
-                    <th>Origin</th>
-                    <th>Fitness</th>
-                    <th>Parent A</th>
-                    <th>Parent B</th>
-                    <th>Phenotype length</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {individuals.map((ind, i) => (
-                    <tr
-                      key={`${String(ind.individual_id)}-${i}`}
-                      className="table__row--clickable"
-                      onClick={() => setSelectedIndividual(ind)}
-                    >
-                      <td>
-                        <code>{String(ind.individual_id)}</code>
-                      </td>
-                      <td>
-                        {ind.origin ? (
-                          <span
-                            className={`origin-badge origin-badge--${ind.origin}`}
-                          >
-                            {ind.origin}
-                          </span>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                      <td>{ind.fitness ?? "—"}</td>
-                      <td>{ind.parent_a_id == null ? "—" : String(ind.parent_a_id)}</td>
-                      <td>{ind.parent_b_id == null ? "—" : String(ind.parent_b_id)}</td>
-                      <td>{ind.phenotype_char_length ?? "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+          <div className="tabs">
+            <button
+              type="button"
+              className={`tab${view === "tree" ? " tab--active" : ""}`}
+              onClick={() => setView("tree")}
+            >
+              Lineage Tree
+            </button>
+            <button
+              type="button"
+              className={`tab${view === "table" ? " tab--active" : ""}`}
+              onClick={() => setView("table")}
+            >
+              Table
+            </button>
           </div>
+
+          {view === "tree" ? (
+            <div className="ga-explorer">
+              <div className="card ga-explorer__graph">
+                {allError && (
+                  <div className="alert alert--error">{allError}</div>
+                )}
+                <LineageTree
+                  individuals={allIndividuals}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                />
+              </div>
+
+              <aside className="card ga-explorer__panel">
+                <h2 className="ga-explorer__panel-title">Selected Genome</h2>
+                {selectedIndividual ? (
+                  <IndividualDetail
+                    individual={selectedIndividual}
+                    onNavigate={setSelectedId}
+                    offspring={offspring}
+                  />
+                ) : (
+                  <p className="muted">
+                    Click a node in the tree to inspect that individual.
+                  </p>
+                )}
+              </aside>
+            </div>
+          ) : (
+            <div className="card">
+              <div className="page-head">
+                <h2>Individuals</h2>
+                <label className="field field--inline">
+                  <span>Generation</span>
+                  <select
+                    value={selectedGen ?? ""}
+                    disabled={generations.length === 0}
+                    onChange={(e) => {
+                      setUserPickedGen(true);
+                      setSelectedGen(Number(e.target.value));
+                    }}
+                  >
+                    {generations.map((g) => (
+                      <option key={g.generation} value={g.generation}>
+                        Generation {g.generation}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              {individualsError && (
+                <div className="alert alert--error">{individualsError}</div>
+              )}
+
+              {selectedGen === null && (
+                <p className="muted">No generations available yet.</p>
+              )}
+
+              {individuals !== null && individuals.length === 0 && (
+                <p className="muted">No individuals for this generation.</p>
+              )}
+
+              {individuals !== null && individuals.length > 0 && (
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Individual</th>
+                      <th>Origin</th>
+                      <th>Fitness</th>
+                      <th>Parent A</th>
+                      <th>Parent B</th>
+                      <th>Phenotype length</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {individuals.map((ind, i) => (
+                      <tr
+                        key={`${String(ind.individual_id)}-${i}`}
+                        className="table__row--clickable"
+                        onClick={() => setModalIndividual(ind)}
+                      >
+                        <td>
+                          <code>{String(ind.individual_id)}</code>
+                        </td>
+                        <td>
+                          {ind.origin ? (
+                            <span
+                              className={`origin-badge origin-badge--${ind.origin}`}
+                            >
+                              {ind.origin}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                        <td>{ind.fitness ?? "—"}</td>
+                        <td>
+                          {ind.parent_a_id == null
+                            ? "—"
+                            : String(ind.parent_a_id)}
+                        </td>
+                        <td>
+                          {ind.parent_b_id == null
+                            ? "—"
+                            : String(ind.parent_b_id)}
+                        </td>
+                        <td>{ind.phenotype_char_length ?? "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
         </>
       )}
 
-      {selectedIndividual && (
+      {modalIndividual && (
         <GenomeModal
-          individual={selectedIndividual}
+          individual={modalIndividual}
           resolveParent={resolveParent}
-          onClose={() => setSelectedIndividual(null)}
+          onClose={() => setModalIndividual(null)}
         />
       )}
     </section>

@@ -185,3 +185,24 @@ def test_run_experiment_is_reproducible_with_same_seed(tmp_path):
 
     assert sig_a == sig_b
     assert len(sig_a) > 0
+
+
+def test_should_stop_respects_stop_on_success():
+    """With stop_on_success False, a perfect-fitness population does not halt."""
+    from ga.config import ExperimentConfig
+    from ga.evolution import should_stop
+    from ga.individual import Individual
+
+    config = ExperimentConfig()
+    config.ga.max_generations = 10
+    pop = [
+        Individual(id="a", generation=0, vector_indices=[], genome={}, origin="seed", fitness=1.0)
+    ]
+
+    config.ga.stop_on_success = True
+    assert should_stop(pop, 0, config) is True  # default: halt on success
+
+    config.ga.stop_on_success = False
+    assert should_stop(pop, 0, config) is False  # keep evolving
+    # max_generations still terminates regardless of the flag
+    assert should_stop(pop, 9, config) is True

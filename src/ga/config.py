@@ -62,6 +62,11 @@ class GAConfig:
     seed_recombinant_count: int = 30
     seed_random_count: int = 0
     multi_gene_max_active: int = 3
+    # When True (default), the run halts as soon as any individual reaches a
+    # success (fitness >= 1.0). Set False to keep evolving for the full
+    # generation budget -- useful for studying the lineage and how successful
+    # traits spread across generations.
+    stop_on_success: bool = True
 
 
 @dataclass

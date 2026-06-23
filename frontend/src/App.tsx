@@ -6,6 +6,10 @@ import { RunDetailPage } from "./pages/RunDetailPage";
 export function App() {
   const location = useLocation();
   const onNewRun = location.pathname === "/runs/new";
+  // The run-detail page hosts the lineage tree, which needs the full viewport
+  // width to show long lineages; other pages stay at a readable width.
+  const onRunDetail =
+    location.pathname.startsWith("/runs/") && location.pathname !== "/runs/new";
 
   return (
     <div className="app">
@@ -23,7 +27,7 @@ export function App() {
           </Link>
         </nav>
       </header>
-      <main className="app__main">
+      <main className={`app__main ${onRunDetail ? "app__main--wide" : ""}`}>
         <Routes>
           <Route path="/" element={<Navigate to="/runs" replace />} />
           <Route path="/runs" element={<RunsListPage />} />

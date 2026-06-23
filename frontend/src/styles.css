@@ -64,6 +64,11 @@ code {
   padding: 24px;
 }
 
+/* Run-detail / lineage view: use the full viewport so long lineages fit. */
+.app__main--wide {
+  max-width: min(2200px, 97vw);
+}
+
 .page-head {
   display: flex;
   align-items: center;

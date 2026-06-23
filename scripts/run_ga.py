@@ -16,6 +16,7 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from ga.config import ExperimentConfig, HarnessConfig, load_config
 from ga.evolution import run_experiment
+from ga.population import load_seed_records, resolve_seed_counts
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -57,9 +58,12 @@ def apply_overrides(config: ExperimentConfig, args: argparse.Namespace) -> Exper
         config.ga.max_generations = args.generations
     if args.population is not None:
         config.ga.population_size = args.population
-        config.ga.seed_stratified_count = max(0, args.population - 20)
-        config.ga.seed_recombinant_count = min(15, max(0, args.population - config.ga.seed_stratified_count - 5))
-        config.ga.seed_random_count = args.population - config.ga.seed_stratified_count - config.ga.seed_recombinant_count
+        n_seeds = len(load_seed_records())
+        (
+            config.ga.seed_stratified_count,
+            config.ga.seed_recombinant_count,
+            config.ga.seed_random_count,
+        ) = resolve_seed_counts(args.population, n_seeds)
     if args.run_mode:
         config.run_mode = args.run_mode
     if args.target_query:

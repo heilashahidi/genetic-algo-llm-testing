@@ -6,11 +6,12 @@ def test_init_population_size_and_origins():
     config = ExperimentConfig(random_seed=11)
     population = init_population(config)
     assert len(population) == 100
+    # Default split (70/30/0) sums to population_size, so it is respected as-is.
     origins = {individual.origin for individual in population}
-    assert origins == {"seed", "recombinant", "random"}
-    assert sum(1 for individual in population if individual.origin == "seed") == 80
-    assert sum(1 for individual in population if individual.origin == "recombinant") == 15
-    assert sum(1 for individual in population if individual.origin == "random") == 5
+    assert origins == {"seed", "recombinant"}
+    assert sum(1 for individual in population if individual.origin == "seed") == 70
+    assert sum(1 for individual in population if individual.origin == "recombinant") == 30
+    assert sum(1 for individual in population if individual.origin == "random") == 0
 
 
 def test_random_mode_population_size():

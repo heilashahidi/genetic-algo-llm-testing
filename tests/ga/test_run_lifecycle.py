@@ -32,11 +32,27 @@ def conn():
         connection.close()
 
 
-def test_lifecycle_round_trip(conn):
+@pytest.fixture
+def created_experiments(conn):
+    """Track experiment ids created during a test and delete them afterwards.
+
+    Tests append the ids they create; teardown removes them (ON DELETE CASCADE
+    cleans up runs/generations/individuals) so the shared DB stays free of junk.
+    """
+    ids: list[str] = []
+    yield ids
+    if ids:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM experiments WHERE id = ANY(%s)", (ids,))
+        conn.commit()
+
+
+def test_lifecycle_round_trip(conn, created_experiments):
     from ga import run_lifecycle as rl
 
     config = ExperimentConfig(experiment_id="lifecycle_it").to_dict()
     experiment_id = rl.create_experiment(conn, "lifecycle_it", config)
+    created_experiments.append(experiment_id)
     run_id = rl.enqueue_run(conn, experiment_id)
 
     queued = rl.get_run(conn, run_id)
@@ -72,11 +88,12 @@ def test_lifecycle_round_trip(conn):
     assert rl.get_run(conn, run_id)["status"] == "completed"
 
 
-def test_claim_run_is_exclusive_across_two_connections(conn):
+def test_claim_run_is_exclusive_across_two_connections(conn, created_experiments):
     from ga import run_lifecycle as rl
 
     config = ExperimentConfig(experiment_id="exclusive_it").to_dict()
     experiment_id = rl.create_experiment(conn, "exclusive_it", config)
+    created_experiments.append(experiment_id)
     run_id = rl.enqueue_run(conn, experiment_id)
 
     other = rl.connect(DATABASE_URL)
@@ -96,7 +113,7 @@ def test_claim_run_is_exclusive_across_two_connections(conn):
         other.close()
 
 
-def test_worker_round_trip(conn):
+def test_worker_round_trip(conn, created_experiments):
     from ga import run_lifecycle as rl
 
     config = ExperimentConfig(
@@ -112,6 +129,7 @@ def test_worker_round_trip(conn):
     config.ga.max_generations = 2
 
     experiment_id = rl.create_experiment(conn, "worker_it", config.to_dict())
+    created_experiments.append(experiment_id)
     run_id = rl.enqueue_run(conn, experiment_id)
 
     claimed = rl.claim_run(conn)
@@ -143,7 +161,7 @@ def test_worker_round_trip(conn):
     assert all(ind["generation"] == 0 for ind in individuals)
 
 
-def test_worker_stop_finalizes_stopped(conn):
+def test_worker_stop_finalizes_stopped(conn, created_experiments):
     from ga import run_lifecycle as rl
 
     config = ExperimentConfig(
@@ -159,6 +177,7 @@ def test_worker_stop_finalizes_stopped(conn):
     config.ga.max_generations = 50
 
     experiment_id = rl.create_experiment(conn, "worker_stop_it", config.to_dict())
+    created_experiments.append(experiment_id)
     run_id = rl.enqueue_run(conn, experiment_id)
     rl.set_control(conn, run_id, "stop")  # request stop before the run starts
 

@@ -1,6 +1,6 @@
 from ga.codec import build_vector_layout, decode_vector_indices, load_schema
 from ga.config import ExperimentConfig
-from ga.population import init_population
+from ga.population import init_population, load_seed_records, resolve_seed_counts
 
 
 def _config(**ga_overrides):
@@ -33,6 +33,34 @@ def test_seed_counts_add_up_to_population_size():
         == config.ga.seed_recombinant_count
     )
     assert sum(1 for i in population if i.origin == "random") == config.ga.seed_random_count
+
+
+def test_inconsistent_counts_auto_derive_real_attack_heavy_policy():
+    # Default counts (70/30/0) do NOT sum to population_size=6, so init_population
+    # must self-correct via resolve_seed_counts(6, 121) = (4 seed, 2 recombinant).
+    config = _config(population_size=6)
+    seeds = load_seed_records()
+    expected = resolve_seed_counts(6, len(seeds))
+    assert expected == (4, 2, 0)
+
+    population = init_population(config, schema=load_schema())
+
+    assert len(population) == 6
+    origins = [i.origin for i in population]
+    assert set(origins) == {"seed", "recombinant"}
+    assert origins.count("seed") == 4
+    assert origins.count("recombinant") == 2
+    assert origins.count("random") == 0
+
+    # "seed" individuals must come from real downloaded attack records.
+    seed_vectors = {tuple(record["vector_indices"]) for record in seeds}
+    seed_ids = {record["id"] for record in seeds}
+    for individual in population:
+        if individual.origin == "seed":
+            assert tuple(individual.vector_indices) in seed_vectors
+        else:
+            assert individual.parent_a_id in seed_ids
+            assert individual.parent_b_id in seed_ids
 
 
 def test_init_population_is_deterministic():

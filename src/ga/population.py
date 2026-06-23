@@ -23,6 +23,31 @@ GENOMES_JSONL = ATTACK_LIBRARY_ROOT / "data" / "genomes.jsonl"
 GENE_FREQUENCY_CSV = ATTACK_LIBRARY_ROOT / "data" / "gene_frequency.csv"
 
 
+def resolve_seed_counts(
+    population_size: int,
+    n_seeds: int,
+    *,
+    random_fraction: float = 0.0,
+    recombinant_fraction: float = 0.3,
+) -> tuple[int, int, int]:
+    """Derive (stratified, recombinant, random) seed counts for a population.
+
+    The initial population is dominated by real downloaded attacks
+    ("stratified", origin="seed") plus crossovers of two real attacks
+    ("recombinant"), with no random genomes by default. Because only ``n_seeds``
+    unique real attacks exist, any stratified overflow spills into recombinant.
+    The three counts are non-negative and always sum to ``population_size``.
+    """
+    random_count = round(random_fraction * population_size)
+    non_random = population_size - random_count
+    recombinant = round(recombinant_fraction * non_random)
+    stratified = non_random - recombinant
+    if stratified > n_seeds:
+        recombinant += stratified - n_seeds
+        stratified = n_seeds
+    return stratified, recombinant, random_count
+
+
 def load_seed_records() -> list[dict[str, Any]]:
     return [json.loads(line) for line in GENOMES_JSONL.read_text(encoding="utf-8").splitlines() if line.strip()]
 
@@ -124,8 +149,20 @@ def init_population(config: ExperimentConfig, schema: dict | None = None) -> lis
     allele_weights = load_allele_weights()
     blocks = gene_blocks(schema)
 
+    configured_total = (
+        ga.seed_stratified_count + ga.seed_recombinant_count + ga.seed_random_count
+    )
+    if configured_total == ga.population_size:
+        stratified_count = ga.seed_stratified_count
+        recombinant_count = ga.seed_recombinant_count
+        random_count = ga.seed_random_count
+    else:
+        stratified_count, recombinant_count, random_count = resolve_seed_counts(
+            ga.population_size, len(seeds)
+        )
+
     stratified = weighted_sample_without_replacement(
-        seeds, ga.seed_stratified_count, rng, allele_weights
+        seeds, stratified_count, rng, allele_weights
     )
     population: list[Individual] = []
     for index, record in enumerate(stratified, start=1):
@@ -140,7 +177,7 @@ def init_population(config: ExperimentConfig, schema: dict | None = None) -> lis
         )
 
     start = len(population) + 1
-    for offset in range(ga.seed_recombinant_count):
+    for offset in range(recombinant_count):
         parent_a = rng.choice(seeds)
         parent_b = rng.choice(seeds)
         child_vector, _ = gene_block_crossover(
@@ -163,7 +200,7 @@ def init_population(config: ExperimentConfig, schema: dict | None = None) -> lis
         )
 
     start = len(population) + 1
-    for offset in range(ga.seed_random_count):
+    for offset in range(random_count):
         vector = random_valid_vector(schema, rng)
         population.append(
             make_individual(

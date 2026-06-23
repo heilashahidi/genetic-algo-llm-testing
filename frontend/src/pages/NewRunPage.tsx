@@ -231,9 +231,10 @@ export function NewRunPage() {
             </label>
           </div>
           <p className="hint">
-            Seed counts (auto-derived to sum to population):{" "}
-            stratified {seeds.seed_stratified_count}, recombinant{" "}
-            {seeds.seed_recombinant_count}, random {seeds.seed_random_count}.
+            Seeds (auto-derived by the backend): ~
+            {seeds.seed_stratified_count} real attacks + ~
+            {seeds.seed_recombinant_count} combinations ({seeds.seed_random_count}{" "}
+            random).
           </p>
         </fieldset>
 

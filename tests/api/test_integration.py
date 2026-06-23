@@ -27,7 +27,24 @@ def client():
         yield test_client
 
 
-def test_full_lifecycle(client):
+@pytest.fixture
+def created_experiments():
+    """Track experiment ids created during a test and delete them afterwards.
+
+    Keeps the shared dashboard DB free of junk runs (ON DELETE CASCADE removes
+    the runs/generations/individuals belonging to each experiment).
+    """
+    ids: list[str] = []
+    yield ids
+    if ids:
+        import psycopg
+
+        with psycopg.connect(os.environ["DATABASE_URL"]) as conn, conn.cursor() as cur:
+            cur.execute("DELETE FROM experiments WHERE id = ANY(%s)", (ids,))
+            conn.commit()
+
+
+def test_full_lifecycle(client, created_experiments):
     assert client.get("/health").json() == {"status": "ok"}
 
     created = client.post(
@@ -36,6 +53,7 @@ def test_full_lifecycle(client):
     )
     assert created.status_code == 201
     experiment_id = created.json()["experiment_id"]
+    created_experiments.append(experiment_id)
 
     enq = client.post(f"/experiments/{experiment_id}/runs")
     assert enq.status_code == 201

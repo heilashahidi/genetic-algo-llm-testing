@@ -46,9 +46,24 @@ def storage():
         apply_migrations(conn)
 
     adapter = PostgresStorage(DATABASE_URL)
+    created: list[str] = []
+    # Wrap create_experiment so every experiment created via this adapter is
+    # tracked and removed in teardown (ON DELETE CASCADE clears child rows).
+    original_create = adapter.create_experiment
+
+    def tracking_create(config):
+        handle = original_create(config)
+        created.append(handle.experiment_id)
+        return handle
+
+    adapter.create_experiment = tracking_create  # type: ignore[method-assign]
     try:
         yield adapter
     finally:
+        if created:
+            with psycopg.connect(DATABASE_URL) as conn, conn.cursor() as cur:
+                cur.execute("DELETE FROM experiments WHERE id = ANY(%s)", (created,))
+                conn.commit()
         adapter.close()
 
 

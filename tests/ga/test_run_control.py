@@ -29,6 +29,10 @@ def _small_config(max_generations: int = 5) -> ExperimentConfig:
     config.ga.seed_recombinant_count = 3
     config.ga.seed_random_count = 1
     config.ga.max_generations = max_generations
+    # These tests exercise generation boundaries / cooperative stop, not the
+    # fitness early-stop. Disable the leak check so seeded jailbreak attacks do
+    # not reach fitness 1.0 and trigger an early stop at generation 0.
+    config.fitness.forbidden_outputs = []
     return config
 
 

@@ -78,7 +78,9 @@ _LIST_GENERATIONS = (
 )
 _LIST_INDIVIDUALS = (
     "SELECT individual_id, generation, genome, fitness, origin, "
-    "parent_a_id, parent_b_id, phenotype_char_length, model_response_hash "
+    "parent_a_id, parent_b_id, phenotype_char_length, model_response_hash, "
+    "model_response, phenotype, mutated_genes, vector_indices, crossover_mask, "
+    "created_at "
     "FROM individuals WHERE run_id = %(run_id)s "
 )
 
@@ -122,6 +124,12 @@ def _individual_record(row: tuple[Any, ...]) -> dict[str, Any]:
         "parent_b_id": row[6],
         "phenotype_char_length": row[7],
         "model_response_hash": row[8],
+        "model_response": row[9],
+        "phenotype": row[10],
+        "mutated_genes": row[11],
+        "vector_indices": row[12],
+        "crossover_mask": row[13],
+        "created_at": row[14],
     }
 
 

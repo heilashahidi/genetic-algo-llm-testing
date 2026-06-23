@@ -72,6 +72,9 @@ def lineage_record(individual: Individual) -> dict[str, object]:
         "fitness": individual.fitness,
         "phenotype_char_length": len(individual.phenotype) if individual.phenotype else 0,
         "model_response_hash": individual.model_response_hash(),
+        "phenotype": individual.phenotype,
+        "model_response": individual.model_response,
+        "crossover_mask": individual.crossover_mask,
     }
 
 

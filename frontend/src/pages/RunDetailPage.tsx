@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../api";
 import { isTerminal } from "../types";
@@ -31,6 +31,46 @@ export function RunDetailPage() {
   const [individualsError, setIndividualsError] = useState<string | null>(null);
   const [selectedIndividual, setSelectedIndividual] =
     useState<IndividualRecord | null>(null);
+
+  // Cache of individuals per generation so walking ancestry stays cheap.
+  const genCache = useRef<Map<number, IndividualRecord[]>>(new Map());
+
+  const loadGeneration = useCallback(
+    async (generation: number): Promise<IndividualRecord[]> => {
+      const cached = genCache.current.get(generation);
+      if (cached) return cached;
+      const data = await api.getIndividuals(runId, generation);
+      genCache.current.set(generation, data);
+      return data;
+    },
+    [runId],
+  );
+
+  // Resolve a parent by id, searching near the child's generation outward.
+  const resolveParent = useCallback(
+    async (
+      parentId: string,
+      childGeneration: number,
+    ): Promise<IndividualRecord | null> => {
+      const tried = new Set<number>();
+      const candidates = [
+        childGeneration - 1,
+        childGeneration,
+        ...Array.from({ length: childGeneration + 1 }, (_, g) => g),
+      ];
+      for (const gen of candidates) {
+        if (gen < 0 || tried.has(gen)) continue;
+        tried.add(gen);
+        const list = await loadGeneration(gen);
+        const match = list.find(
+          (ind) => String(ind.individual_id) === parentId,
+        );
+        if (match) return match;
+      }
+      return null;
+    },
+    [loadGeneration],
+  );
 
   const polling = run === null || !isTerminal(run.status);
 
@@ -76,6 +116,8 @@ export function RunDetailPage() {
         if (!cancelled) {
           setIndividuals(data);
           setIndividualsError(null);
+          // Keep the lineage cache fresh for the generation being viewed.
+          genCache.current.set(selectedGen, data);
         }
       })
       .catch((err: unknown) => {
@@ -211,7 +253,17 @@ export function RunDetailPage() {
                       <td>
                         <code>{String(ind.individual_id)}</code>
                       </td>
-                      <td>{ind.origin ?? "—"}</td>
+                      <td>
+                        {ind.origin ? (
+                          <span
+                            className={`origin-badge origin-badge--${ind.origin}`}
+                          >
+                            {ind.origin}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
                       <td>{ind.fitness ?? "—"}</td>
                       <td>{ind.parent_a_id == null ? "—" : String(ind.parent_a_id)}</td>
                       <td>{ind.parent_b_id == null ? "—" : String(ind.parent_b_id)}</td>
@@ -228,6 +280,7 @@ export function RunDetailPage() {
       {selectedIndividual && (
         <GenomeModal
           individual={selectedIndividual}
+          resolveParent={resolveParent}
           onClose={() => setSelectedIndividual(null)}
         />
       )}

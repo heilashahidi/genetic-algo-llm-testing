@@ -20,6 +20,7 @@ class Individual:
     fitness: float | None = None
     phenotype: str | None = None
     model_response: str | None = None
+    crossover_mask: dict[str, str] | None = None
 
     def model_response_hash(self) -> str | None:
         if self.model_response is None:
@@ -46,4 +47,5 @@ class Individual:
             fitness=record.get("fitness"),
             phenotype=record.get("phenotype"),
             model_response=record.get("model_response"),
+            crossover_mask=record.get("crossover_mask"),
         )

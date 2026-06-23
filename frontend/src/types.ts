@@ -36,6 +36,12 @@ export interface IndividualRecord {
   parent_b_id: unknown;
   phenotype_char_length: number | null;
   model_response_hash: string | null;
+  model_response?: string | null;
+  phenotype?: string | null;
+  mutated_genes?: string[] | null;
+  vector_indices?: number[] | null;
+  crossover_mask?: Record<string, "a" | "b"> | null;
+  created_at?: string | null;
 }
 
 export type RunMode = "ga" | "random" | "seed-only";

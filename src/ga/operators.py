@@ -25,20 +25,26 @@ def gene_block_crossover(
     rng: random.Random,
     *,
     channel_aware: bool = False,
-) -> tuple[list[int], str]:
+) -> tuple[list[int], dict[str, str]]:
     child = list(parent_a)
+    donor_map: dict[str, str] = {}
     if channel_aware:
         for channel in ("semantic", "perturbation"):
-            donor = parent_a if rng.random() < 0.5 else parent_b
+            pick_a = rng.random() < 0.5
+            donor = parent_a if pick_a else parent_b
+            donor_label = "a" if pick_a else "b"
             for block in blocks:
                 if block.channel == channel:
                     write_block(child, block, extract_block(donor, block))
-        return child, "crossover"
+                    donor_map[block.name] = donor_label
+        return child, donor_map
 
     for block in blocks:
-        donor = parent_a if rng.random() < 0.5 else parent_b
+        pick_a = rng.random() < 0.5
+        donor = parent_a if pick_a else parent_b
         write_block(child, block, extract_block(donor, block))
-    return child, "crossover"
+        donor_map[block.name] = "a" if pick_a else "b"
+    return child, donor_map
 
 
 def _resample_categorical(block: GeneBlock, current: list[int], rng: random.Random) -> list[int]:

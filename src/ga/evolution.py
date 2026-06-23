@@ -112,11 +112,12 @@ def evolve_generation(
             origin = "crossover"
             parent_a_id = parent.id
             parent_b_id = None
+            crossover_mask = None
         else:
             parent_a = tournament_select(population, config.ga.tournament_size, rng)
             parent_b = tournament_select(population, config.ga.tournament_size, rng)
             channel_aware = rng.random() < config.ga.channel_aware_crossover_rate
-            child_vector, _ = gene_block_crossover(
+            child_vector, crossover_mask = gene_block_crossover(
                 parent_a.vector_indices,
                 parent_b.vector_indices,
                 blocks,
@@ -144,6 +145,7 @@ def evolve_generation(
                 parent_a_id=parent_a_id,
                 parent_b_id=parent_b_id,
                 mutated_genes=mutated_genes,
+                crossover_mask=crossover_mask,
             )
         )
         next_index += 1

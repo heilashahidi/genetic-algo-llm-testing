@@ -119,6 +119,11 @@ def test_individual_rows_one_per_individual_with_expected_columns():
         "parent_b_id",
         "phenotype_char_length",
         "model_response_hash",
+        "model_response",
+        "phenotype",
+        "mutated_genes",
+        "vector_indices",
+        "crossover_mask",
     }
     for row, individual in zip(rows, population):
         assert set(row.keys()) == expected_keys

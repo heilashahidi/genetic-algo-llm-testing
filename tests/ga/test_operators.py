@@ -48,6 +48,45 @@ def test_crossover_respects_block_boundaries(schema, rng):
         assert segment == parent_a[block.start : block.end] or segment == parent_b[block.start : block.end]
 
 
+def test_crossover_returns_donor_map_over_all_blocks(schema, rng):
+    blocks = gene_blocks(schema)
+    parent_a = [0] * 39
+    parent_b = [1] * 39
+    child, donor_map = gene_block_crossover(parent_a, parent_b, blocks, rng)
+
+    assert set(donor_map.keys()) == {block.name for block in blocks}
+    assert set(donor_map.values()) <= {"a", "b"}
+    # the donor label must match which parent actually donated each block
+    for block in blocks:
+        segment = child[block.start : block.end]
+        if donor_map[block.name] == "a":
+            assert segment == parent_a[block.start : block.end]
+        else:
+            assert segment == parent_b[block.start : block.end]
+
+
+def test_channel_aware_crossover_donor_uniform_per_channel(schema, rng):
+    blocks = gene_blocks(schema)
+    parent_a = [0] * 39
+    parent_b = [1] * 39
+    child, donor_map = gene_block_crossover(
+        parent_a, parent_b, blocks, rng, channel_aware=True
+    )
+
+    assert set(donor_map.keys()) == {block.name for block in blocks}
+    assert set(donor_map.values()) <= {"a", "b"}
+    # every block in a channel shares that channel's chosen donor
+    by_channel: dict[str, set[str]] = {}
+    for block in blocks:
+        by_channel.setdefault(block.channel, set()).add(donor_map[block.name])
+    for labels in by_channel.values():
+        assert len(labels) == 1
+    for block in blocks:
+        segment = child[block.start : block.end]
+        expected = parent_a if donor_map[block.name] == "a" else parent_b
+        assert segment == expected[block.start : block.end]
+
+
 def test_repair_clears_persona_for_optimization(schema):
     blocks = gene_blocks(schema)
     optimization_index = next(

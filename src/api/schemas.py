@@ -73,3 +73,9 @@ class IndividualRecord(BaseModel):
     parent_b_id: Any = None
     phenotype_char_length: Optional[int] = None
     model_response_hash: Optional[str] = None
+    model_response: Optional[str] = None
+    phenotype: Optional[str] = None
+    mutated_genes: Any = None
+    vector_indices: Any = None
+    crossover_mask: Any = None
+    created_at: Optional[datetime] = None

@@ -19,7 +19,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def make_individual(individual_id, generation, fitness):
+def make_individual(individual_id, generation, fitness, crossover_mask=None):
     return Individual(
         id=individual_id,
         generation=generation,
@@ -32,6 +32,7 @@ def make_individual(individual_id, generation, fitness):
         fitness=fitness,
         phenotype="hello world",
         model_response="model says hi",
+        crossover_mask=crossover_mask,
     )
 
 
@@ -86,3 +87,37 @@ def test_round_trip_experiment_two_generations(storage):
             "SELECT current_generation FROM runs WHERE id = %s", (handle.run_id,)
         )
         assert cur.fetchone()[0] == 1
+
+
+def test_step_data_round_trips(storage):
+    import psycopg
+
+    config = ExperimentConfig(experiment_id="pg_step_data")
+    handle = storage.create_experiment(config)
+
+    mask = {"gene_a": "a", "gene_b": "b"}
+    population = [
+        make_individual("s0", 0, fitness=0.5, crossover_mask=mask),
+        make_individual("s1", 0, fitness=0.7, crossover_mask=None),
+    ]
+    storage.store_generation(handle, 0, population)
+
+    with psycopg.connect(DATABASE_URL) as conn, conn.cursor() as cur:
+        cur.execute(
+            "SELECT individual_id, model_response, phenotype, mutated_genes, "
+            "vector_indices, crossover_mask, created_at "
+            "FROM individuals WHERE run_id = %s ORDER BY individual_id",
+            (handle.run_id,),
+        )
+        rows = {row[0]: row for row in cur.fetchall()}
+
+    s0 = rows["s0"]
+    assert s0[1] == "model says hi"  # full model_response text, no redaction
+    assert s0[2] == "hello world"  # full phenotype text
+    assert s0[3] == ["gene_a"]  # mutated_genes jsonb
+    assert s0[4] == [0, 1, 2]  # vector_indices jsonb
+    assert s0[5] == mask  # crossover_mask jsonb donor map
+    assert s0[6] is not None  # created_at populated by default
+
+    # single-parent copy stores a NULL crossover_mask
+    assert rows["s1"][5] is None

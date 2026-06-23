@@ -444,3 +444,164 @@ legend {
   font-size: 0.82rem;
   margin: 0;
 }
+
+/* Individual detail panel ------------------------------------------------- */
+.modal--wide {
+  max-width: 860px;
+}
+
+.modal__head-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.indiv-detail .detail-block {
+  margin-top: 20px;
+}
+
+.detail-block h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.detail-block__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Origin badges (table + detail header) ----------------------------------- */
+.origin-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: #fff;
+  background: #6b7280;
+}
+
+.origin-badge--seed {
+  background: #0891b2;
+}
+.origin-badge--random {
+  background: #7c3aed;
+}
+.origin-badge--recombinant {
+  background: #0d9488;
+}
+.origin-badge--elite {
+  background: #16a34a;
+}
+.origin-badge--crossover {
+  background: #2563eb;
+}
+.origin-badge--mutation {
+  background: #d97706;
+}
+
+/* Lineage / step explanation ---------------------------------------------- */
+.lineage-ids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.lineage-ids .link-button {
+  font-size: inherit;
+}
+
+.step-explain {
+  margin: 0;
+  padding: 10px 12px;
+  background: #f1f5f9;
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+}
+
+/* Genome provenance table ------------------------------------------------- */
+.genome-table {
+  font-size: 0.88rem;
+}
+
+.genome-table__value {
+  word-break: break-word;
+}
+
+.genome-row--donor-a {
+  background: #eff6ff;
+}
+.genome-row--donor-b {
+  background: #fffbeb;
+}
+.genome-row--mutated {
+  background: #fef2f2;
+}
+
+.prov-legend {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.prov-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.prov-tag--a {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.prov-tag--b {
+  background: #fef3c7;
+  color: #b45309;
+}
+.prov-tag--mutated {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Collapsible + scrollable text blocks ------------------------------------ */
+.collapsible {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+}
+
+.collapsible > summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.collapsible__body {
+  margin-top: 10px;
+}
+
+.scroll-block {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 14px;
+  border-radius: var(--radius);
+  overflow: auto;
+  max-height: 320px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.scroll-block--short {
+  max-height: 140px;
+}

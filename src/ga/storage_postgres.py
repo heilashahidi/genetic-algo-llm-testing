@@ -94,6 +94,15 @@ def individual_rows(
                 "parent_b_id": individual.parent_b_id,
                 "phenotype_char_length": lineage["phenotype_char_length"],
                 "model_response_hash": lineage["model_response_hash"],
+                "model_response": individual.model_response,
+                "phenotype": individual.phenotype,
+                "mutated_genes": json.dumps(individual.mutated_genes, ensure_ascii=False),
+                "vector_indices": json.dumps(individual.vector_indices, ensure_ascii=False),
+                "crossover_mask": (
+                    json.dumps(individual.crossover_mask, ensure_ascii=False)
+                    if individual.crossover_mask is not None
+                    else None
+                ),
             }
         )
     return rows
@@ -119,10 +128,13 @@ _INSERT_GENERATION = (
 _INSERT_INDIVIDUAL = (
     "INSERT INTO individuals "
     "(id, run_id, individual_id, generation, genome, fitness, origin, "
-    "parent_a_id, parent_b_id, phenotype_char_length, model_response_hash) "
+    "parent_a_id, parent_b_id, phenotype_char_length, model_response_hash, "
+    "model_response, phenotype, mutated_genes, vector_indices, crossover_mask) "
     "VALUES (%(id)s, %(run_id)s, %(individual_id)s, %(generation)s, %(genome)s, "
     "%(fitness)s, %(origin)s, %(parent_a_id)s, %(parent_b_id)s, "
-    "%(phenotype_char_length)s, %(model_response_hash)s)"
+    "%(phenotype_char_length)s, %(model_response_hash)s, "
+    "%(model_response)s, %(phenotype)s, %(mutated_genes)s, %(vector_indices)s, "
+    "%(crossover_mask)s)"
 )
 _UPDATE_RUN_GENERATION = (
     "UPDATE runs SET current_generation = %(generation)s, "

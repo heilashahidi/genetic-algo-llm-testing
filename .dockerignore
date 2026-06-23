@@ -7,6 +7,8 @@ __pycache__
 .mypy_cache
 .venv
 venv
+.env
+.coverage
 
 experiments/*
 !experiments/.gitkeep

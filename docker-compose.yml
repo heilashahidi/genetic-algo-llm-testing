@@ -1,6 +1,124 @@
+# Local full-stack compose for the GA control plane.
+#
+#   cp .env.example .env && docker compose up
+#
+# Default `up` brings up: postgres -> migrate (one-shot) -> api + runner.
+# ollama is EXTERNAL by default (reached on host.docker.internal). To run it
+# containerized instead:  docker compose --profile with-ollama up
+#
+# Offline, no-Postgres smoke tests stay available as before:
+#   docker compose run --rm ga-dry-run
+#   docker compose run --rm test
+#
+# All variables resolve from .env (env_file) with ${VAR:-default} fallbacks so
+# `docker compose config` works even without a .env present.
+
 services:
+  # --- Full stack -----------------------------------------------------------
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ga}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ga}
+      POSTGRES_DB: ${POSTGRES_DB:-ga}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ga} -d ${POSTGRES_DB:-ga}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot: apply migrations, then exit. Everything else waits on this.
+  migrate:
+    build: .
+    command: ["scripts/migrate.py"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://ga:ga@postgres:5432/ga}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build: .
+    command:
+      - "-m"
+      - "uvicorn"
+      - "api.app:app"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://ga:ga@postgres:5432/ga}
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  # Static React dashboard (built by Vite, served by nginx). The API base URL
+  # is baked in at build time, so override VITE_API_BASE_URL before building if
+  # the browser reaches the API somewhere other than http://localhost:8000.
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - api
+
+  # Long-lived worker: claims queued runs from the DB and executes them.
+  # Provider/base_url/model come from each run's experiment config (DB record),
+  # NOT from the LLM_* env vars below -- see .env.example for the wiring note.
+  # The LLM_* vars are passed in so the documented future wiring needs no change.
+  runner:
+    build: .
+    command: ["scripts/run_ga.py", "--worker"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://ga:ga@postgres:5432/ga}
+      STORAGE: ${STORAGE:-postgres}
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+      LLM_API_KEY: ${LLM_API_KEY:-not-needed}
+      LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-120}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  # Optional containerized ollama (default: external, reached via the env URL).
+  # Enable with:  docker compose --profile with-ollama up
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["with-ollama"]
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+
+  # --- Offline / no-Postgres smoke tests (unchanged workflow) ---------------
+
   ga:
     build: .
+    command: ["scripts/run_ga.py"]
     volumes:
       - ./experiments:/app/experiments
     extra_hosts:
@@ -10,6 +128,7 @@ services:
     extends:
       service: ga
     command:
+      - "scripts/run_ga.py"
       - "--dry-run"
       - "--generations"
       - "3"
@@ -22,6 +141,7 @@ services:
     extends:
       service: ga
     command:
+      - "scripts/run_ga.py"
       - "--config"
       - "experiments/configs/docker-ollama.json"
 
@@ -29,6 +149,7 @@ services:
     extends:
       service: ga
     command:
+      - "scripts/run_ga.py"
       - "--config"
       - "experiments/configs/docker-lmstudio.json"
 
@@ -38,3 +159,7 @@ services:
     command: ["tests/ga/", "-q"]
     volumes:
       - ./experiments:/app/experiments
+
+volumes:
+  pgdata:
+  ollama:

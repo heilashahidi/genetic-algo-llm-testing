@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
+from typing import Protocol, runtime_checkable
 
 from ga.codec import gene_blocks, load_schema, sync_individual_genome
 from ga.config import ExperimentConfig
@@ -19,7 +20,51 @@ from ga.operators import (
 )
 from ga.phenotype import build_phenotype
 from ga.population import init_population, init_random_population, init_seed_only_population
-from ga.storage import create_experiment_dir, store_generation
+from ga.storage import build_storage
+
+
+@runtime_checkable
+class RunController(Protocol):
+    """Control port the evolution loop consults at generation boundaries.
+
+    The GA core depends only on this protocol; concrete controllers (e.g. a
+    database-backed one) live in outer layers. Hooks are called by
+    `run_experiment` so cooperative pause/stop and progress reporting can be
+    layered on without coupling the core to any database or framework.
+
+    Implementations must keep these hooks side-effect-light and must never
+    forcibly terminate the loop: stopping is cooperative, signalled by
+    `should_stop` returning True at a generation boundary.
+    """
+
+    def before_generation(self, generation: int) -> None:
+        """Called before a generation is evaluated/stored.
+
+        A controller may block here (e.g. while paused) but must return so the
+        loop can proceed or observe a subsequent stop request.
+        """
+        ...
+
+    def should_stop(self, generation: int, population: list[Individual]) -> bool:
+        """Return True to request a cooperative stop at this boundary."""
+        ...
+
+    def on_generation_stored(self, generation: int, population: list[Individual]) -> None:
+        """Called after a generation has been persisted by storage."""
+        ...
+
+
+class NullController:
+    """Default no-op controller; preserves the standalone/file behavior exactly."""
+
+    def before_generation(self, generation: int) -> None:
+        return None
+
+    def should_stop(self, generation: int, population: list[Individual]) -> bool:
+        return False
+
+    def on_generation_stored(self, generation: int, population: list[Individual]) -> None:
+        return None
 
 
 def evaluate_population(
@@ -115,33 +160,56 @@ def should_stop(population: list[Individual], generation: int, config: Experimen
     return best >= 1.0
 
 
-def run_experiment(config: ExperimentConfig, repo_root: Path | None = None) -> Path:
+def _init_population(config: ExperimentConfig, generation: int, schema: dict) -> list[Individual]:
+    if config.run_mode == "random":
+        return init_random_population(config, generation=generation, schema=schema)
+    if config.run_mode == "seed-only":
+        return init_seed_only_population(config, generation=generation, schema=schema)
+    return init_population(config, schema=schema)
+
+
+def run_experiment(
+    config: ExperimentConfig,
+    repo_root: Path | None = None,
+    controller: RunController | None = None,
+    storage=None,
+) -> object:
+    """Run the evolution loop, consulting `controller` at generation boundaries.
+
+    With the default `NullController` the behavior is identical to the
+    standalone/file path: evaluate, store, and stop only when the GA's own
+    `should_stop` fires. A non-null controller can additionally request a
+    cooperative stop (checked between generations) and observe progress.
+
+    `storage` may be supplied to bind a pre-selected adapter (e.g. the worker
+    binding the already-claimed run); when omitted it is selected from the
+    environment via `build_storage`, preserving today's behavior.
+    """
     repo_root = repo_root or Path(__file__).resolve().parents[2]
+    controller = controller or NullController()
     schema = load_schema()
     harness = build_harness(config.harness, dry_run=config.dry_run)
     evaluator = build_fitness_evaluator(config.fitness)
-    experiment_dir = create_experiment_dir(config, repo_root)
+    storage = storage or build_storage(config, repo_root)
+    handle = storage.create_experiment(config)
 
-    if config.run_mode == "random":
-        population = init_random_population(config, generation=0, schema=schema)
-    elif config.run_mode == "seed-only":
-        population = init_seed_only_population(config, generation=0, schema=schema)
-    else:
-        population = init_population(config, schema=schema)
+    population = _init_population(config, generation=0, schema=schema)
 
     generation = 0
     while True:
+        controller.before_generation(generation)
         evaluate_population(population, config, schema, harness, evaluator)
-        store_generation(experiment_dir, generation, population)
+        storage.store_generation(handle, generation, population)
+        controller.on_generation_stored(generation, population)
+        if controller.should_stop(generation, population):
+            break
         if should_stop(population, generation, config):
             break
 
         generation += 1
-        if config.run_mode == "random":
-            population = init_random_population(config, generation=generation, schema=schema)
-        elif config.run_mode == "seed-only":
-            population = init_seed_only_population(config, generation=generation, schema=schema)
+        if config.run_mode in ("random", "seed-only"):
+            population = _init_population(config, generation=generation, schema=schema)
         else:
             population = evolve_generation(population, config, schema, generation)
 
-    return experiment_dir
+    return handle

@@ -4,7 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import sys
+import time
+import traceback
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +30,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, dest="random_seed")
     parser.add_argument("--dry-run", action="store_true", help="Use mock harness and synthetic fitness")
     parser.add_argument("--experiment-id", help="Optional experiment directory name")
+    parser.add_argument(
+        "--worker",
+        action="store_true",
+        help="Run as a long-lived worker: claim queued runs from the database and execute them",
+    )
+    parser.add_argument(
+        "--poll-interval",
+        type=float,
+        default=2.0,
+        help="Seconds to sleep when no run is queued (worker mode)",
+    )
     return parser
 
 
@@ -59,9 +74,73 @@ def apply_overrides(config: ExperimentConfig, args: argparse.Namespace) -> Exper
     return config
 
 
+def _process_one_run(conn, run: dict) -> None:
+    """Run a single claimed run to completion; finalize its terminal status.
+
+    Loads `ExperimentConfig` from the run's experiment.config, runs the loop
+    with the Postgres storage bound to the claimed run and a DB-backed
+    controller, then finalizes. Exceptions are caught by the caller.
+    """
+    from ga.run_lifecycle import DatabaseController, finalize_run
+    from ga.storage_postgres import PostgresHandle, PostgresStorage
+
+    database_url = os.environ["DATABASE_URL"]
+    run_id = run["id"]
+    experiment_id = run["experiment_id"]
+
+    with conn.cursor() as cur:
+        cur.execute("SELECT config FROM experiments WHERE id = %s", (experiment_id,))
+        row = cur.fetchone()
+    if row is None:
+        raise LookupError(f"experiment {experiment_id} not found for run {run_id}")
+    config_payload = row[0] if isinstance(row[0], dict) else json.loads(row[0])
+    config = ExperimentConfig.from_dict(config_payload)
+
+    handle = PostgresHandle(experiment_id=experiment_id, run_id=run_id)
+    storage = PostgresStorage(database_url, handle=handle)
+    controller = DatabaseController(conn, run_id)
+    try:
+        run_experiment(config, repo_root=REPO_ROOT, controller=controller, storage=storage)
+        finalize_run(conn, run_id, controller.terminal_status)
+        print(f"Run {run_id} finalized: {controller.terminal_status}")
+    finally:
+        storage.close()
+
+
+def run_worker(poll_interval: float) -> None:
+    """Long-lived worker: claim queued runs and execute them, forever."""
+    from ga.run_lifecycle import claim_run, connect, finalize_run
+
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise SystemExit("--worker requires DATABASE_URL to be set")
+    os.environ.setdefault("STORAGE", "postgres")
+
+    conn = connect(database_url)
+    print("Worker started; polling for queued runs...")
+    while True:
+        run = claim_run(conn)
+        if run is None:
+            time.sleep(poll_interval)
+            continue
+        print(f"Claimed run {run['id']}")
+        try:
+            _process_one_run(conn, run)
+        except Exception:  # noqa: BLE001 - a failed run must not kill the worker
+            error = traceback.format_exc()
+            print(f"Run {run['id']} failed:\n{error}", file=sys.stderr)
+            try:
+                finalize_run(conn, run["id"], "failed", error=error)
+            except Exception:  # noqa: BLE001 - best-effort finalization
+                print("Failed to finalize run as failed", file=sys.stderr)
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
+    if args.worker:
+        run_worker(args.poll_interval)
+        return
     if args.config:
         config = load_config(args.config)
     else:

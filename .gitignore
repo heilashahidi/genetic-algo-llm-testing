@@ -9,3 +9,5 @@ venv
 experiments/*
 !experiments/.gitkeep
 !experiments/configs/
+
+.coverage

@@ -2,6 +2,7 @@ import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { RunsListPage } from "./pages/RunsListPage";
 import { NewRunPage } from "./pages/NewRunPage";
 import { RunDetailPage } from "./pages/RunDetailPage";
+import { SchemaEditorPage } from "./pages/SchemaEditorPage";
 
 export function App() {
   const location = useLocation();
@@ -20,6 +21,12 @@ export function App() {
         <nav className="app__nav">
           <Link to="/runs">Runs</Link>
           <Link
+            to="/schema"
+            className={location.pathname === "/schema" ? "is-active" : ""}
+          >
+            Genome
+          </Link>
+          <Link
             to="/runs/new"
             className={`btn btn--primary ${onNewRun ? "is-active" : ""}`}
           >
@@ -32,6 +39,7 @@ export function App() {
           <Route path="/" element={<Navigate to="/runs" replace />} />
           <Route path="/runs" element={<RunsListPage />} />
           <Route path="/runs/new" element={<NewRunPage />} />
+          <Route path="/schema" element={<SchemaEditorPage />} />
           <Route path="/runs/:runId" element={<RunDetailPage />} />
           <Route path="*" element={<Navigate to="/runs" replace />} />
         </Routes>

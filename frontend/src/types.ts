@@ -47,16 +47,44 @@ export interface IndividualRecord {
 export type GeneType = "categorical" | "boolean" | "multi_categorical";
 export type GeneChannel = "semantic" | "perturbation";
 
+/**
+ * A single gene in the genome schema. Mirrors the backend draft schema exactly.
+ *
+ * The editor mutates only a known subset of these fields; every other field
+ * (e.g. `render_full_override`, `empty_alias`) is round-tripped untouched so
+ * prompt rendering keeps working. Unknown keys are preserved via the index
+ * signature.
+ */
 export interface GeneSchema {
   name: string;
-  type: GeneType;
   channel: GeneChannel;
-  /** Allowed values; null for boolean genes. */
-  alleles: string[] | null;
+  type: GeneType;
+  /** categorical: string; multi_categorical: string[]; boolean: boolean. */
+  default: string | string[] | boolean;
+  description?: string;
+  /** Allowed values for categorical / multi_categorical genes. */
+  alleles?: string[];
+  /** allele name → prompt text (missing/"" renders nothing). */
+  render?: Record<string, string>;
+  /** Prompt text emitted when a boolean gene is true. */
+  render_true?: string;
+  /** Renders nothing while displaying this label (e.g. "none") when empty. */
+  empty_alias?: string;
+  /** allele → prompt that replaces the entire rendered genome. */
+  render_full_override?: Record<string, string>;
+  /** Preserve any field the editor does not understand. */
+  [key: string]: unknown;
 }
 
 export interface GenomeSchema {
+  version?: number | string;
+  description?: string;
+  length_class_thresholds?: unknown;
+  pad_filler?: unknown;
+  render_order: string[];
   genes: GeneSchema[];
+  /** Preserve any unknown top-level field. */
+  [key: string]: unknown;
 }
 
 export type RunMode = "ga" | "random" | "seed-only";

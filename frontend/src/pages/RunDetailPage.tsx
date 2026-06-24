@@ -39,7 +39,9 @@ export function RunDetailPage() {
   const [allIndividuals, setAllIndividuals] = useState<IndividualRecord[]>([]);
   const [allError, setAllError] = useState<string | null>(null);
 
-  // Genome schema — static for the run, fetched once for the Alleles tab.
+  // Genome schema — the SNAPSHOT frozen into this run's experiment, which may
+  // differ from the current editable draft. Fetched once for the lineage tree
+  // and Alleles tab so the view reflects the schema the run actually used.
   const [schema, setSchema] = useState<GenomeSchema | null>(null);
   const [schemaError, setSchemaError] = useState<string | null>(null);
 
@@ -118,11 +120,11 @@ export function RunDetailPage() {
 
   usePolling(refresh, 3000, polling);
 
-  // Genome schema is fixed per deployment; fetch it once.
+  // The run's own schema snapshot is fixed once the run exists; fetch it once.
   useEffect(() => {
     let cancelled = false;
     api
-      .getSchema()
+      .getRunSchema(runId)
       .then((data) => {
         if (!cancelled) {
           setSchema(data);
@@ -139,7 +141,7 @@ export function RunDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [runId]);
 
   const handleDelete = useCallback(async () => {
     if (

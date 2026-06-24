@@ -119,6 +119,17 @@ export const api = {
     return request("/schema");
   },
 
+  putSchema(schema: GenomeSchema): Promise<GenomeSchema> {
+    return request("/schema", {
+      method: "PUT",
+      body: JSON.stringify(schema),
+    });
+  },
+
+  getRunSchema(runId: string): Promise<GenomeSchema> {
+    return request(`/runs/${encodeURIComponent(runId)}/schema`);
+  },
+
   getGenerations(runId: string): Promise<GenerationRecord[]> {
     return request(`/runs/${encodeURIComponent(runId)}/generations`);
   },

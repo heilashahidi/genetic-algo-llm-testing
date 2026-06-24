@@ -114,7 +114,7 @@ export const DEFAULT_FORM: FormFields = {
   population_size: 12,
   max_generations: 5,
   min_generations: 0,
-  stop_on_success: true,
+  stop_on_success: false,
   mutation_rate: 0.15,
   crossover_rate: 0.85,
   elite_count: 5,

@@ -35,16 +35,16 @@ interface Props {
 }
 
 const SERIES_COLORS = [
-  "#2563eb",
-  "#16a34a",
-  "#f0a202",
-  "#d1495b",
-  "#7c3aed",
-  "#0891b2",
-  "#db2777",
-  "#65a30d",
-  "#ea580c",
-  "#0d9488",
+  "#3b6ef6", // blue
+  "#30a46c", // green
+  "#e0901a", // amber
+  "#e5484d", // red
+  "#8b5cf6", // violet
+  "#0d9488", // teal
+  "#f43f5e", // rose
+  "#4f5a78", // accent
+  "#0891b2", // cyan
+  "#65a30d", // lime
 ];
 
 function fmt(value: number, digits = 2): string {
@@ -59,13 +59,14 @@ function signed(value: number, digits = 2): string {
 /** Color for a lift value: diverging red (negative) → gray (0) → green. */
 function liftColor(lift: number): string {
   const t = Math.max(-0.5, Math.min(0.5, lift)) / 0.5; // -1..1
+  // gray muted-2 #9a9da5 → green #30a46c (positive) / red #e5484d (negative)
   if (t >= 0) {
     const mix = (a: number, b: number) => Math.round(a + (b - a) * t);
-    return `rgb(${mix(0x94, 0x2a)}, ${mix(0xa3, 0x9d)}, ${mix(0xb8, 0x8f)})`;
+    return `rgb(${mix(0x9a, 0x30)}, ${mix(0x9d, 0xa4)}, ${mix(0xa5, 0x6c)})`;
   }
   const u = -t;
   const mix = (a: number, b: number) => Math.round(a + (b - a) * u);
-  return `rgb(${mix(0x94, 0xd1)}, ${mix(0xa3, 0x49)}, ${mix(0xb8, 0x5b)})`;
+  return `rgb(${mix(0x9a, 0xe5)}, ${mix(0x9d, 0x48)}, ${mix(0xa5, 0x4d)})`;
 }
 
 function geneByName(schema: GenomeSchema): Map<string, GeneSchema> {
@@ -423,7 +424,7 @@ function FrequencyView({
               data={points}
               margin={{ top: 8, right: 16, bottom: 8, left: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e7e8ea" />
               <XAxis dataKey="generation" type="number" allowDecimals={false} />
               <YAxis domain={[0, 1]} />
               <Tooltip />
@@ -445,7 +446,7 @@ function FrequencyView({
               data={points}
               margin={{ top: 8, right: 16, bottom: 8, left: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e7e8ea" />
               <XAxis dataKey="generation" type="number" allowDecimals={false} />
               <YAxis domain={[0, 1]} />
               <Tooltip />

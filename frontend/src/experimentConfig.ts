@@ -80,7 +80,7 @@ export function saveModels(models: string[]): void {
 }
 
 /** Base URL used when none has been used before (the shared ollama server). */
-export const DEFAULT_BASE_URL = "http://135.181.63.247:11434/v1";
+export const DEFAULT_BASE_URL = "http://209.137.198.195:11434/v1";
 
 const LAST_BASE_URL_KEY = "ga.lastBaseUrl";
 

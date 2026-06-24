@@ -14,12 +14,30 @@ export function App() {
 
   return (
     <div className="app">
+      <div className="dot-grid" aria-hidden />
       <header className="app__header">
         <Link to="/runs" className="app__brand">
-          GA Control Plane
+          <span className="app__brand-mark" aria-hidden>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <g stroke="#0b0b0d" strokeWidth="0.5" strokeLinejoin="round">
+                <path d="M12 3 L19 7 L12 11 L5 7 Z" fill="#ffffff" fillOpacity="0.95" />
+                <path d="M5 7 L12 11 L12 19.5 L5 15.5 Z" fill="#ffffff" fillOpacity="0.42" />
+                <path d="M19 7 L12 11 L12 19.5 L19 15.5 Z" fill="#ffffff" fillOpacity="0.24" />
+              </g>
+            </svg>
+          </span>
+          <span>
+            <span className="app__brand-sub">genetic · llm robustness</span>
+            GA Control Plane
+          </span>
         </Link>
         <nav className="app__nav">
-          <Link to="/runs">Runs</Link>
+          <Link
+            to="/runs"
+            className={location.pathname.startsWith("/runs") ? "is-active" : ""}
+          >
+            Runs
+          </Link>
           <Link
             to="/schema"
             className={location.pathname === "/schema" ? "is-active" : ""}

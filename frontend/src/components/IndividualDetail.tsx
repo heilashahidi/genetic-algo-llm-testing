@@ -8,12 +8,12 @@ import type { IndividualRecord } from "../types";
  * consistent. null / untested → gray.
  */
 export function fitnessColor(fitness: number | null | undefined): string {
-  if (fitness == null || Number.isNaN(fitness)) return "#94a3b8"; // gray
+  if (fitness == null || Number.isNaN(fitness)) return "#9a9da5"; // muted-2
   const t = Math.max(0, Math.min(1, fitness));
-  // Two-stop interpolation: red(#d1495b) → amber(#f0a202) → green(#2a9d8f).
-  const red = { r: 0xd1, g: 0x49, b: 0x5b };
-  const amber = { r: 0xf0, g: 0xa2, b: 0x02 };
-  const green = { r: 0x2a, g: 0x9d, b: 0x8f };
+  // Two-stop interpolation over house semantics: red → amber → green.
+  const red = { r: 0xe5, g: 0x48, b: 0x4d };
+  const amber = { r: 0xe0, g: 0x90, b: 0x1a };
+  const green = { r: 0x30, g: 0xa4, b: 0x6c };
   let from: { r: number; g: number; b: number };
   let to: { r: number; g: number; b: number };
   let local: number;

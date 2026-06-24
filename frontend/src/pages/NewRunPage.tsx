@@ -5,14 +5,46 @@ import {
   buildConfig,
   DEFAULT_FORM,
   deriveSeedCounts,
+  loadLastBaseUrl,
+  loadModels,
   mergeConfig,
+  saveLastBaseUrl,
+  saveModels,
   type FormFields,
 } from "../experimentConfig";
 import type { HarnessProvider, RunMode } from "../types";
 
 export function NewRunPage() {
   const navigate = useNavigate();
-  const [fields, setFields] = useState<FormFields>(DEFAULT_FORM);
+  const [models, setModels] = useState<string[]>(() => loadModels());
+  const [newModel, setNewModel] = useState("");
+  const [fields, setFields] = useState<FormFields>(() => ({
+    ...DEFAULT_FORM,
+    base_url: loadLastBaseUrl(),
+    model: loadModels()[0] ?? DEFAULT_FORM.model,
+  }));
+
+  function addModel() {
+    const tag = newModel.trim();
+    if (!tag || models.includes(tag)) {
+      setNewModel("");
+      return;
+    }
+    const next = [...models, tag];
+    setModels(next);
+    saveModels(next);
+    update("model", tag);
+    setNewModel("");
+  }
+
+  function removeModel(tag: string) {
+    const next = models.filter((m) => m !== tag);
+    setModels(next);
+    saveModels(next);
+    if (fields.model === tag) {
+      update("model", next[0] ?? "");
+    }
+  }
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [rawJson, setRawJson] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -66,6 +98,7 @@ export function NewRunPage() {
 
     setSubmitting(true);
     try {
+      saveLastBaseUrl(fields.base_url);
       const experimentId = await api.createExperiment(fields.name, config);
       const runId = await api.createRun(experimentId);
       navigate(`/runs/${runId}`);
@@ -81,7 +114,9 @@ export function NewRunPage() {
         <h1>New run</h1>
       </div>
       <p className="muted">
-        Defaults run a mock dry-run that completes quickly with no real LLM.
+        Defaults run against ollama. Pick a model and base URL (the last base
+        URL you used is pre-filled). Enable "Dry run" for a quick mock run with
+        no real LLM.
       </p>
 
       {error && <div className="alert alert--error">{error}</div>}
@@ -148,12 +183,64 @@ export function NewRunPage() {
             </label>
             <label className="field">
               <span>Model</span>
-              <input
-                type="text"
+              <select
                 value={fields.model}
                 onChange={(e) => update("model", e.target.value)}
-              />
+              >
+                {models.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+                {fields.model && !models.includes(fields.model) && (
+                  <option value={fields.model}>{fields.model}</option>
+                )}
+                {models.length === 0 && <option value="">(no models)</option>}
+              </select>
             </label>
+          </div>
+          <div className="field-row">
+            <label className="field">
+              <span>Add model</span>
+              <div className="input-with-button">
+                <input
+                  type="text"
+                  value={newModel}
+                  placeholder="e.g. llama3.2:latest"
+                  onChange={(e) => setNewModel(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addModel();
+                    }
+                  }}
+                />
+                <button type="button" className="btn" onClick={addModel}>
+                  Add
+                </button>
+              </div>
+            </label>
+            <div className="field">
+              <span>Manage models</span>
+              <div className="model-chips">
+                {models.map((m) => (
+                  <span key={m} className="model-chip">
+                    {m}
+                    <button
+                      type="button"
+                      className="model-chip__remove"
+                      title={`Remove ${m}`}
+                      onClick={() => removeModel(m)}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                {models.length === 0 && (
+                  <span className="muted">No models — add one above.</span>
+                )}
+              </div>
+            </div>
           </div>
           <label className="field">
             <span>Base URL</span>

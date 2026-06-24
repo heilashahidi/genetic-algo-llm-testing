@@ -29,7 +29,7 @@ def render_wrapper(genome: dict, schema: dict | None = None) -> str:
     if _render is None:
         _render = _load_render_function()
     schema = schema or load_schema()
-    return _render(genome, schema["length_class_thresholds"])
+    return _render(genome, schema["length_class_thresholds"], schema)
 
 
 def build_phenotype(genome: dict, target_query: str, schema: dict | None = None) -> str:

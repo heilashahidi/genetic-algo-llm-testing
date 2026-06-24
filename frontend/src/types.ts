@@ -44,6 +44,21 @@ export interface IndividualRecord {
   created_at?: string | null;
 }
 
+export type GeneType = "categorical" | "boolean" | "multi_categorical";
+export type GeneChannel = "semantic" | "perturbation";
+
+export interface GeneSchema {
+  name: string;
+  type: GeneType;
+  channel: GeneChannel;
+  /** Allowed values; null for boolean genes. */
+  alleles: string[] | null;
+}
+
+export interface GenomeSchema {
+  genes: GeneSchema[];
+}
+
 export type RunMode = "ga" | "random" | "seed-only";
 export type HarnessProvider = "ollama" | "lmstudio" | "mock";
 

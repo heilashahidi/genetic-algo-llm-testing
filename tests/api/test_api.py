@@ -318,3 +318,14 @@ def test_api_has_no_ga_logic_only_lifecycle_calls():
     source = inspect.getsource(api.routes)
     for forbidden in ("ga.evolution", "ga.individual", "ga.fitness", "ga.population"):
         assert forbidden not in source, f"routes.py references {forbidden}"
+
+
+def test_schema_endpoint_returns_genes_and_channels(client):
+    resp = client.get("/schema")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert "genes" in body and isinstance(body["genes"], list) and body["genes"]
+    gene = body["genes"][0]
+    assert "name" in gene and "type" in gene
+    channels = {g.get("channel") for g in body["genes"]}
+    assert {"semantic", "perturbation"} <= channels

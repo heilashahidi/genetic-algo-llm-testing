@@ -13,13 +13,22 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
+from functools import lru_cache
+
 from ga import run_lifecycle
+from ga.codec import load_schema
 from ga.config import ExperimentConfig
 
 from . import schemas
 from .deps import get_conn, require_auth
 
 router = APIRouter()
+
+
+@lru_cache(maxsize=1)
+def _genome_schema() -> dict[str, Any]:
+    """The genome schema (genes, types, channels, alleles), cached."""
+    return load_schema()
 
 
 def _validate_config(raw: dict[str, Any]) -> dict[str, Any]:
@@ -41,6 +50,13 @@ def _validate_config(raw: dict[str, Any]) -> dict[str, Any]:
 @router.get("/health", response_model=schemas.HealthResponse)
 def health() -> schemas.HealthResponse:
     return schemas.HealthResponse(status="ok")
+
+
+@router.get("/schema")
+def genome_schema() -> dict[str, Any]:
+    """Return the genome schema so the UI can enumerate genes, types,
+    channels, and the full allele set (including alleles absent from a run)."""
+    return _genome_schema()
 
 
 @router.post(

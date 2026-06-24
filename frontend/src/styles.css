@@ -892,3 +892,321 @@ legend {
   border: 2px solid #f59e0b;
   display: inline-block;
 }
+
+/* Allele Explorer --------------------------------------------------------- */
+.alleles {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.alleles__title {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+}
+
+.alleles__subtitle {
+  margin: 0 0 16px;
+  font-size: 0.85rem;
+}
+
+.alleles__view-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+/* Toolbar */
+.alleles__toolbar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+}
+
+.alleles__metric-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.alleles__metric-toggle .tab {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding: 8px 14px;
+}
+
+.alleles__metric-toggle .tab--active {
+  background: var(--bg);
+  border-bottom: none;
+}
+
+.alleles__pop {
+  font-size: 0.85rem;
+}
+
+.alleles__note {
+  margin: 12px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  border-top: 1px dashed var(--border);
+  padding-top: 10px;
+}
+
+/* Leaderboard */
+.alleles__channel {
+  margin-bottom: 20px;
+}
+
+.alleles__channel-title {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.alleles__gene-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 760px) {
+  .alleles__gene-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .alleles__gene-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.allele-gene {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.allele-gene__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.allele-gene__type {
+  font-size: 0.72rem;
+}
+
+.allele-gene__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.allele-bar {
+  display: grid;
+  grid-template-columns: 110px 1fr 48px 44px;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.allele-bar--dim {
+  opacity: 0.4;
+}
+
+.allele-bar__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.allele-bar__track {
+  background: var(--bg);
+  border-radius: 999px;
+  height: 14px;
+  overflow: hidden;
+}
+
+.allele-bar__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  min-width: 2px;
+}
+
+.allele-bar__value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.allele-bar__n {
+  text-align: right;
+  font-size: 0.72rem;
+}
+
+/* Combination view */
+.alleles__combo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1040px) {
+  .alleles__combo {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+  }
+}
+
+.heatmap-scroll {
+  overflow-x: auto;
+}
+
+.heatmap {
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.heatmap th,
+.heatmap td {
+  border: 1px solid var(--border);
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.heatmap__corner {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.7rem;
+  text-align: left;
+}
+
+.heatmap__colhead,
+.heatmap__rowhead {
+  background: var(--bg);
+  font-weight: 600;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.heatmap__cell {
+  min-width: 56px;
+}
+
+.heatmap__cell--dim {
+  background: var(--bg);
+}
+
+.heatmap__cell-mean {
+  display: block;
+  font-weight: 700;
+}
+
+.heatmap__cell-n {
+  display: block;
+  font-size: 0.65rem;
+  opacity: 0.85;
+}
+
+.alleles__synergy {
+  min-width: 0;
+}
+
+.synergy-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 460px;
+  overflow: auto;
+}
+
+.synergy-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.synergy-row:hover {
+  background: var(--bg);
+  border-color: var(--border);
+}
+
+.synergy-row__pair {
+  flex: 1 1 auto;
+}
+
+.synergy-row__value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.synergy-row__n {
+  font-size: 0.72rem;
+}
+
+/* Parallel categories */
+.parcats__axis-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.parcats__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+}
+
+.parcats__scroll {
+  overflow-x: auto;
+}
+
+.parcats__svg {
+  display: block;
+}
+
+.parcats__axis-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  fill: var(--text);
+}
+
+.parcats__segment {
+  fill: var(--muted);
+  opacity: 0.5;
+}
+
+.parcats__segment:hover {
+  opacity: 0.85;
+}
+
+.parcats__segment-label {
+  font-size: 0.66rem;
+  fill: var(--text);
+}

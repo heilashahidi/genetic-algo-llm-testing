@@ -4,6 +4,7 @@ import { api } from "../api";
 import { isTerminal } from "../types";
 import type {
   GenerationRecord,
+  GenomeSchema,
   IndividualRecord,
   RunRecord,
 } from "../types";
@@ -14,8 +15,9 @@ import { FitnessCharts } from "../components/FitnessCharts";
 import { GenomeModal } from "../components/GenomeModal";
 import { LineageTree } from "../components/LineageTree";
 import { IndividualDetail } from "../components/IndividualDetail";
+import { AlleleExplorer } from "../components/AlleleExplorer";
 
-type ViewTab = "tree" | "table";
+type ViewTab = "tree" | "table" | "alleles";
 
 function formatTime(value: string | null): string {
   if (!value) return "—";
@@ -36,6 +38,10 @@ export function RunDetailPage() {
   // All individuals across every generation — powers the tree + offspring.
   const [allIndividuals, setAllIndividuals] = useState<IndividualRecord[]>([]);
   const [allError, setAllError] = useState<string | null>(null);
+
+  // Genome schema — static for the run, fetched once for the Alleles tab.
+  const [schema, setSchema] = useState<GenomeSchema | null>(null);
+  const [schemaError, setSchemaError] = useState<string | null>(null);
 
   // Single source of truth for which individual is selected (by id).
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -111,6 +117,29 @@ export function RunDetailPage() {
   }, [runId]);
 
   usePolling(refresh, 3000, polling);
+
+  // Genome schema is fixed per deployment; fetch it once.
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getSchema()
+      .then((data) => {
+        if (!cancelled) {
+          setSchema(data);
+          setSchemaError(null);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setSchemaError(
+            err instanceof Error ? err.message : "Failed to load genome schema.",
+          );
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleDelete = useCallback(async () => {
     if (
@@ -283,9 +312,16 @@ export function RunDetailPage() {
             >
               Table
             </button>
+            <button
+              type="button"
+              className={`tab${view === "alleles" ? " tab--active" : ""}`}
+              onClick={() => setView("alleles")}
+            >
+              Alleles
+            </button>
           </div>
 
-          {view === "tree" ? (
+          {view === "tree" && (
             <div className="ga-explorer">
               <div className="card ga-explorer__graph">
                 {allError && (
@@ -313,7 +349,9 @@ export function RunDetailPage() {
                 )}
               </aside>
             </div>
-          ) : (
+          )}
+
+          {view === "table" && (
             <div className="card">
               <div className="page-head">
                 <h2>Individuals</h2>
@@ -399,6 +437,28 @@ export function RunDetailPage() {
                 </table>
               )}
             </div>
+          )}
+
+          {view === "alleles" && (
+            <>
+              {allError && <div className="alert alert--error">{allError}</div>}
+              {schemaError ? (
+                <div className="alert alert--error">{schemaError}</div>
+              ) : schema === null ? (
+                <div className="card">
+                  <p className="muted">Loading genome schema…</p>
+                </div>
+              ) : allIndividuals.length === 0 ? (
+                <div className="card">
+                  <p className="muted">Waiting for data — no individuals yet.</p>
+                </div>
+              ) : (
+                <AlleleExplorer
+                  individuals={allIndividuals}
+                  schema={schema}
+                />
+              )}
+            </>
           )}
         </>
       )}

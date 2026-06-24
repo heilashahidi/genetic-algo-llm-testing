@@ -1,6 +1,7 @@
 import type {
   ControlResponse,
   GenerationRecord,
+  GenomeSchema,
   IndividualRecord,
   RunRecord,
 } from "./types";
@@ -112,6 +113,10 @@ export const api = {
     await request<void>(`/runs/${encodeURIComponent(runId)}`, {
       method: "DELETE",
     });
+  },
+
+  getSchema(): Promise<GenomeSchema> {
+    return request("/schema");
   },
 
   getGenerations(runId: string): Promise<GenerationRecord[]> {

@@ -12,6 +12,7 @@ export interface FormFields {
   provider: HarnessProvider;
   model: string;
   base_url: string;
+  max_parallel_requests: number;
   population_size: number;
   max_generations: number;
   min_generations: number;
@@ -109,6 +110,7 @@ export const DEFAULT_FORM: FormFields = {
   provider: "ollama",
   model: DEFAULT_MODELS[0],
   base_url: DEFAULT_BASE_URL,
+  max_parallel_requests: 12,
   population_size: 12,
   max_generations: 5,
   min_generations: 0,
@@ -185,6 +187,7 @@ export function buildConfig(fields: FormFields): Record<string, unknown> {
       provider: fields.provider,
       base_url: fields.base_url,
       model: fields.model,
+      max_parallel_requests: Math.max(1, fields.max_parallel_requests),
     },
   };
 }

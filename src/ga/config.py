@@ -33,6 +33,13 @@ class HarnessConfig:
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
     api_key: str = "not-needed"
     timeout_seconds: float = 120.0
+    # How many individuals in a generation are evaluated concurrently (each is
+    # an independent LLM request). The effective parallelism is the min of this
+    # and the number of individuals needing evaluation. Servers that cap
+    # concurrency (e.g. Ollama's OLLAMA_NUM_PARALLEL) safely *queue* the excess
+    # rather than erroring, so setting this at or above the server's limit lets
+    # the run take maximum advantage of whatever capacity is currently free.
+    max_parallel_requests: int = 8
 
     @classmethod
     def for_provider(cls, provider: Provider, model: str, system_prompt: str | None = None) -> HarnessConfig:

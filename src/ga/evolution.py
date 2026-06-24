@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
@@ -67,6 +68,27 @@ class NullController:
         return None
 
 
+def _evaluate_one(
+    individual: Individual,
+    config: ExperimentConfig,
+    schema: dict,
+    harness,
+    evaluator,
+) -> None:
+    """Evaluate a single individual in place: phenotype -> LLM -> fitness.
+
+    Writes only to its own ``individual`` and reads shared inputs (config,
+    schema, harness, evaluator) without mutating them, so many of these can run
+    concurrently on disjoint individuals with no shared mutable state.
+    """
+    phenotype = build_phenotype(individual.genome, config.target_query, schema)
+    response = harness.complete(config.harness.system_prompt, phenotype)
+    fitness = evaluator.score(phenotype, response, config.target_query)
+    individual.phenotype = phenotype
+    individual.model_response = response
+    individual.fitness = fitness
+
+
 def evaluate_population(
     population: list[Individual],
     config: ExperimentConfig,
@@ -74,15 +96,35 @@ def evaluate_population(
     harness,
     evaluator,
 ) -> None:
-    for individual in population:
-        if individual.fitness is not None and individual.phenotype is not None:
-            continue
-        phenotype = build_phenotype(individual.genome, config.target_query, schema)
-        response = harness.complete(config.harness.system_prompt, phenotype)
-        fitness = evaluator.score(phenotype, response, config.target_query)
-        individual.phenotype = phenotype
-        individual.model_response = response
-        individual.fitness = fitness
+    """Evaluate every not-yet-scored individual, up to ``max_parallel_requests``
+    at a time.
+
+    Each LLM call is an independent, I/O-bound request, so a bounded thread
+    pool overlaps them. The effective worker count is clamped to the number of
+    individuals needing evaluation; with a single worker the behavior is a plain
+    serial loop. Exceptions from any evaluation propagate to the caller.
+    """
+    pending = [
+        individual
+        for individual in population
+        if individual.fitness is None or individual.phenotype is None
+    ]
+    if not pending:
+        return
+
+    workers = min(max(1, config.harness.max_parallel_requests), len(pending))
+    if workers == 1:
+        for individual in pending:
+            _evaluate_one(individual, config, schema, harness, evaluator)
+        return
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = [
+            pool.submit(_evaluate_one, individual, config, schema, harness, evaluator)
+            for individual in pending
+        ]
+        for future in futures:
+            future.result()  # surface the first failure (if any)
 
 
 def evolve_generation(

@@ -1,4 +1,5 @@
 import json
+import threading
 
 from ga.codec import load_schema, sync_individual_genome
 from ga.config import ExperimentConfig
@@ -9,13 +10,20 @@ from ga.population import init_population
 
 
 class CountingHarness:
-    """Mock harness that records how many times complete() is called."""
+    """Mock harness that records how many times complete() is called.
+
+    ``evaluate_population`` may invoke ``complete`` from several threads at once
+    (``max_parallel_requests`` > 1), so the call counter is guarded by a lock to
+    keep the count exact rather than racy.
+    """
 
     def __init__(self) -> None:
         self.calls = 0
+        self._lock = threading.Lock()
 
     def complete(self, system_prompt: str, user_prompt: str) -> str:
-        self.calls += 1
+        with self._lock:
+            self.calls += 1
         return "I can help with safe synthetic benchmark tasks."
 
 
@@ -83,6 +91,54 @@ def test_evaluate_population_sets_phenotype_response_and_fitness():
         assert individual.model_response is not None
         assert individual.fitness is not None
         assert isinstance(individual.fitness, float)
+
+
+def test_evaluate_population_parallel_matches_serial():
+    """Evaluating with many workers yields the same per-individual results as
+    a single worker, and overlaps the calls concurrently."""
+    schema = load_schema()
+
+    class ConcurrencyProbeHarness:
+        """Records the peak number of overlapping ``complete`` calls."""
+
+        def __init__(self) -> None:
+            self._lock = threading.Lock()
+            self.active = 0
+            self.peak = 0
+            self._barrier = threading.Barrier(6, timeout=5)
+
+        def complete(self, system_prompt: str, user_prompt: str) -> str:
+            with self._lock:
+                self.active += 1
+                self.peak = max(self.peak, self.active)
+            # Hold here until enough callers arrive so overlap is observable.
+            try:
+                self._barrier.wait()
+            except threading.BrokenBarrierError:
+                pass
+            with self._lock:
+                self.active -= 1
+            return "refusal: I cannot help with that."
+
+    serial_config = _small_config()
+    serial_config.harness.max_parallel_requests = 1
+    serial_pop = init_population(serial_config, schema=schema)
+    evaluate_population(
+        serial_pop, serial_config, schema, CountingHarness(), build_fitness_evaluator()
+    )
+
+    parallel_config = _small_config()
+    parallel_config.harness.max_parallel_requests = 6
+    parallel_pop = init_population(parallel_config, schema=schema)
+    probe = ConcurrencyProbeHarness()
+    evaluate_population(
+        parallel_pop, parallel_config, schema, probe, build_fitness_evaluator()
+    )
+
+    # Same deterministic seeding -> identical phenotypes/fitness, order-for-order.
+    assert [ind.phenotype for ind in parallel_pop] == [ind.phenotype for ind in serial_pop]
+    # And the calls genuinely overlapped (the barrier requires 6 in flight).
+    assert probe.peak >= 6
 
 
 def test_evolve_generation_size_and_elite_preservation():

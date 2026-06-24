@@ -28,6 +28,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--population", type=int, help="Population size")
     parser.add_argument("--mode", choices=["ga", "random", "seed-only"], dest="run_mode")
     parser.add_argument("--target-query", help="Synthetic target query")
+    parser.add_argument(
+        "--max-parallel",
+        type=int,
+        dest="max_parallel_requests",
+        help="Max individuals evaluated concurrently per generation (LLM requests)",
+    )
     parser.add_argument("--seed", type=int, dest="random_seed")
     parser.add_argument("--dry-run", action="store_true", help="Use mock harness and synthetic fitness")
     parser.add_argument("--experiment-id", help="Optional experiment directory name")
@@ -68,6 +74,8 @@ def apply_overrides(config: ExperimentConfig, args: argparse.Namespace) -> Exper
         config.run_mode = args.run_mode
     if args.target_query:
         config.target_query = args.target_query
+    if args.max_parallel_requests is not None:
+        config.harness.max_parallel_requests = args.max_parallel_requests
     if args.random_seed is not None:
         config.random_seed = args.random_seed
     if args.dry_run:

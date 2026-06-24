@@ -250,6 +250,21 @@ export function NewRunPage() {
               onChange={(e) => update("base_url", e.target.value)}
             />
           </label>
+          <label className="field">
+            <span>Max parallel requests</span>
+            <input
+              type="number"
+              min={1}
+              value={fields.max_parallel_requests}
+              onChange={num("max_parallel_requests")}
+            />
+            <small className="field__hint">
+              How many individuals are evaluated at once per generation. The
+              shared ollama server handles up to ~48 concurrent requests; any
+              extra are queued, not dropped, so a higher value safely takes
+              maximum advantage of whatever capacity is free.
+            </small>
+          </label>
         </fieldset>
 
         <fieldset className="card">

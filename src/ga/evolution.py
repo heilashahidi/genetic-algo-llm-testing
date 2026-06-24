@@ -193,7 +193,7 @@ def run_experiment(
     """
     repo_root = repo_root or Path(__file__).resolve().parents[2]
     controller = controller or NullController()
-    schema = load_schema()
+    schema = config.schema or load_schema()
     harness = build_harness(config.harness, dry_run=config.dry_run)
     evaluator = build_fitness_evaluator(config.fitness)
     storage = storage or build_storage(config, repo_root)

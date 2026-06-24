@@ -285,3 +285,55 @@ def test_worker_stop_finalizes_stopped(conn, created_experiments):
     # Only generation 0 should have been stored before the stop was honored.
     gens = rl.list_generations(conn, run_id)
     assert [g["generation"] for g in gens] == [0]
+
+
+def test_draft_schema_round_trip(conn):
+    from ga import run_lifecycle as rl
+
+    assert rl.get_draft_schema(conn) is None or isinstance(rl.get_draft_schema(conn), dict)
+
+    body = {
+        "genes": [
+            {"name": "a", "type": "categorical", "channel": "semantic", "alleles": ["x", "y"]},
+            {"name": "b", "type": "boolean", "channel": "perturbation"},
+        ],
+        "render_order": ["a", "b"],
+    }
+    rl.save_draft_schema(conn, body)
+    assert rl.get_draft_schema(conn) == body
+
+    # Upsert overwrites the singleton row.
+    body2 = {"genes": [{"name": "c", "type": "boolean", "channel": "semantic"}]}
+    rl.save_draft_schema(conn, body2)
+    assert rl.get_draft_schema(conn) == body2
+
+    # Clean up the singleton so other tests/runs start fresh.
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM schema_drafts WHERE id = 'draft'")
+    conn.commit()
+
+
+def test_run_schema_snapshot_lookup(conn, created_experiments):
+    from ga import run_lifecycle as rl
+
+    snapshot = {
+        "genes": [{"name": "g", "type": "boolean", "channel": "semantic"}],
+        "render_order": ["g"],
+    }
+    config = ExperimentConfig(experiment_id="snap_it", schema=snapshot).to_dict()
+    experiment_id = rl.create_experiment(conn, "snap_it", config)
+    created_experiments.append(experiment_id)
+    run_id = rl.enqueue_run(conn, experiment_id)
+
+    assert rl.get_run_schema(conn, run_id) == snapshot
+
+
+def test_run_schema_lookup_returns_none_without_snapshot(conn, created_experiments):
+    from ga import run_lifecycle as rl
+
+    config = ExperimentConfig(experiment_id="no_snap_it").to_dict()
+    experiment_id = rl.create_experiment(conn, "no_snap_it", config)
+    created_experiments.append(experiment_id)
+    run_id = rl.enqueue_run(conn, experiment_id)
+
+    assert rl.get_run_schema(conn, run_id) is None

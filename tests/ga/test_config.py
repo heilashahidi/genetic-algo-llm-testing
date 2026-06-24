@@ -184,3 +184,24 @@ def test_apply_overrides_generations():
     args = parser.parse_args(["--generations", "12"])
     config = run_ga.apply_overrides(ExperimentConfig(), args)
     assert config.ga.max_generations == 12
+
+
+def test_config_round_trips_schema_field():
+    snapshot = {
+        "genes": [
+            {"name": "a", "type": "categorical", "channel": "semantic", "alleles": ["x"]},
+        ],
+        "render_order": ["a"],
+    }
+    config = ExperimentConfig(experiment_id="snap", schema=snapshot)
+    payload = config.to_dict()
+    assert payload["schema"] == snapshot
+    restored = ExperimentConfig.from_dict(payload)
+    assert restored.schema == snapshot
+
+
+def test_config_schema_defaults_to_none():
+    config = ExperimentConfig()
+    assert config.schema is None
+    assert ExperimentConfig.from_dict({}).schema is None
+    assert config.to_dict()["schema"] is None

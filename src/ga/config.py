@@ -127,6 +127,10 @@ class ExperimentConfig:
     fitness: FitnessConfig = field(default_factory=FitnessConfig)
     dry_run: bool = False
     output_dir: str = "experiments"
+    # Per-experiment snapshot of the genome schema. When set, the run renders
+    # and seeds from this snapshot (frozen at experiment-creation time); when
+    # None the file schema is used. Keeps dry-run/file behavior identical.
+    schema: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -150,6 +154,7 @@ class ExperimentConfig:
             ),
             dry_run=payload.get("dry_run", False),
             output_dir=payload.get("output_dir", "experiments"),
+            schema=payload.get("schema"),
         )
 
 

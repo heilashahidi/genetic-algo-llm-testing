@@ -84,6 +84,16 @@ _LIST_INDIVIDUALS = (
     "FROM individuals WHERE run_id = %(run_id)s "
 )
 
+_GET_DRAFT_SCHEMA = "SELECT body FROM schema_drafts WHERE id = 'draft'"
+_UPSERT_DRAFT_SCHEMA = (
+    "INSERT INTO schema_drafts (id, body) VALUES ('draft', %(body)s) "
+    "ON CONFLICT (id) DO UPDATE SET body = EXCLUDED.body, updated_at = now()"
+)
+_GET_RUN_EXPERIMENT_CONFIG = (
+    "SELECT e.config FROM runs r JOIN experiments e ON e.id = r.experiment_id "
+    "WHERE r.id = %(run_id)s"
+)
+
 _DELETE_RUN = "DELETE FROM runs WHERE id = %(run_id)s RETURNING experiment_id"
 _EXPERIMENT_HAS_RUNS = (
     "SELECT 1 FROM runs WHERE experiment_id = %(experiment_id)s LIMIT 1"
@@ -151,6 +161,38 @@ def create_experiment(conn, name: str, config: dict) -> str:
             {"id": experiment_id, "name": name, "config": json.dumps(config, ensure_ascii=False)},
         )
     return experiment_id
+
+
+def get_draft_schema(conn) -> dict[str, Any] | None:
+    """Return the persisted draft schema body, or None if no draft row exists."""
+    with conn.cursor() as cur:
+        cur.execute(_GET_DRAFT_SCHEMA)
+        row = cur.fetchone()
+    return row[0] if row else None
+
+
+def save_draft_schema(conn, body: dict) -> None:
+    """Upsert the singleton draft schema row (id='draft')."""
+    with conn.cursor() as cur:
+        cur.execute(_UPSERT_DRAFT_SCHEMA, {"body": json.dumps(body, ensure_ascii=False)})
+
+
+def get_run_schema(conn, run_id: str) -> dict[str, Any] | None:
+    """Return the schema snapshot stored in a run's experiment config.
+
+    Joins runs -> experiments and reads ``config["schema"]``. Returns None when
+    the run is unknown or its config carries no snapshot (callers fall back to
+    the file schema).
+    """
+    with conn.cursor() as cur:
+        cur.execute(_GET_RUN_EXPERIMENT_CONFIG, {"run_id": run_id})
+        row = cur.fetchone()
+    if row is None:
+        return None
+    config = row[0]
+    if isinstance(config, str):
+        config = json.loads(config)
+    return config.get("schema") if isinstance(config, dict) else None
 
 
 def enqueue_run(conn, experiment_id: str) -> str:

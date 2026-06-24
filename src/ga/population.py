@@ -10,8 +10,10 @@ from typing import Any
 
 from ga.codec import (
     ATTACK_LIBRARY_ROOT,
+    encode_genome_to_vector,
     gene_blocks,
     load_schema,
+    sanitize_genome,
     sync_individual_genome,
 )
 from ga.config import ExperimentConfig
@@ -101,6 +103,19 @@ def weighted_sample_without_replacement(
     return selected
 
 
+def seed_vector(record: dict[str, Any], schema: dict) -> list[int]:
+    """Re-encode a seed's genome dict against the ACTIVE schema.
+
+    The stored ``record["vector_indices"]`` was computed against the schema in
+    force when the seed was authored; trusting it would silently misalign with
+    an edited schema. Instead we sanitize the genome dict (drop unknown genes /
+    alleles, fill missing genes with their schema default) and encode it fresh,
+    so seeding always tracks the active schema. For the base file schema this
+    reproduces the stored vector exactly.
+    """
+    return encode_genome_to_vector(sanitize_genome(record["genome"], schema), schema)
+
+
 def random_valid_vector(schema: dict, rng: random.Random) -> list[int]:
     vector: list[int] = []
     for gene in schema["genes"]:
@@ -170,7 +185,7 @@ def init_population(config: ExperimentConfig, schema: dict | None = None) -> lis
             make_individual(
                 individual_id=f"gen0_{index:03d}",
                 generation=0,
-                vector=list(record["vector_indices"]),
+                vector=seed_vector(record, schema),
                 schema=schema,
                 origin="seed",
             )
@@ -181,8 +196,8 @@ def init_population(config: ExperimentConfig, schema: dict | None = None) -> lis
         parent_a = rng.choice(seeds)
         parent_b = rng.choice(seeds)
         child_vector, _ = gene_block_crossover(
-            parent_a["vector_indices"],
-            parent_b["vector_indices"],
+            seed_vector(parent_a, schema),
+            seed_vector(parent_b, schema),
             blocks,
             rng,
         )
@@ -261,7 +276,7 @@ def init_seed_only_population(
             make_individual(
                 individual_id=f"gen{generation}_{index:03d}",
                 generation=generation,
-                vector=list(record["vector_indices"]),
+                vector=seed_vector(record, schema),
                 schema=schema,
                 origin="seed",
             )

@@ -50,6 +50,15 @@ def recorder(monkeypatch):
     monkeypatch.setattr(
         routes.run_lifecycle, "list_individuals", record("list_individuals", [])
     )
+    monkeypatch.setattr(
+        routes.run_lifecycle, "get_draft_schema", record("get_draft_schema", None)
+    )
+    monkeypatch.setattr(
+        routes.run_lifecycle, "save_draft_schema", record("save_draft_schema", None)
+    )
+    monkeypatch.setattr(
+        routes.run_lifecycle, "get_run_schema", record("get_run_schema", None)
+    )
 
     return {"calls": calls, "record": record, "monkeypatch": monkeypatch, "state": state}
 
@@ -320,7 +329,8 @@ def test_api_has_no_ga_logic_only_lifecycle_calls():
         assert forbidden not in source, f"routes.py references {forbidden}"
 
 
-def test_schema_endpoint_returns_genes_and_channels(client):
+def test_schema_endpoint_returns_genes_and_channels(client, recorder):
+    # default get_draft_schema returns None -> file schema fallback
     resp = client.get("/schema")
     assert resp.status_code == 200
     body = resp.json()
@@ -329,3 +339,68 @@ def test_schema_endpoint_returns_genes_and_channels(client):
     assert "name" in gene and "type" in gene
     channels = {g.get("channel") for g in body["genes"]}
     assert {"semantic", "perturbation"} <= channels
+
+
+def test_schema_endpoint_returns_db_draft_when_present(client, recorder):
+    draft = {
+        "genes": [
+            {"name": "only", "type": "boolean", "channel": "semantic"},
+        ]
+    }
+    recorder["monkeypatch"].setattr(
+        routes.run_lifecycle, "get_draft_schema", recorder["record"]("get_draft_schema", lambda: draft)
+    )
+    resp = client.get("/schema")
+    assert resp.status_code == 200
+    assert resp.json() == draft
+
+
+def test_put_schema_saves_valid_draft(client, recorder, fake_conn):
+    schema = {
+        "genes": [
+            {"name": "a", "type": "categorical", "channel": "semantic", "alleles": ["x", "y"]},
+            {"name": "b", "type": "boolean", "channel": "perturbation"},
+        ],
+        "render_order": ["a", "b"],
+    }
+    resp = client.put("/schema", json=schema)
+    assert resp.status_code == 200
+    assert resp.json() == schema
+    assert len(recorder["calls"]["save_draft_schema"]) == 1
+    args, _ = recorder["calls"]["save_draft_schema"][0]
+    assert args[0] is fake_conn
+    assert args[1] == schema
+
+
+def test_put_schema_rejects_invalid_with_422(client, recorder):
+    bad = {"genes": [{"name": "a", "channel": "semantic"}]}  # missing type
+    resp = client.put("/schema", json=bad)
+    assert resp.status_code == 422
+    assert "save_draft_schema" not in recorder["calls"]
+
+
+def test_create_experiment_injects_schema_snapshot(client, recorder, fake_conn):
+    resp = client.post("/experiments", json={"name": "snap", "config": {}})
+    assert resp.status_code == 201
+    args, _ = recorder["calls"]["create_experiment"][0]
+    config = args[2]
+    assert "schema" in config
+    assert isinstance(config["schema"]["genes"], list) and config["schema"]["genes"]
+
+
+def test_get_run_schema_returns_snapshot(client, recorder):
+    snapshot = {"genes": [{"name": "z", "type": "boolean", "channel": "semantic"}]}
+    recorder["monkeypatch"].setattr(
+        routes.run_lifecycle, "get_run_schema", recorder["record"]("get_run_schema", lambda: snapshot)
+    )
+    resp = client.get("/runs/run-456/schema")
+    assert resp.status_code == 200
+    assert resp.json() == snapshot
+
+
+def test_get_run_schema_falls_back_to_file(client, recorder):
+    # default get_run_schema returns None -> file schema
+    resp = client.get("/runs/run-456/schema")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert "genes" in body and body["genes"]

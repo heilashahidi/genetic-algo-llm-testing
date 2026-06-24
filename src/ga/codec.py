@@ -84,6 +84,48 @@ def allele_index(gene: dict, value: object) -> int:
     return alleles.index(value)
 
 
+def sanitize_genome(genome: dict[str, object], schema: dict) -> dict[str, object]:
+    """Coerce an arbitrary genome dict so it encodes cleanly under `schema`.
+
+    A seed genome was authored against some (possibly older) schema. To re-encode
+    it against the ACTIVE schema we must tolerate drift:
+
+    - genes in the dict but not in the schema are dropped (handled implicitly by
+      only emitting schema genes below),
+    - genes in the schema but missing from the dict get their `default`,
+    - categorical values not in the schema's `alleles` fall back to `default`,
+    - multi_categorical lists keep only alleles the schema still knows,
+    - boolean values are coerced to bool.
+
+    The result has exactly the schema's gene names and only valid allele values,
+    so `encode_genome_to_vector` always succeeds.
+    """
+    sanitized: dict[str, object] = {}
+    for gene in schema["genes"]:
+        name = gene["name"]
+        gene_type = gene["type"]
+        present = name in genome
+        value = genome.get(name)
+        if gene_type == "boolean":
+            sanitized[name] = bool(value) if present else bool(gene.get("default", False))
+        elif gene_type == "categorical":
+            alleles = gene["alleles"]
+            if present and value in alleles:
+                sanitized[name] = value
+            else:
+                sanitized[name] = gene.get("default", alleles[0] if alleles else None)
+        elif gene_type == "multi_categorical":
+            alleles = set(gene["alleles"])
+            if present and isinstance(value, list):
+                sanitized[name] = [allele for allele in value if allele in alleles]
+            else:
+                default = gene.get("default", [])
+                sanitized[name] = [allele for allele in default if allele in alleles]
+        else:
+            raise ValueError(f"unsupported gene type {gene_type!r}")
+    return sanitized
+
+
 def encode_genome_to_vector(genome: dict[str, object], schema: dict) -> list[int]:
     indices: list[int] = []
     for gene in schema["genes"]:
@@ -129,3 +171,67 @@ def decode_vector_indices(vector: list[int], schema: dict) -> dict[str, object]:
 
 def sync_individual_genome(vector: list[int], schema: dict) -> dict[str, object]:
     return decode_vector_indices(vector, schema)
+
+
+_VALID_GENE_TYPES = ("categorical", "boolean", "multi_categorical")
+_VALID_CHANNELS = ("semantic", "perturbation")
+
+
+def validate_schema(schema: object) -> None:
+    """Validate a genome schema, raising ``ValueError`` with a clear message.
+
+    Rules:
+    - top level is a mapping with a non-empty ``genes`` list,
+    - each gene has a unique string ``name``, a ``type`` in
+      {categorical, boolean, multi_categorical}, and a ``channel`` in
+      {semantic, perturbation},
+    - categorical / multi_categorical genes carry a non-empty ``alleles`` list
+      of strings,
+    - an optional top-level ``render_order`` is a list referencing existing gene
+      names,
+    - the whole thing round-trips through ``build_vector_layout`` without error.
+    """
+    if not isinstance(schema, dict):
+        raise ValueError("schema must be an object")
+    genes = schema.get("genes")
+    if not isinstance(genes, list) or not genes:
+        raise ValueError("schema.genes must be a non-empty list")
+
+    seen_names: set[str] = set()
+    for index, gene in enumerate(genes):
+        if not isinstance(gene, dict):
+            raise ValueError(f"genes[{index}] must be an object")
+        name = gene.get("name")
+        if not isinstance(name, str) or not name:
+            raise ValueError(f"genes[{index}].name must be a non-empty string")
+        if name in seen_names:
+            raise ValueError(f"duplicate gene name {name!r}")
+        seen_names.add(name)
+
+        gene_type = gene.get("type")
+        if gene_type not in _VALID_GENE_TYPES:
+            raise ValueError(
+                f"gene {name!r} has invalid type {gene_type!r}; must be one of {_VALID_GENE_TYPES}"
+            )
+        channel = gene.get("channel")
+        if channel not in _VALID_CHANNELS:
+            raise ValueError(
+                f"gene {name!r} has invalid channel {channel!r}; must be one of {_VALID_CHANNELS}"
+            )
+        if gene_type in ("categorical", "multi_categorical"):
+            alleles = gene.get("alleles")
+            if not isinstance(alleles, list) or not alleles:
+                raise ValueError(f"gene {name!r} must have a non-empty alleles list")
+            if not all(isinstance(allele, str) and allele for allele in alleles):
+                raise ValueError(f"gene {name!r} alleles must all be non-empty strings")
+
+    render_order = schema.get("render_order")
+    if render_order is not None:
+        if not isinstance(render_order, list):
+            raise ValueError("render_order must be a list")
+        for entry in render_order:
+            if entry not in seen_names:
+                raise ValueError(f"render_order references unknown gene {entry!r}")
+
+    # Final sanity check: the codec layout must build without raising.
+    build_vector_layout(schema)

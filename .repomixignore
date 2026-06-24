@@ -1,0 +1,42 @@
+# Repomix's own output — never feed it back into itself
+repomix-codebase.xml
+repomix-output.*
+
+# Generated run records & datasets (large, machine-written line data)
+**/*.jsonl
+runs/
+experiments/
+
+# Generated golden test fixtures (large, machine-written)
+**/fixtures/*golden*.json
+
+# Dashboard build artifacts & dependencies
+**/node_modules/
+dashboard/dist/
+dashboard/public/
+
+# Lockfiles (large, no review value)
+**/package-lock.json
+**/pnpm-lock.yaml
+**/yarn.lock
+
+# Python caches & virtualenvs
+.venv/
+venv/
+**/__pycache__/
+**/*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage
+
+# Binary / non-source assets
+**/*.pdf
+**/*.svg
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.ico
+
+# Secrets
+.env

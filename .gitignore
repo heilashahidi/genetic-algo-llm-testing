@@ -11,3 +11,12 @@ experiments/*
 !experiments/configs/
 
 .coverage
+
+# Secrets
+.env
+
+# Repomix generated bundle
+repomix-codebase.xml
+
+# Node dependencies
+dashboard/node_modules/

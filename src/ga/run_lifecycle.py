@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import time
 import uuid
+from collections import Counter
 from typing import Any
 
 from ga.individual import Individual
@@ -82,6 +83,15 @@ _LIST_INDIVIDUALS = (
     "model_response, phenotype, mutated_genes, vector_indices, crossover_mask, "
     "created_at "
     "FROM individuals WHERE run_id = %(run_id)s "
+)
+# Every successful individual paired with the target model its run attacked,
+# joined across experiments so trait effectiveness can be aggregated globally.
+_LEADERBOARD_ROWS = (
+    "SELECT i.genome, i.fitness, e.config "
+    "FROM individuals i "
+    "JOIN runs r ON r.id = i.run_id "
+    "JOIN experiments e ON e.id = r.experiment_id "
+    "WHERE i.fitness >= %(threshold)s"
 )
 
 _GET_DRAFT_SCHEMA = "SELECT body FROM schema_drafts WHERE id = 'draft'"
@@ -314,6 +324,87 @@ def list_individuals(conn, run_id: str, generation: int | None = None) -> list[d
         cur.execute(sql, params)
         rows = cur.fetchall()
     return [_individual_record(row) for row in rows]
+
+
+# --- trait leaderboard -----------------------------------------------------
+
+
+def _as_dict(value: Any) -> dict | None:
+    """Best-effort coercion of a jsonb column to a dict (psycopg may hand us a
+    dict already, or a JSON string). Returns None for anything unparseable."""
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except (ValueError, TypeError):
+            return None
+    return value if isinstance(value, dict) else None
+
+
+def _model_of(config: Any) -> str:
+    """The target model name from an experiment config, or 'unknown'."""
+    parsed = _as_dict(config)
+    harness = parsed.get("harness") if parsed else None
+    model = harness.get("model") if isinstance(harness, dict) else None
+    return model or "unknown"
+
+
+def _traits_of(genome: dict) -> list[tuple[str, str]]:
+    """The (gene, allele) traits a genome exhibits. Booleans contribute only
+    when on; multi-valued genes contribute one trait per active allele; an
+    inactive boolean or empty list contributes nothing."""
+    traits: list[tuple[str, str]] = []
+    for gene, value in genome.items():
+        if isinstance(value, bool):
+            if value:
+                traits.append((gene, "true"))
+        elif isinstance(value, list):
+            traits.extend((gene, str(allele)) for allele in value)
+        elif value is not None:
+            traits.append((gene, str(value)))
+    return traits
+
+
+def aggregate_trait_leaderboard(rows, limit: int) -> list[dict[str, Any]]:
+    """Rank genome traits by how many successful individuals carry them, and
+    collect the target models each trait has broken. Pure (no DB) so it is
+    unit-testable directly. Each row is (genome, fitness, experiment_config)."""
+    exploits: dict[tuple[str, str], int] = {}
+    fitness_sum: dict[tuple[str, str], float] = {}
+    models: dict[tuple[str, str], Counter] = {}
+    for genome, fitness, config in rows:
+        parsed = _as_dict(genome)
+        if parsed is None:
+            continue
+        model = _model_of(config)
+        for trait in _traits_of(parsed):
+            exploits[trait] = exploits.get(trait, 0) + 1
+            fitness_sum[trait] = fitness_sum.get(trait, 0.0) + (fitness or 0.0)
+            models.setdefault(trait, Counter())[model] += 1
+
+    entries = [
+        {
+            "gene": gene,
+            "allele": allele,
+            "exploits": count,
+            "avg_fitness": fitness_sum[(gene, allele)] / count,
+            "models": [
+                {"model": name, "exploits": n}
+                for name, n in models[(gene, allele)].most_common()
+            ],
+        }
+        for (gene, allele), count in exploits.items()
+    ]
+    entries.sort(key=lambda e: (-e["exploits"], e["gene"], e["allele"]))
+    return entries[:limit]
+
+
+def trait_leaderboard(conn, threshold: float = 1.0, limit: int = 25) -> list[dict[str, Any]]:
+    """Global leaderboard of traits present in successful individuals
+    (fitness >= threshold) and the models they exploit, ranked by exploit count."""
+    with conn.cursor() as cur:
+        cur.execute(_LEADERBOARD_ROWS, {"threshold": threshold})
+        rows = cur.fetchall()
+    return aggregate_trait_leaderboard(rows, limit)
 
 
 # --- DB-backed controller --------------------------------------------------

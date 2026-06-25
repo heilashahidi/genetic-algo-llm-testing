@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
-import type { RunRecord } from "../types";
+import type { RunRecord, TraitLeaderboardEntry } from "../types";
 import { usePolling } from "../usePolling";
 import { StatusBadge } from "../components/StatusBadge";
 import { RunControls } from "../components/RunControls";
+import { TraitLeaderboard } from "../components/TraitLeaderboard";
 
 function formatTime(value: string | null): string {
   if (!value) return "—";
@@ -21,6 +22,10 @@ export function RunsListPage() {
   const [runs, setRuns] = useState<RunRecord[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [leaderboard, setLeaderboard] = useState<TraitLeaderboardEntry[] | null>(
+    null,
+  );
+  const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
     api
@@ -31,6 +36,18 @@ export function RunsListPage() {
       })
       .catch((err: unknown) =>
         setError(err instanceof Error ? err.message : "Failed to load runs."),
+      );
+    // Secondary, historical view: its failure must not blank the runs list.
+    api
+      .getLeaderboard(10)
+      .then((data) => {
+        setLeaderboard(data);
+        setLeaderboardError(null);
+      })
+      .catch((err: unknown) =>
+        setLeaderboardError(
+          err instanceof Error ? err.message : "Failed to load leaderboard.",
+        ),
       );
   }, []);
 
@@ -56,6 +73,12 @@ export function RunsListPage() {
     [refresh],
   );
 
+  // Distinct target models broken across the shown traits — a headline KPI.
+  const modelsBroken =
+    leaderboard === null
+      ? 0
+      : new Set(leaderboard.flatMap((e) => e.models.map((m) => m.model))).size;
+
   return (
     <section>
       <div className="page-head">
@@ -66,6 +89,43 @@ export function RunsListPage() {
       </div>
 
       {error && <div className="alert alert--error">{error}</div>}
+
+      <section className="lb-panel">
+        <header className="lb-panel__head">
+          <div className="lb-panel__title">
+            <span className="lb-panel__trophy" aria-hidden>
+              🏆
+            </span>
+            <div>
+              <h2>Trait Leaderboard</h2>
+              <p className="lb-panel__sub">
+                The traits breaking models hardest — present in successful
+                jailbreaks (fitness ≥ 1.0) across every run, and the targets
+                they've taken down.
+              </p>
+            </div>
+          </div>
+          {leaderboard !== null && leaderboard.length > 0 && (
+            <div className="lb-panel__kpis">
+              <div className="lb-kpi">
+                <span className="lb-kpi__num">{leaderboard.length}</span>
+                <span className="lb-kpi__label">top traits</span>
+              </div>
+              <div className="lb-kpi">
+                <span className="lb-kpi__num">{modelsBroken}</span>
+                <span className="lb-kpi__label">models broken</span>
+              </div>
+            </div>
+          )}
+        </header>
+        {leaderboardError && (
+          <div className="alert alert--error">{leaderboardError}</div>
+        )}
+        {leaderboard === null && !leaderboardError && (
+          <p className="muted">Loading leaderboard…</p>
+        )}
+        {leaderboard !== null && <TraitLeaderboard entries={leaderboard} />}
+      </section>
 
       {runs === null && !error && <p className="muted">Loading runs…</p>}
 

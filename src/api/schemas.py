@@ -63,6 +63,24 @@ class GenerationRecord(BaseModel):
     success_rate: Optional[float] = None
 
 
+class TraitModelExploit(BaseModel):
+    """How many times a trait broke a specific target model."""
+
+    model: str
+    exploits: int
+
+
+class TraitLeaderboardEntry(BaseModel):
+    """One (gene, allele) trait ranked by how many successful individuals carry
+    it, with the models it has exploited."""
+
+    gene: str
+    allele: str
+    exploits: int
+    avg_fitness: float
+    models: list[TraitModelExploit]
+
+
 class IndividualRecord(BaseModel):
     individual_id: Any
     generation: int

@@ -151,6 +151,33 @@ def test_list_runs(client, recorder):
     assert body[0]["status"] == "running"
 
 
+def test_leaderboard_endpoint(client, recorder, fake_conn):
+    entries = [
+        {
+            "gene": "primary_strategy",
+            "allele": "role_hijack",
+            "exploits": 3,
+            "avg_fitness": 1.0,
+            "models": [{"model": "mistral:7b", "exploits": 3}],
+        }
+    ]
+    recorder["monkeypatch"].setattr(
+        routes.run_lifecycle,
+        "trait_leaderboard",
+        recorder["record"]("trait_leaderboard", lambda: entries),
+    )
+    resp = client.get("/leaderboard?limit=10")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body[0]["gene"] == "primary_strategy"
+    assert body[0]["allele"] == "role_hijack"
+    assert body[0]["models"][0]["model"] == "mistral:7b"
+
+    args, kwargs = recorder["calls"]["trait_leaderboard"][0]
+    assert args[0] is fake_conn
+    assert kwargs.get("limit") == 10
+
+
 def test_get_run_200(client, recorder):
     recorder["monkeypatch"].setattr(
         routes.run_lifecycle,

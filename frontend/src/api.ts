@@ -4,6 +4,7 @@ import type {
   GenomeSchema,
   IndividualRecord,
   RunRecord,
+  TraitLeaderboardEntry,
 } from "./types";
 
 const BASE_URL: string =
@@ -94,6 +95,10 @@ export const api = {
 
   listRuns(): Promise<RunRecord[]> {
     return request("/runs");
+  },
+
+  getLeaderboard(limit = 25): Promise<TraitLeaderboardEntry[]> {
+    return request(`/leaderboard?limit=${limit}`);
   },
 
   getRun(runId: string): Promise<RunRecord> {

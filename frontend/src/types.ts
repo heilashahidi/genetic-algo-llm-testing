@@ -26,6 +26,19 @@ export interface GenerationRecord {
   success_rate: number | null;
 }
 
+export interface TraitModelExploit {
+  model: string;
+  exploits: number;
+}
+
+export interface TraitLeaderboardEntry {
+  gene: string;
+  allele: string;
+  exploits: number;
+  avg_fitness: number;
+  models: TraitModelExploit[];
+}
+
 export interface IndividualRecord {
   individual_id: unknown;
   generation: number;

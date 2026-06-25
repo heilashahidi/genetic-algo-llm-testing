@@ -127,6 +127,18 @@ def list_runs(conn=Depends(get_conn)) -> list[dict[str, Any]]:
     return run_lifecycle.list_runs(conn)
 
 
+@router.get("/leaderboard", response_model=list[schemas.TraitLeaderboardEntry])
+def get_leaderboard(
+    threshold: float = Query(default=1.0),
+    limit: int = Query(default=25, ge=1, le=200),
+    conn=Depends(get_conn),
+) -> list[dict[str, Any]]:
+    """Cross-run leaderboard of the traits that break models: (gene, allele)
+    pairs present in successful individuals (fitness >= threshold), ranked by
+    exploit count, each with the target models it has broken."""
+    return run_lifecycle.trait_leaderboard(conn, threshold=threshold, limit=limit)
+
+
 @router.get("/runs/{run_id}", response_model=schemas.RunRecord)
 def get_run(run_id: str, conn=Depends(get_conn)) -> dict[str, Any]:
     run = run_lifecycle.get_run(conn, run_id)

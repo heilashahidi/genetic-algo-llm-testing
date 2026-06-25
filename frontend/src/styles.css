@@ -1298,9 +1298,61 @@ legend {
 .lineage__stat--solved b {
   color: var(--green);
 }
+.lineage__stat--best b {
+  color: var(--amber);
+}
 .lineage__hint {
   font-size: 0.74rem;
   color: var(--muted-2);
+}
+.lineage__toolbar-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.lineage__seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  padding-left: 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+}
+.lineage__seg-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 600;
+  color: var(--muted-2);
+  margin-right: 4px;
+}
+.lineage__seg-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  transition: background 0.15s var(--ease), color 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
+}
+.lineage__seg-btn:hover {
+  color: var(--ink);
+}
+.lineage__seg-btn.is-active {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow-card);
+}
+
+/* generation lanes */
+.lineage__lane {
+  transition: opacity 0.2s var(--ease);
 }
 
 .lineage__scroll {
@@ -1366,10 +1418,16 @@ legend {
 }
 
 /* edges */
+.lineage__edges {
+  animation: fadeIn 0.55s ease 0.35s both;
+}
 .lineage__edge {
   fill: none;
-  stroke-width: 1.5;
+  stroke-width: 1.3;
   transition: opacity 0.25s var(--ease), stroke-width 0.2s var(--ease);
+}
+.lineage__edge--reveal {
+  animation: fadeIn 0.18s ease both;
 }
 .lineage__flow {
   fill: none;
@@ -1392,16 +1450,32 @@ legend {
 .lineage__node--dim {
   opacity: 0.16;
 }
+/* choreographed grow-in, staggered left -> right by generation */
+.lineage__node-enter {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lineage-pop 0.5s var(--ease) both;
+}
+@keyframes lineage-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 .lineage__node-inner {
   transform-box: fill-box;
   transform-origin: center;
   transition: transform 0.2s var(--ease);
 }
 .lineage__node:hover .lineage__node-inner {
-  transform: scale(1.16);
+  transform: scale(1.22);
 }
 .lineage__node--selected .lineage__node-inner {
-  transform: scale(1.1);
+  transform: scale(1.12);
 }
 .lineage__node-circle {
   stroke: #ffffff;
@@ -1423,10 +1497,19 @@ legend {
   font-variant-numeric: tabular-nums;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
-.lineage__node-ring {
+
+/* generation leader — quiet neutral ring marking the frontier */
+.lineage__node-ring--leader {
+  fill: none;
+  stroke: var(--muted-2);
+  stroke-width: 1.5;
+  opacity: 0.7;
+}
+/* champion — the one celebratory marker: amber ring + breathing halo */
+.lineage__node-ring--champ {
   fill: none;
   stroke: var(--amber);
-  stroke-width: 2;
+  stroke-width: 2.5;
 }
 .lineage__node-ring--selected {
   fill: none;
@@ -1442,12 +1525,12 @@ legend {
 @keyframes lineage-halo {
   0%,
   100% {
-    opacity: 0.12;
+    opacity: 0.16;
     transform: scale(1);
   }
   50% {
-    opacity: 0.3;
-    transform: scale(1.14);
+    opacity: 0.4;
+    transform: scale(1.16);
   }
 }
 
@@ -1563,6 +1646,12 @@ legend {
 .lineage__tip-parents code {
   color: var(--muted);
 }
+.lineage__tip-champ {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--amber);
+  letter-spacing: 0.02em;
+}
 
 /* legend */
 .lineage__legend {
@@ -1604,20 +1693,19 @@ legend {
   font-size: 0.66rem;
   font-variant-numeric: tabular-nums;
 }
-.lineage__legend-swatch {
-  width: 16px;
-  height: 16px;
-  display: inline-block;
-}
-.lineage__legend-swatch--gray {
-  border-radius: 999px;
-  background: var(--muted-2);
-}
-.lineage__legend-ring {
+.lineage__legend-champ {
   width: 14px;
   height: 14px;
   border-radius: 999px;
   border: 2px solid var(--amber);
+  background: color-mix(in srgb, var(--amber) 22%, transparent);
+  display: inline-block;
+}
+.lineage__legend-leader {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--muted-2);
   display: inline-block;
 }
 .lineage__legend-edges {

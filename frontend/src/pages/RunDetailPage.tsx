@@ -320,9 +320,7 @@ export function RunDetailPage() {
             </div>
           )}
 
-          <div className="card">
-            <FitnessCharts data={generations} />
-          </div>
+          <FitnessCharts data={generations} />
 
           <div className="tabs">
             <button

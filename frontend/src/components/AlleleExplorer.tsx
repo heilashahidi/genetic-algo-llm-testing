@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import type { KeyboardEvent } from "react";
 import {
   Area,
   AreaChart,
@@ -10,7 +11,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { GeneSchema, GenomeSchema, IndividualRecord } from "../types";
+import type {
+  GeneChannel,
+  GeneSchema,
+  GenomeSchema,
+  IndividualRecord,
+} from "../types";
 import {
   alleleFrequencyByGeneration,
   allelesOf,
@@ -613,6 +619,129 @@ const FREQ_AXIS_LABEL = { fill: "#9a9da5", fontSize: 11 } as const;
 const PCT_TICKS = [0, 0.25, 0.5, 0.75, 1];
 const pctTick = (v: number): string => `${Math.round(v * 100)}%`;
 
+const PICKER_CHANNELS: { key: GeneChannel; label: string }[] = [
+  { key: "semantic", label: "Semantic" },
+  { key: "perturbation", label: "Perturbation" },
+];
+
+const GENE_TYPE_LABEL: Record<GeneSchema["type"], string> = {
+  categorical: "single choice",
+  multi_categorical: "multiple choice",
+  boolean: "on / off",
+};
+
+/**
+ * Gamified, fully-keyboard-accessible gene picker: a single-select radiogroup
+ * of chips grouped by channel. Shows every gene at once (no hidden dropdown
+ * options), and supports roving-tabindex Arrow/Home/End navigation per the
+ * WAI-ARIA radiogroup pattern.
+ */
+function GenePicker({
+  genes,
+  value,
+  onChange,
+}: {
+  genes: GeneSchema[];
+  value: string;
+  onChange: (name: string) => void;
+}) {
+  const groupRef = useRef<HTMLDivElement>(null);
+
+  // Display order = semantic genes then perturbation genes; arrow-key
+  // navigation walks this same flat order (wrapping).
+  const { byChannel, ordered } = useMemo(() => {
+    const grouped: Record<GeneChannel, GeneSchema[]> = {
+      semantic: [],
+      perturbation: [],
+    };
+    for (const g of genes) {
+      if (g.channel === "semantic" || g.channel === "perturbation") {
+        grouped[g.channel].push(g);
+      }
+    }
+    return {
+      byChannel: grouped,
+      ordered: [...grouped.semantic, ...grouped.perturbation].map((g) => g.name),
+    };
+  }, [genes]);
+
+  // Select a gene and move focus to its chip (keeps keyboard focus in sync).
+  const select = (name: string) => {
+    onChange(name);
+    groupRef.current
+      ?.querySelector<HTMLButtonElement>(`[data-gene="${CSS.escape(name)}"]`)
+      ?.focus();
+  };
+
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const idx = ordered.indexOf(value);
+    if (idx < 0 || ordered.length === 0) return;
+    let next: number;
+    switch (e.key) {
+      case "ArrowRight":
+      case "ArrowDown":
+        next = (idx + 1) % ordered.length;
+        break;
+      case "ArrowLeft":
+      case "ArrowUp":
+        next = (idx - 1 + ordered.length) % ordered.length;
+        break;
+      case "Home":
+        next = 0;
+        break;
+      case "End":
+        next = ordered.length - 1;
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+    select(ordered[next]);
+  };
+
+  return (
+    <div
+      className="freq__genes"
+      role="radiogroup"
+      aria-label="Gene to chart"
+      ref={groupRef}
+      onKeyDown={onKeyDown}
+    >
+      <span className="freq__genes-title">Gene</span>
+      {PICKER_CHANNELS.map((ch) => {
+        const list = byChannel[ch.key];
+        if (list.length === 0) return null;
+        return (
+          <div key={ch.key} className="freq__genes-group">
+            <span className="freq__genes-channel">{ch.label}</span>
+            <div className="freq__genes-chips">
+              {list.map((g) => {
+                const active = g.name === value;
+                return (
+                  <button
+                    key={g.name}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    tabIndex={active ? 0 : -1}
+                    data-gene={g.name}
+                    title={`${g.name} — ${GENE_TYPE_LABEL[g.type]}`}
+                    className={`freq__gene${active ? " freq__gene--on" : ""}`}
+                    onClick={() => onChange(g.name)}
+                  >
+                    {active && <span className="freq__gene-dot" aria-hidden />}
+                    {g.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function FrequencyView({
   individuals,
   genes,
@@ -683,17 +812,9 @@ function FrequencyView({
             </p>
           </div>
         </div>
-        <label className="field field--inline">
-          <span>Gene</span>
-          <select value={geneName} onChange={(e) => setGeneName(e.target.value)}>
-            {genes.map((g) => (
-              <option key={g.name} value={g.name}>
-                {g.name} ({g.channel})
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
+
+      <GenePicker genes={genes} value={geneName} onChange={setGeneName} />
 
       {points.length === 0 ? (
         <div className="freq-empty">

@@ -53,11 +53,18 @@ def build_parser() -> argparse.ArgumentParser:
 
 def apply_overrides(config: ExperimentConfig, args: argparse.Namespace) -> ExperimentConfig:
     if args.provider:
+        previous = config.harness
         config.harness = HarnessConfig.for_provider(
             args.provider,
-            args.model or config.harness.model,
-            config.harness.system_prompt,
+            args.model or previous.model,
+            previous.system_prompt,
         )
+        # for_provider only sets provider/base_url/model/system_prompt; carry the
+        # remaining tuning fields from the loaded config so --provider doesn't
+        # silently reset them to dataclass defaults.
+        config.harness.timeout_seconds = previous.timeout_seconds
+        config.harness.max_parallel_requests = previous.max_parallel_requests
+        config.harness.api_key = previous.api_key
     if args.model:
         config.harness.model = args.model
     if args.generations is not None:
@@ -131,7 +138,12 @@ def run_worker(poll_interval: float) -> None:
     conn = connect(database_url)
     print("Worker started; polling for queued runs...")
     while True:
-        run = claim_run(conn)
+        try:
+            run = claim_run(conn)
+        except Exception:  # noqa: BLE001 - a transient DB error must not kill the worker
+            print(f"claim_run failed:\n{traceback.format_exc()}", file=sys.stderr)
+            time.sleep(poll_interval)
+            continue
         if run is None:
             time.sleep(poll_interval)
             continue

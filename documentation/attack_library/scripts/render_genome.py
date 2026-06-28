@@ -45,7 +45,7 @@ def _gene_fragments(gene: dict, value: object) -> list[str]:
 
 
 def pad_to_length(text: str, length_class: str, thresholds: dict, filler: str) -> str:
-    if length_class == "short":
+    if length_class == "short" or not filler:
         return text
     target = thresholds["medium_max_chars"] - 1500 if length_class == "medium" else thresholds["medium_max_chars"] + 200
     while len(text) < target:
@@ -57,18 +57,27 @@ def render(genome: dict, thresholds: dict, schema: dict | None = None) -> str:
     schema = schema or load_schema()
     genes = _genes_by_name(schema)
 
-    strategy_overrides = genes["primary_strategy"].get("render_full_override", {})
-    full_override = strategy_overrides.get(genome["primary_strategy"])
-    if full_override is not None:
-        return full_override
+    # A full-document override (e.g. the GCG optimization suffix) only applies
+    # when the primary_strategy gene exists. .get() keeps this safe for custom
+    # schemas that drop the gene; behaviour is unchanged for the file schema.
+    strategy_gene = genes.get("primary_strategy")
+    if strategy_gene is not None:
+        full_override = strategy_gene.get("render_full_override", {}).get(
+            genome.get("primary_strategy")
+        )
+        if full_override is not None:
+            return full_override
 
+    render_order = schema.get("render_order") or [gene["name"] for gene in schema["genes"]]
     parts: list[str] = []
-    for gene_name in schema["render_order"]:
+    for gene_name in render_order:
         gene = genes[gene_name]
         parts.extend(_gene_fragments(gene, genome[gene_name]))
 
     text = " ".join(part for part in parts if part)
-    return pad_to_length(text, genome["length_class"], thresholds, schema["pad_filler"])
+    return pad_to_length(
+        text, genome.get("length_class", "short"), thresholds, schema.get("pad_filler", "")
+    )
 
 
 def render_record(record: dict, thresholds: dict, schema: dict | None = None) -> str:

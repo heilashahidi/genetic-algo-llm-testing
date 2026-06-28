@@ -48,6 +48,7 @@ const KNOWN_ORIGINS = new Set([
   "elite",
   "crossover",
   "mutation",
+  "clone",
 ]);
 
 export function originClass(origin: string | null): string {
@@ -127,6 +128,15 @@ function StepExplanation({
         <>
           Mutated from <NavLink label="parent" id={a} onNavigate={onNavigate} />;
           changed genes: <strong>{mutated}</strong>.
+        </>
+      );
+      break;
+    case "clone":
+      sentence = (
+        <>
+          Cloned unchanged from{" "}
+          <NavLink label="parent" id={a} onNavigate={onNavigate} /> (selected
+          without crossover).
         </>
       );
       break;

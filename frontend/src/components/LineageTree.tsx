@@ -41,6 +41,7 @@ const ORIGIN_VAR: Record<string, string> = {
   recombinant: "--teal",
   seed: "--accent",
   random: "--violet",
+  clone: "--muted-2",
 };
 function edgeColor(origin: string | null): string {
   const v = origin ? ORIGIN_VAR[origin] : undefined;

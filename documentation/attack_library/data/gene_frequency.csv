@@ -56,8 +56,8 @@ formatting_style,perturbation,tagged_delimiters,41,6
 formatting_style,perturbation,code_block,2,6
 formatting_style,perturbation,ruleset_braces,3,6
 formatting_style,perturbation,json,1,6
-token_system,perturbation,False,103,2
-token_system,perturbation,True,18,2
+token_system,perturbation,False,110,2
+token_system,perturbation,True,11,2
 caps_emphasis,perturbation,False,66,2
 caps_emphasis,perturbation,True,55,2
 emoji_markers,perturbation,False,87,2

@@ -100,7 +100,11 @@ def repair_soft_constraints(vector: list[int], schema: dict) -> list[int]:
     repaired = list(vector)
     blocks = gene_blocks(schema)
     genome = decode_vector_indices(repaired, schema)
-    if genome["primary_strategy"] == "optimization":
+    # GCG optimization is a standalone suffix attack; clear any persona/framing/
+    # override stacked onto it. Guard against custom schemas that drop these
+    # genes (validate_schema accepts such schemas) by using .get() and only
+    # touching blocks that exist.
+    if genome.get("primary_strategy") == "optimization":
         for block in blocks:
             if block.name in {"persona_archetype", "framing_type", "override_mechanism"}:
                 write_block(repaired, block, [0] * (block.end - block.start))

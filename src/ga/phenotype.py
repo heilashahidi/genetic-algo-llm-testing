@@ -35,9 +35,14 @@ def render_wrapper(genome: dict, schema: dict | None = None) -> str:
 def build_phenotype(genome: dict, target_query: str, schema: dict | None = None) -> str:
     schema = schema or load_schema()
     wrapper = render_wrapper(genome, schema)
-    if genome["input_delivery"] == "placeholder_slot":
-        return (
-            wrapper.replace("{prompt}", target_query)
-            .replace("[INSERT PROMPT HERE]", target_query)
+    # Substitute on marker presence, not on input_delivery: the renderer can
+    # emit a placeholder for genomes whose input_delivery is not
+    # "placeholder_slot" (e.g. the optimization GCG override always carries
+    # [INSERT PROMPT HERE]), and a custom schema may omit the input_delivery
+    # gene entirely. Keying off the actual marker keeps the target injected
+    # correctly in every case.
+    if "{prompt}" in wrapper or "[INSERT PROMPT HERE]" in wrapper:
+        return wrapper.replace("{prompt}", target_query).replace(
+            "[INSERT PROMPT HERE]", target_query
         )
     return f"{wrapper}\n\n{target_query}"

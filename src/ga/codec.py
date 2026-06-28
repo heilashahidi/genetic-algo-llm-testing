@@ -225,6 +225,23 @@ def validate_schema(schema: object) -> None:
             if not all(isinstance(allele, str) and allele for allele in alleles):
                 raise ValueError(f"gene {name!r} alleles must all be non-empty strings")
 
+        # Validate `default` (when present) so seeding never hits an encode-time
+        # error: a categorical default must be a valid allele, a multi default a
+        # list of valid alleles, a boolean default a bool.
+        if "default" in gene:
+            default = gene["default"]
+            if gene_type == "categorical" and default not in alleles:
+                raise ValueError(
+                    f"gene {name!r} default {default!r} is not one of its alleles"
+                )
+            if gene_type == "multi_categorical":
+                if not isinstance(default, list) or any(d not in alleles for d in default):
+                    raise ValueError(
+                        f"gene {name!r} default must be a list of its alleles"
+                    )
+            if gene_type == "boolean" and not isinstance(default, bool):
+                raise ValueError(f"gene {name!r} boolean default must be true/false")
+
     render_order = schema.get("render_order")
     if render_order is not None:
         if not isinstance(render_order, list):

@@ -104,6 +104,7 @@ _GET_RUN_EXPERIMENT_CONFIG = (
     "WHERE r.id = %(run_id)s"
 )
 
+_EXPERIMENT_EXISTS = "SELECT 1 FROM experiments WHERE id = %(id)s"
 _DELETE_RUN = "DELETE FROM runs WHERE id = %(run_id)s RETURNING experiment_id"
 _EXPERIMENT_HAS_RUNS = (
     "SELECT 1 FROM runs WHERE experiment_id = %(experiment_id)s LIMIT 1"
@@ -203,6 +204,13 @@ def get_run_schema(conn, run_id: str) -> dict[str, Any] | None:
     if isinstance(config, str):
         config = json.loads(config)
     return config.get("schema") if isinstance(config, dict) else None
+
+
+def experiment_exists(conn, experiment_id: str) -> bool:
+    """Whether an experiment row exists (used to 404 before enqueueing a run)."""
+    with conn.cursor() as cur:
+        cur.execute(_EXPERIMENT_EXISTS, {"id": experiment_id})
+        return cur.fetchone() is not None
 
 
 def enqueue_run(conn, experiment_id: str) -> str:

@@ -151,7 +151,11 @@ def evolve_generation(
         if rng.random() >= config.ga.crossover_rate:
             parent = tournament_select(population, config.ga.tournament_size, rng)
             child_vector = list(parent.vector_indices)
-            origin = "crossover"
+            # Single-parent copy (no crossover). Labelling this "crossover"
+            # would produce a self-contradictory lineage record (one parent, no
+            # donor mask); "clone" describes it accurately. Mutation below may
+            # still relabel it "mutation".
+            origin = "clone"
             parent_a_id = parent.id
             parent_b_id = None
             crossover_mask = None
@@ -205,7 +209,10 @@ def should_stop(population: list[Individual], generation: int, config: Experimen
     if generation + 1 < config.ga.min_generations:
         return False
     best = max(individual.fitness or 0.0 for individual in population)
-    return best >= 1.0
+    # "Success" is defined by the fitness evaluator as reaching the configured
+    # success_threshold (synthetic.py returns it as the score of a leak), so the
+    # early-stop decision must use that threshold, not a hardcoded 1.0.
+    return best >= config.fitness.success_threshold
 
 
 def _init_population(config: ExperimentConfig, generation: int, schema: dict) -> list[Individual]:

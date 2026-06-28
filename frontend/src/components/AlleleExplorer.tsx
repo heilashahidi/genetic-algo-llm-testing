@@ -420,13 +420,13 @@ function GeneBars({
     ...sorted.map((s) => Math.abs(metricValue(s, metric))),
   );
 
-  // This gene's champion: the top allele, if it qualifies and beats the average.
+  // This gene's champion: the highest-metric allele that QUALIFIES (>= minCount)
+  // and beats the average. Since `sorted` is metric-descending, the first
+  // qualifying entry is the champion. (Using sorted[0] directly would suppress
+  // the crown whenever the global top allele is below min-count, even though a
+  // lower-ranked qualifying allele — which still gets an S-tier badge — exists.)
   const topAllele =
-    sorted.length > 0 &&
-    sorted[0].n >= minCount &&
-    metricValue(sorted[0], metric) > 0
-      ? sorted[0].allele
-      : null;
+    sorted.find((s) => s.n >= minCount && metricValue(s, metric) > 0)?.allele ?? null;
 
   return (
     <div className="allele-gene">

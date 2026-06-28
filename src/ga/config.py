@@ -142,6 +142,54 @@ class ExperimentConfig:
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
+    def validate(self) -> None:
+        """Raise ValueError on out-of-range or invalid-enum values.
+
+        ``from_dict`` only filters unknown keys and catches structural breakage;
+        it does no value checking, so the ``Literal`` enums and the numeric GA/
+        harness knobs are unenforced. This guard is invoked at the API trust
+        boundary so a nonsensical config is rejected before it is persisted and
+        handed to a worker (where it would otherwise crash mid-run).
+        """
+        def _is_number(value: object) -> bool:
+            return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+        if self.run_mode not in ("ga", "random", "seed-only"):
+            raise ValueError(f"run_mode must be ga/random/seed-only, got {self.run_mode!r}")
+        if self.harness.provider not in ("ollama", "lmstudio", "mock"):
+            raise ValueError(
+                f"harness.provider must be ollama/lmstudio/mock, got {self.harness.provider!r}"
+            )
+        ga = self.ga
+        if not isinstance(ga.population_size, int) or isinstance(ga.population_size, bool) or ga.population_size < 2:
+            raise ValueError("ga.population_size must be an integer >= 2")
+        if (
+            not isinstance(ga.elite_count, int)
+            or isinstance(ga.elite_count, bool)
+            or not (0 <= ga.elite_count < ga.population_size)
+        ):
+            raise ValueError("ga.elite_count must be an integer in [0, population_size)")
+        if not isinstance(ga.max_generations, int) or isinstance(ga.max_generations, bool) or ga.max_generations < 1:
+            raise ValueError("ga.max_generations must be an integer >= 1")
+        if not isinstance(ga.min_generations, int) or isinstance(ga.min_generations, bool) or ga.min_generations < 0:
+            raise ValueError("ga.min_generations must be an integer >= 0")
+        if not isinstance(ga.tournament_size, int) or isinstance(ga.tournament_size, bool) or ga.tournament_size < 1:
+            raise ValueError("ga.tournament_size must be an integer >= 1")
+        for name in ("crossover_rate", "mutation_rate"):
+            value = getattr(ga, name)
+            if not _is_number(value) or not (0.0 <= value <= 1.0):
+                raise ValueError(f"ga.{name} must be a number in [0, 1]")
+        if (
+            not isinstance(self.harness.max_parallel_requests, int)
+            or isinstance(self.harness.max_parallel_requests, bool)
+            or self.harness.max_parallel_requests < 1
+        ):
+            raise ValueError("harness.max_parallel_requests must be an integer >= 1")
+        if not _is_number(self.harness.timeout_seconds) or self.harness.timeout_seconds <= 0:
+            raise ValueError("harness.timeout_seconds must be a positive number")
+        if not _is_number(self.fitness.success_threshold) or self.fitness.success_threshold <= 0:
+            raise ValueError("fitness.success_threshold must be a positive number")
+
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> ExperimentConfig:
         ga_payload = payload.get("ga", {})

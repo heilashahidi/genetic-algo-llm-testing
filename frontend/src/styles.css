@@ -1260,6 +1260,11 @@ legend {
   background: color-mix(in srgb, var(--amber) 12%, var(--card));
   border-color: color-mix(in srgb, var(--amber) 38%, transparent);
 }
+.origin-badge--clone {
+  color: var(--muted);
+  background: var(--surface);
+  border-color: var(--line);
+}
 
 .lineage-ids {
   display: flex;

@@ -40,6 +40,9 @@ def recorder(monkeypatch):
     monkeypatch.setattr(
         routes.run_lifecycle, "enqueue_run", record("enqueue_run", "run-456")
     )
+    monkeypatch.setattr(
+        routes.run_lifecycle, "experiment_exists", record("experiment_exists", True)
+    )
     monkeypatch.setattr(routes.run_lifecycle, "list_runs", record("list_runs", []))
     monkeypatch.setattr(routes.run_lifecycle, "get_run", record("get_run", None))
     monkeypatch.setattr(routes.run_lifecycle, "delete_run", record("delete_run", False))
@@ -431,3 +434,50 @@ def test_get_run_schema_falls_back_to_file(client, recorder):
     assert resp.status_code == 200
     body = resp.json()
     assert "genes" in body and body["genes"]
+
+
+# --- audit regressions ------------------------------------------------------
+
+
+def test_enqueue_run_404_when_experiment_missing(client, recorder):
+    recorder["monkeypatch"].setattr(
+        routes.run_lifecycle,
+        "experiment_exists",
+        recorder["record"]("experiment_exists", False),
+    )
+    resp = client.post("/experiments/missing/runs")
+    assert resp.status_code == 404
+    # The unknown experiment must be rejected before any INSERT is attempted.
+    assert "enqueue_run" not in recorder["calls"]
+
+
+@pytest.mark.parametrize(
+    "config",
+    [
+        {"ga": {"population_size": -5}},
+        {"ga": {"population_size": "fifty"}},
+        {"ga": {"elite_count": 100, "population_size": 10}},
+        {"ga": {"max_generations": 0}},
+        {"ga": {"mutation_rate": 1.5}},
+        {"run_mode": "bogus"},
+        {"harness": {"provider": "bogus"}},
+    ],
+)
+def test_create_experiment_rejects_invalid_config(client, recorder, config):
+    resp = client.post("/experiments", json={"name": "bad", "config": config})
+    assert resp.status_code == 422
+    assert "create_experiment" not in recorder["calls"]
+
+
+def test_create_experiment_rejects_invalid_active_schema(client, recorder):
+    # A draft that became invalid out-of-band (categorical gene, no alleles)
+    # must not be frozen into a run.
+    bad = {"genes": [{"name": "g", "type": "categorical", "channel": "semantic"}]}
+    recorder["monkeypatch"].setattr(
+        routes.run_lifecycle,
+        "get_draft_schema",
+        recorder["record"]("get_draft_schema", lambda: bad),
+    )
+    resp = client.post("/experiments", json={"name": "x", "config": {}})
+    assert resp.status_code == 422
+    assert "create_experiment" not in recorder["calls"]

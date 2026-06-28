@@ -322,9 +322,22 @@ def detect_formatting_style(attack: Attack) -> str:
     return "plain"
 
 
+POINTS_REWARD_RE = re.compile(
+    r"\bpoints?\b.{0,40}\b(lose|lost|deduct|reward|earn|gain|score|run out)\b"
+    r"|\b(lose|lost|deduct|reward|earn|gain|score|run out)\b.{0,40}\bpoints?\b",
+    re.S,
+)
+
+
 def detect_token_system(attack: Attack) -> bool:
     low = attack.lower
-    return contains_any(low, ("token system", "tokens", "token", "points", "deducted", "penalty", "penalized"))
+    # A token/points reward-or-penalty coercion mechanic. "tokens"/"token
+    # system"/"deducted"/"penalty" are unambiguous; bare "token"/"points" are
+    # not (e.g. "bullet points" is formatting), so "points" only counts when it
+    # co-occurs with a reward/penalty word nearby.
+    if contains_any(low, ("token system", "tokens", "deducted", "penalty", "penalized")):
+        return True
+    return POINTS_REWARD_RE.search(low) is not None
 
 
 def detect_caps_emphasis(attack: Attack) -> bool:

@@ -39,7 +39,9 @@ def _validate_config(raw: dict[str, Any]) -> dict[str, Any]:
     with an unconstructible value), which is exactly what we want to reject.
     """
     try:
-        return ExperimentConfig.from_dict(raw).to_dict()
+        config = ExperimentConfig.from_dict(raw)
+        config.validate()
+        return config.to_dict()
     except (TypeError, ValueError, AttributeError) as exc:
         raise HTTPException(
             status_code=422,  # Unprocessable Content / Entity
@@ -102,8 +104,19 @@ def create_experiment(
     config = _validate_config(body.config)
     # Snapshot the active schema (DB draft else file) into the experiment so the
     # run renders and seeds from a frozen copy and the viewer can read the run's
-    # own schema later via GET /runs/{id}/schema.
-    config["schema"] = _active_schema(conn)
+    # own schema later via GET /runs/{id}/schema. Validate it before freezing:
+    # PUT /schema rejects invalid drafts, but a draft could be invalid out-of-band
+    # (written outside the API, or left stale after a validation rule tightened),
+    # and freezing an unusable schema would crash the worker at seed time.
+    snapshot = _active_schema(conn)
+    try:
+        validate_schema(snapshot)
+        build_vector_layout(snapshot)
+    except (ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(
+            status_code=422, detail=f"active genome schema is invalid: {exc}"
+        ) from exc
+    config["schema"] = snapshot
     experiment_id = run_lifecycle.create_experiment(conn, body.name, config)
     return schemas.CreateExperimentResponse(experiment_id=experiment_id)
 
@@ -118,6 +131,11 @@ def enqueue_run(
     experiment_id: str,
     conn=Depends(get_conn),
 ) -> schemas.EnqueueRunResponse:
+    if not run_lifecycle.experiment_exists(conn, experiment_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"experiment {experiment_id} not found",
+        )
     run_id = run_lifecycle.enqueue_run(conn, experiment_id)
     return schemas.EnqueueRunResponse(run_id=run_id, status="queued")
 

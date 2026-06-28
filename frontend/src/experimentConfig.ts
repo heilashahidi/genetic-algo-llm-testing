@@ -131,6 +131,21 @@ export interface SeedCounts {
 const SEED_GENOME_COUNT = 121;
 
 /**
+ * Round half-to-even, matching Python's built-in `round()` (banker's rounding).
+ * JS `Math.round` rounds half UP, so it diverges from the backend at exact
+ * half-integers (e.g. 0.3*15 = 4.5 → Python 4, Math.round 5). Inputs here are
+ * always non-negative. Keeping this identical to the backend is the whole point
+ * of the mirror.
+ */
+function roundHalfEven(value: number): number {
+  const floor = Math.floor(value);
+  if (value - floor === 0.5) {
+    return floor % 2 === 0 ? floor : floor + 1;
+  }
+  return Math.round(value);
+}
+
+/**
  * Display-only mirror of the backend `resolve_seed_counts` policy. The form no
  * longer SENDS these counts (the backend auto-derives them); this only powers a
  * read-only hint so the user can see how the population will be seeded.
@@ -141,9 +156,9 @@ export function deriveSeedCounts(
   randomFraction = 0,
   recombinantFraction = 0.3,
 ): SeedCounts {
-  const random = Math.round(randomFraction * population);
+  const random = roundHalfEven(randomFraction * population);
   const nonRandom = population - random;
-  let recombinant = Math.round(recombinantFraction * nonRandom);
+  let recombinant = roundHalfEven(recombinantFraction * nonRandom);
   let stratified = nonRandom - recombinant;
   if (stratified > nSeeds) {
     recombinant += stratified - nSeeds;

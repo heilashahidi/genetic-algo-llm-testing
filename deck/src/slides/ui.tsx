@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 
+// Plain dotted text token (no pill background/border).
 export const Chip: React.FC<{ children: React.ReactNode; tone?: "blue" | "warm" }> = ({ children, tone = "blue" }) => (
   <span
-    className={`mono inline-flex items-center gap-[6px] rounded-full px-[11px] py-[4px] border ${
-      tone === "warm"
-        ? "bg-[#ffc488]/10 text-warm border-[#ffc488]/25"
-        : "bg-accent/10 text-accent border-accent/25"
-    }`}
-    style={{ fontSize: "clamp(10px,0.95vw,13px)" }}
+    className="mono inline-flex items-center gap-[7px]"
+    style={{ fontSize: "clamp(10px,0.95vw,13px)", color: tone === "warm" ? "#ffc488" : "rgba(255,255,255,0.72)" }}
   >
+    <span style={{ color: tone === "warm" ? "rgba(255,196,136,0.55)" : "rgba(127,176,255,0.6)" }}>·</span>
     {children}
   </span>
 );

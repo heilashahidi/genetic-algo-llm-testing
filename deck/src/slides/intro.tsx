@@ -1,14 +1,11 @@
 import React from "react";
+import { Dices, Target, Filter, Shuffle, RefreshCw } from "lucide-react";
 import { SlideShell, Kicker, Title, Glass } from "../components/SlideShell";
 import { Chip, Arrow, Chromo } from "./ui";
 
 export const Cover: React.FC = () => (
   <SlideShell bg="warp" page="">
     <div className="flex flex-col justify-center flex-grow">
-      <div className="flex gap-[10px] mb-[3%] rise">
-        <Chip tone="warm">RED-TEAM RESEARCH</Chip>
-        <Chip>INTERPRETABLE BY DESIGN</Chip>
-      </div>
       <h1 className="font-extrabold tracking-tight rise" style={{ fontSize: "clamp(32px,5.6vw,78px)", lineHeight: 1.04, animationDelay: "0.06s" }}>
         Evolving<br /><span className="text-accent">Adversarial Prompts</span>
       </h1>
@@ -56,39 +53,39 @@ export const Problem: React.FC = () => {
 };
 
 export const GAPrimer: React.FC = () => {
-  const steps: [string, string, string][] = [
-    ["Population", "Start with many candidate solutions — here, attack strategies.", "🎲"],
-    ["Score", "A fitness function rates each one: how well does it work?", "🎯"],
-    ["Select", "Keep the fittest; the weak ones drop out.", "✅"],
-    ["Breed + vary", "Combine two survivors (crossover) and add small random changes (mutation).", "🧬"],
-    ["Repeat", "Over many generations the population keeps getting better.", "↻"],
+  const steps = [
+    { t: "Population", d: "Start with many candidate solutions — here, attack strategies.", Icon: Dices },
+    { t: "Score", d: "A fitness function rates each one: how well does it work?", Icon: Target },
+    { t: "Select", d: "Keep the fittest; the weak ones drop out.", Icon: Filter },
+    { t: "Breed + vary", d: "Combine two survivors (crossover) and add small random changes (mutation).", Icon: Shuffle },
+    { t: "Repeat", d: "Over many generations the population keeps getting better.", Icon: RefreshCw },
   ];
   return (
     <SlideShell bg="dust" page="Page 02">
       <div className="mt-[2%]">
         <Kicker num="02" sec="Genetic Algorithms" />
-        <Title className="mt-[1.4%]">A search method <span className="text-accent">borrowed from evolution</span></Title>
+        <Title className="mt-[1.4%]">How a genetic algorithm <span className="text-accent">works</span></Title>
       </div>
       <Glass className="rise mt-[2.4%] p-[2.4%]" style={{ animationDelay: "0.05s" }}>
         <p className="text-white/90" style={{ fontSize: "clamp(13px,1.5vw,21px)", lineHeight: 1.5 }}>
-          🧬 Think <span className="text-accent font-semibold">selective breeding</span>: keep the best, mix them, sprinkle in random change — then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of animals, and you have a <span className="font-semibold">genetic algorithm</span>.
+          Think <span className="text-accent font-semibold">selective breeding</span>: keep the best, mix them, sprinkle in random change — then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of animals, and you have a <span className="font-semibold">genetic algorithm</span>.
         </p>
       </Glass>
       <div className="flex items-stretch gap-[1.4%] mt-[3%]">
-        {steps.map(([t, d, e], i) => (
-          <React.Fragment key={t}>
+        {steps.map((s, i) => (
+          <React.Fragment key={s.t}>
             <Glass className="flex-1 rise p-[3.4%] text-center" style={{ animationDelay: `${0.12 + i * 0.1}s` }}>
-              <div style={{ fontSize: "clamp(20px,2.4vw,34px)" }} className="mb-[8px]">{e}</div>
+              <s.Icon strokeWidth={1.5} className="mx-auto mb-[10px] text-accent" style={{ width: "clamp(22px,2.4vw,30px)", height: "clamp(22px,2.4vw,30px)" }} />
               <div className="mono text-white/45" style={{ fontSize: 11 }}>0{i + 1}</div>
-              <h3 className="font-bold mt-[2px]" style={{ fontSize: "clamp(13px,1.4vw,20px)" }}>{t}</h3>
-              <p className="text-white/70 mt-[4px] leading-snug" style={{ fontSize: "clamp(11px,1.05vw,15px)" }}>{d}</p>
+              <h3 className="font-bold mt-[2px]" style={{ fontSize: "clamp(13px,1.4vw,20px)" }}>{s.t}</h3>
+              <p className="text-white/70 mt-[4px] leading-snug" style={{ fontSize: "clamp(11px,1.05vw,15px)" }}>{s.d}</p>
             </Glass>
-            {i < 4 && <Arrow className="self-center" >{i === 3 ? "↻" : "→"}</Arrow>}
+            {i < 4 && <Arrow className="self-center">{i === 3 ? "↻" : "→"}</Arrow>}
           </React.Fragment>
         ))}
       </div>
       <p className="text-white/75 rise mt-[2.6%]" style={{ fontSize: "clamp(12px,1.3vw,18px)", animationDelay: "0.7s", lineHeight: 1.5 }}>
-        <Arrow>→ </Arrow>Why it fits here: we can easily <span className="text-accent font-semibold">score</span> whether a prompt broke the model, but we can't <span className="text-warm font-semibold">calculate</span> the perfect jailbreak. GAs shine exactly there — a measurable goal, a huge search space, and no gradient to follow.
+        <Arrow>→ </Arrow>Why it fits here: we can easily <span className="text-accent font-semibold">score</span> whether a prompt broke the model, but we can't <span className="text-warm font-semibold">calculate</span> the perfect attack. GAs shine exactly there — a measurable goal, a huge search space, and no gradient to follow.
       </p>
     </SlideShell>
   );
@@ -111,7 +108,7 @@ export const Evolution: React.FC = () => {
     <SlideShell bg="network" page="Page 03">
       <div className="mt-[2%]">
         <Kicker num="03" sec="Evolution as Search" />
-        <Title className="mt-[1.4%]">Borrow natural selection — and keep every result <span className="text-accent">analyzable</span></Title>
+        <Title className="mt-[1.4%]">How evolution maps onto our <span className="text-accent">attack genome</span></Title>
       </div>
       <p className="text-white/80 rise mt-[1.6%]" style={{ fontSize: "clamp(12px,1.35vw,19px)", lineHeight: 1.5, animationDelay: "0.04s" }}>
         Keep a <span className="font-semibold">population</span> of candidate strategies, score each with a <span className="text-accent font-semibold">fitness</span> function, then <span className="font-semibold">select</span>, <span className="font-semibold">recombine</span>, and <span className="font-semibold">mutate</span> so better solutions survive. The twist: we <span className="text-warm font-semibold">evolve structure, not text</span> — so every win has an ancestry you can trace gene by gene.

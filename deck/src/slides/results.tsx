@@ -110,7 +110,7 @@ export const Models: React.FC = () => {
           {rows.map((r, i) => (
             <React.Fragment key={r[0]}>
               <div className="py-[13px] font-semibold" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", borderLeft: r[7] ? "3px solid #7fb0ff" : "3px solid transparent", paddingLeft: 12 }}>
-                {r[0]}{r[7] && <span className="mono ml-[8px] px-[7px] py-[2px] rounded-full bg-accent/15 text-accent" style={{ fontSize: 10 }}>headline</span>}
+                {r[0]}{r[7] && <span className="mono ml-[8px] text-accent" style={{ fontSize: 11 }}>· headline</span>}
               </div>
               <div className="py-[13px] mono" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>{r[1]}</div>
               <div className="py-[13px] flex items-center gap-[10px]" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>

@@ -50,7 +50,7 @@ export const Presentation: React.FC<PresentationProps> = ({ children }) => {
     <div
       ref={containerRef}
       onMouseMove={onMouseMove}
-      className="relative w-screen h-screen overflow-hidden bg-black select-none"
+      className="relative w-screen h-screen overflow-hidden bg-black"
     >
       <div className="w-full h-full relative">
         {children.map((slide, index) => {

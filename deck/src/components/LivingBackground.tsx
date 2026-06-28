@@ -4,7 +4,7 @@ type N = { x: number; y: number; vx: number; vy: number; r: number; age: number;
 type Birth = { x: number; y: number; tx: number; ty: number; t: number };
 
 // Interactive "living lineage" field: drifting nodes that link into a plexus,
-// continuously born (as children of existing nodes) and dying — evolution behind
+// continuously born (as children of existing nodes) and dying, evolution behind
 // the content. Plus a slow aurora wash and a cursor glow. Mounted once, app-wide.
 export const LivingBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -48,7 +48,7 @@ export const LivingBackground: React.FC = () => {
       tick++;
       ctx.clearRect(0, 0, W, H);
 
-      // birth / death — keep the population near target with continuous turnover
+      // birth / death, keep the population near target with continuous turnover
       nodes = nodes.filter((n) => n.age < 1);
       while (nodes.length < target) {
         const parent = nodes.length ? nodes[(Math.random() * nodes.length) | 0] : undefined;

@@ -24,8 +24,8 @@ export const Cover: React.FC = () => (
 
 export const Problem: React.FC = () => {
   const items: [string, string][] = [
-    ["01", "Deployed LLMs gate real money, data, and safety decisions — yet one crafted prompt can make a model ignore its instructions, leak protected information, or produce content it's aligned to refuse."],
-    ["02", "Today's testing is mostly manual, inconsistent, and hard to analyze at scale — people hand-write adversarial prompts one at a time."],
+    ["01", "Deployed LLMs gate real money, data, and safety decisions, yet one crafted prompt can make a model ignore its instructions, leak protected information, or produce content it's aligned to refuse."],
+    ["02", "Today's testing is mostly manual, inconsistent, and hard to analyze at scale, and people hand-write adversarial prompts one at a time."],
     ["03", "When an attack works, the raw prompt text gives little insight into which trait actually caused the failure."],
   ];
   return (
@@ -45,7 +45,7 @@ export const Problem: React.FC = () => {
       <Glass className="rise mt-[2.4%] p-[2.6%]" style={{ animationDelay: "0.34s" }}>
         <div className="mono text-accent tracking-[0.18em] mb-[6px]" style={{ fontSize: 14.4 }}>THE QUESTION</div>
         <p className="text-white/90" style={{ fontSize: "clamp(16.8px,1.9vw,26.4px)", lineHeight: 1.45 }}>
-          Can we <span className="text-accent font-semibold">automatically search</span> for the prompt patterns that bypass safety alignment — and explain <span className="text-warm font-semibold">why</span> they work?
+          Can we <span className="text-accent font-semibold">automatically search</span> for the prompt patterns that bypass safety alignment, and explain <span className="text-warm font-semibold">why</span> they work?
         </p>
       </Glass>
     </SlideShell>
@@ -78,7 +78,7 @@ const EvolveGraphic: React.FC = () => {
 
 export const GAPrimer: React.FC = () => {
   const steps = [
-    { t: "Population", d: "Start with many candidate solutions — here, attack strategies.", Icon: Dices },
+    { t: "Population", d: "Start with many candidate solutions: here, attack strategies.", Icon: Dices },
     { t: "Score", d: "A fitness function rates each one: how well does it work?", Icon: Target },
     { t: "Select", d: "Keep the fittest; the weak ones drop out.", Icon: Filter },
     { t: "Breed + vary", d: "Combine two survivors (crossover) and add small random changes (mutation).", Icon: Shuffle },
@@ -92,7 +92,7 @@ export const GAPrimer: React.FC = () => {
       </div>
       <Glass className="rise mt-[1.6%] p-[2%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
         <p className="text-white/90 flex-1" style={{ fontSize: "clamp(14.4px,1.7vw,24px)", lineHeight: 1.45 }}>
-          Think <span className="text-accent font-semibold">natural selection</span>: keep the fittest, recombine them, add a little random variation — then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of organisms, and you have a <span className="font-semibold">genetic algorithm</span>.
+          Think <span className="text-accent font-semibold">natural selection</span>: keep the fittest, recombine them, add a little random variation, then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of organisms, and you have a <span className="font-semibold">genetic algorithm</span>.
         </p>
         <EvolveGraphic />
       </Glass>
@@ -110,7 +110,7 @@ export const GAPrimer: React.FC = () => {
         ))}
       </div>
       <p className="text-white/75 rise mt-[1.1%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.7s", lineHeight: 1.45 }}>
-        <Arrow>→ </Arrow>Why it fits here: we can easily <span className="text-accent font-semibold">score</span> whether a prompt broke the model, but we can't <span className="text-warm font-semibold">calculate</span> the perfect attack. GAs shine exactly there — a measurable goal, a huge search space, and no gradient to follow.
+        <Arrow>→ </Arrow>Why it fits here: we can easily <span className="text-accent font-semibold">score</span> whether a prompt broke the model, but we can't <span className="text-warm font-semibold">calculate</span> the perfect attack. GAs shine exactly there: a measurable goal, a huge search space, and no gradient to follow.
       </p>
     </SlideShell>
   );
@@ -118,12 +118,12 @@ export const GAPrimer: React.FC = () => {
 
 export const Evolution: React.FC = () => {
   const terms: [string, string][] = [
-    ["gene", "one decision knob — e.g. persona"],
-    ["allele", "a value it takes — persona = DAN"],
+    ["gene", "one decision knob, e.g. persona"],
+    ["allele", "a value it takes: persona = DAN"],
     ["genome", "all 16 genes = one attack"],
-    ["population", "100 genomes per generation"],
+    ["population", "20 genomes per generation"],
     ["fitness", "how well it breaks the model"],
-    ["generation", "one full cycle, repeat 30×"],
+    ["generation", "one full cycle, repeat 15×"],
     ["elitism", "carry the best forward intact"],
   ];
   return (
@@ -133,7 +133,7 @@ export const Evolution: React.FC = () => {
         <Title className="mt-[1.4%]">How evolution maps onto our <span className="text-accent">attack genome</span></Title>
       </div>
       <p className="text-white/80 rise mt-[1.6%]" style={{ fontSize: "clamp(14.4px,1.6vw,22.8px)", lineHeight: 1.5, animationDelay: "0.04s" }}>
-        Keep a <span className="font-semibold">population</span> of candidate strategies, score each with a <span className="text-accent font-semibold">fitness</span> function, then <span className="font-semibold">select</span>, <span className="font-semibold">recombine</span>, and <span className="font-semibold">mutate</span> so better solutions survive. The twist: we <span className="text-warm font-semibold">evolve structure, not text</span> — so every win has an ancestry you can trace gene by gene.
+        Keep a <span className="font-semibold">population</span> of candidate strategies, score each with a <span className="text-accent font-semibold">fitness</span> function, then <span className="font-semibold">select</span>, <span className="font-semibold">recombine</span>, and <span className="font-semibold">mutate</span> so better solutions survive. The twist: we <span className="text-warm font-semibold">evolve structure, not text</span>, so every win has an ancestry you can trace gene by gene.
       </p>
       <div className="grid grid-cols-2 gap-[3%] items-center flex-grow mt-[1.5%]">
         <Glass className="rise p-[3.1%]" style={{ animationDelay: "0.1s" }}>

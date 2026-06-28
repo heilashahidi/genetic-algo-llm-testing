@@ -38,7 +38,7 @@ body {
 
 .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 
-/* aurora wash — soft blurred color blobs drifting behind the lineage field */
+/* aurora wash, soft blurred color blobs drifting behind the lineage field */
 .aurora-blob {
   position: absolute;
   border-radius: 50%;

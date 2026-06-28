@@ -40,7 +40,7 @@ export const HonestTest: React.FC = () => (
   <SlideShell page="Page 11">
     <div className="mt-[2%]">
       <Kicker num="11" sec="The Honest Test" />
-      <Title className="mt-[1.4%]">Evolution beats the <span className="text-accent">seed it grew from</span> — on live models</Title>
+      <Title className="mt-[1.4%]">Evolution beats the <span className="text-accent">seed it grew from</span>, on live models</Title>
     </div>
     <div className="grid gap-[2.6%] flex-grow mt-[2.4%] items-center" style={{ gridTemplateColumns: "1fr 1.25fr" }}>
       <div className="rise">
@@ -62,7 +62,7 @@ export const HonestTest: React.FC = () => (
       </div>
     </div>
     <p className="text-white/70 rise mt-[1.6%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.3s" }}>
-      <Arrow>→ </Arrow>8 GA runs · 2,500 genomes · live Ollama, no synthetic stand-in. On Llama-3.1 the GA climbed from a <span className="text-warm font-semibold">10%</span> seed population to <span className="text-accent font-semibold">95%</span> — the genome is finding attacks the seed library never held.
+      <Arrow>→ </Arrow>8 GA runs · 2,500 genomes · live Ollama, no synthetic stand-in. On Llama-3.1 the GA climbed from a <span className="text-warm font-semibold">10%</span> seed population to <span className="text-accent font-semibold">95%</span>. The genome is finding attacks the seed library never held.
     </p>
   </SlideShell>
 );
@@ -106,7 +106,7 @@ export const Interpret: React.FC = () => {
             </Glass>
           ))}
           <p className="text-white/60 mt-[2%]" style={{ fontSize: "clamp(13.2px,1.4vw,18px)" }}>
-            <span className="text-accent font-semibold">Channel-aware crossover</span> keeps semantic & perturbation genes separable — so we can ask whether noise <i>actually</i> helps, or the strategy carries the win.
+            <span className="text-accent font-semibold">Channel-aware crossover</span> keeps semantic & perturbation genes separable, so we can ask whether noise <i>actually</i> helps, or the strategy carries the win.
           </p>
         </div>
       </div>
@@ -118,7 +118,7 @@ export const Models: React.FC = () => (
   <SlideShell page="Page 13">
     <div className="mt-[2%]">
       <Kicker num="13" sec="Target Models" />
-      <Title className="mt-[1.4%]">Five local models — one <span className="text-accent">measured</span> hard → soft gradient</Title>
+      <Title className="mt-[1.4%]">Five local models, one <span className="text-accent">measured</span> hard → soft gradient</Title>
     </div>
     <Glass className="rise p-[2.3%] mt-[2.5%]">
       <div className="grid items-center" style={{ gridTemplateColumns: "1.9fr 0.5fr 1.1fr 2.4fr", fontSize: "clamp(13.2px,1.4vw,18px)" }}>
@@ -143,7 +143,7 @@ export const Models: React.FC = () => (
       </div>
     </Glass>
     <p className="text-white/70 rise mt-[2%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.3s" }}>
-      <Arrow>→ </Arrow>Real GA runs against live Ollama — <span className="text-white font-semibold">every</span> model leaked the secret, from Gemma at <span className="text-warm font-semibold">53%</span> to Mistral at <span className="text-warm font-semibold">91%</span>. The ordering is the safety gradient; the numbers are ours, not borrowed benchmarks.
+      <Arrow>→ </Arrow>Real GA runs against live Ollama: <span className="text-white font-semibold">every</span> model leaked the secret, from Gemma at <span className="text-warm font-semibold">53%</span> to Mistral at <span className="text-warm font-semibold">91%</span>. The ordering is the safety gradient; the numbers are ours, not borrowed benchmarks.
     </p>
   </SlideShell>
 );
@@ -156,9 +156,9 @@ export const Verify: React.FC = () => {
     ["20 / 5", "confirmed / killed"],
   ];
   const held: string[] = [
-    "Llama 3.3 ships 70B-only — 3.1-8B is the strongest small Llama",
+    "Llama 3.3 ships 70B-only; 3.1-8B is the strongest small Llama",
     "vLLM runs 16–19× Ollama under concurrent batched load",
-    "temp = 0 ≠ deterministic — batch size silently corrupts fitness",
+    "temp = 0 ≠ deterministic; batch size silently corrupts fitness",
     "Qwen3.5-9B · Granite-4.1-8B · Gemma-4-E4B · Phi-4-mini all real",
   ];
   return (
@@ -187,7 +187,7 @@ export const Verify: React.FC = () => {
         <Glass className="rise p-[2.6%]" style={{ animationDelay: "0.3s", borderTop: "3px solid #e06b67" }}>
           <div className="mono font-bold tracking-[0.1em] mb-[12px]" style={{ fontSize: 14.4, color: "#f08a86" }}>✗ KILLED · 5</div>
           <p className="text-white/80" style={{ fontSize: "clamp(13.2px,1.45vw,19.2px)" }}>
-            The precise <span className="text-warm font-semibold">HarmBench ASR figures</span> (26% / 90% …) — unverifiable, predating every model we test and swinging <span className="text-warm font-semibold">~3×</span> across attack harnesses.
+            The precise <span className="text-warm font-semibold">HarmBench ASR figures</span> (26% / 90% …), unverifiable, predating every model we test and swinging <span className="text-warm font-semibold">~3×</span> across attack harnesses.
           </p>
           <p className="text-white/55 mt-[12px]" style={{ fontSize: "clamp(12px,1.3vw,16.8px)" }}>
             → That kill is exactly why slide 13 uses our <span className="text-accent">own measured</span> numbers, not borrowed benchmarks.
@@ -203,15 +203,15 @@ export const Verify: React.FC = () => {
 
 export const Takeaways: React.FC = () => {
   const pillars: [string, string, string][] = [
-    ["Structured & interpretable", "A 16-gene genome (~20-trillion search space) seeded from 121 real attacks — every win traceable gene-by-gene and across its lineage.", "🧬"],
-    ["Honest methodology", "GA measured against the seed-only baseline across a real hard→soft model gradient — then every surrounding claim adversarially fact-checked.", "⚖️"],
-    ["Real, controllable system", "Postgres control plane, live dashboard, Dockerized, reproducible, offline-testable — not a one-shot script.", "⚙️"],
+    ["Structured & interpretable", "A 16-gene genome (~20-trillion search space) seeded from 121 real attacks, every win traceable gene-by-gene and across its lineage.", "🧬"],
+    ["Honest methodology", "GA measured against the seed-only baseline across a real hard→soft model gradient, then every surrounding claim adversarially fact-checked.", "⚖️"],
+    ["Real, controllable system", "Postgres control plane, live dashboard, Dockerized, reproducible, offline-testable, not a one-shot script.", "⚙️"],
   ];
   return (
     <SlideShell page="Page 15">
       <div className="mt-[2%]">
         <Kicker num="15" sec="Takeaways" />
-        <Title className="mt-[1.4%]">Which traits broke it — <span className="text-accent">seeded real, evolved beyond</span></Title>
+        <Title className="mt-[1.4%]">Which traits broke it: <span className="text-accent">seeded real, evolved beyond</span></Title>
       </div>
       <div className="grid grid-cols-3 gap-[2.4%] mt-[3%]">
         {pillars.map(([t, d, e], i) => (
@@ -225,7 +225,7 @@ export const Takeaways: React.FC = () => {
       </div>
       <Glass className="rise mt-[2.4%] p-[2.3%] text-center" style={{ animationDelay: "0.4s", background: "linear-gradient(100deg, rgba(19,32,58,0.6), rgba(33,64,127,0.5))" }}>
         <p style={{ fontSize: "clamp(18px,2.2vw,28.8px)", lineHeight: 1.45 }}>
-          A <span className="text-accent font-semibold">safe, interpretable microscope</span> for adversarial prompting — measure <span className="text-warm font-semibold">which</span> prompt traits cause failures, not just <span className="text-warm font-semibold">that</span> they do.
+          A <span className="text-accent font-semibold">safe, interpretable microscope</span> for adversarial prompting: measure <span className="text-warm font-semibold">which</span> prompt traits cause failures, not just <span className="text-warm font-semibold">that</span> they do.
         </p>
       </Glass>
     </SlideShell>

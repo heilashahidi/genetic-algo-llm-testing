@@ -15,17 +15,6 @@ export const Arrow: React.FC<{ children?: React.ReactNode; className?: string }>
   <span className={`text-accent mono font-bold ${className}`}>{children}</span>
 );
 
-// Real product screenshot, framed to read as an embedded app window.
-export const Shot: React.FC<{ src: string; alt: string; className?: string; style?: React.CSSProperties }> = ({ src, alt, className = "", style }) => (
-  <img
-    src={`${import.meta.env.BASE_URL}shots/${src}`}
-    alt={alt}
-    loading="lazy"
-    className={`rounded-[12px] border border-white/15 bg-white shadow-[0_16px_50px_-16px_rgba(0,0,0,0.7)] ${className}`}
-    style={style}
-  />
-);
-
 /** animated horizontal bar that fills on mount */
 export const BarRow: React.FC<{ label: string; value: string; pct: number; tone?: "blue" | "warm"; delay?: number }> = ({
   label, value, pct, tone = "blue", delay = 0,

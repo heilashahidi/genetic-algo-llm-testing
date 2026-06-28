@@ -224,18 +224,14 @@ export const Pipeline: React.FC = () => {
 };
 
 export const ExecLoop: React.FC = () => {
-  const R = 150, cx = 200, cy = 190;
-  const nodes = [
+  const steps: [string, string][] = [
     ["Evaluate fitness", "score every genome in [0,1]"],
-    ["Select", "tournament k=3 — keep fitter"],
+    ["Select", "tournament k=3 — keep the fitter"],
     ["Crossover", "blend two parents · channel-aware"],
     ["Mutate", "flip genes to explore · ≤3 alleles"],
     ["Elitism", "top 5 carried forward intact"],
-    ["Next generation", "↻ the population, now fitter"],
-  ].map((n, i) => {
-    const a = ((-90 + i * 60) * Math.PI) / 180;
-    return { t: n[0], d: n[1], x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) };
-  });
+    ["Next generation", "the population, now fitter"],
+  ];
   const engine: [string, string][] = [["population", "100"], ["generations", "30"], ["elitism", "5"], ["tournament", "3"], ["crossover", "0.85"], ["mutation", "0.15"]];
   return (
     <SlideShell bg="network" page="Page 09">
@@ -243,29 +239,28 @@ export const ExecLoop: React.FC = () => {
         <Kicker num="09" sec="The Execution Loop" />
         <Title className="mt-[1.4%]">One <span className="text-accent">generation</span>, executed — then repeated</Title>
       </div>
-      <div className="flex gap-[4%] items-center flex-grow">
-        <div className="relative rise" style={{ width: 400, height: 380, flex: "none" }}>
-          <div className="absolute top-1/2 left-1/2" style={{ width: 300, height: 300, marginLeft: -150, marginTop: -150, border: "2px dashed rgba(127,176,255,0.35)", borderRadius: "50%" }} />
-          <div className="orbit absolute top-1/2 left-1/2" style={{ width: 300, height: 300, marginLeft: -150, marginTop: -150 }}>
-            <div className="absolute top-[-7px] left-1/2" style={{ marginLeft: -7, width: 14, height: 14, borderRadius: "50%", background: "#7fb0ff", boxShadow: "0 0 0 5px rgba(127,176,255,0.2)" }} />
-          </div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center liquid-glass rounded-[13px] px-[16px] py-[10px]">
-            <div className="mono font-bold text-accent" style={{ fontSize: 13 }}>↻ 1 generation</div>
-          </div>
-          {nodes.map((n, i) => (
-            <div key={n.t} className="absolute -translate-x-1/2 -translate-y-1/2 text-center rise" style={{ left: n.x, top: n.y, width: 106, animationDelay: `${0.1 + i * 0.09}s` }}>
-              <div className="liquid-glass rounded-[12px] px-[7px] py-[7px]" style={{ borderBottom: "2px solid #7fb0ff" }}>
-                <div className="mono font-bold leading-tight" style={{ fontSize: 11.5 }}>{n.t}</div>
-                <div className="text-white/55 leading-tight mt-[2px]" style={{ fontSize: 9.5 }}>{n.d}</div>
+      <div className="grid grid-cols-2 gap-[6%] items-center flex-grow mt-[1%]">
+        <div className="rise relative">
+          <div className="absolute left-[15px] top-[16px] bottom-[42px] w-[2px] bg-white/12" />
+          {steps.map(([t, d], i) => (
+            <div key={t} className="flex items-start gap-[14px] mb-[13px] relative">
+              <div className="execstep mono font-bold rounded-full grid place-items-center shrink-0 z-10" style={{ width: 32, height: 32, fontSize: 13, animationDelay: `${i * 0.45}s` }}>{i + 1}</div>
+              <div className="pt-[4px]">
+                <div className="mono font-bold leading-tight" style={{ fontSize: "clamp(13px,1.35vw,17px)" }}>{t}</div>
+                <div className="text-white/55 leading-tight mt-[1px]" style={{ fontSize: "clamp(11px,1.1vw,14px)" }}>{d}</div>
               </div>
             </div>
           ))}
+          <div className="flex items-center gap-[14px]">
+            <div className="rounded-full grid place-items-center shrink-0 z-10 text-accent" style={{ width: 32, height: 32, fontSize: 16, border: "2px solid rgba(127,176,255,0.5)" }}>↻</div>
+            <div className="mono text-accent" style={{ fontSize: "clamp(11px,1.15vw,15px)" }}>repeat ×30 · stop on success</div>
+          </div>
         </div>
-        <div className="flex-1">
-          <Glass className="rise p-[4%]" style={{ animationDelay: "0.15s", borderLeft: "3px solid #7fb0ff" }}>
-            <p style={{ fontSize: "clamp(13px,1.4vw,19px)", lineHeight: 1.5 }}>Gen 0 is the <span className="text-accent font-semibold">121 real seeds</span>. Each loop scores the whole population, breeds the survivors, and carries the best forward — so average and best fitness <span className="font-semibold">climb generation over generation</span>.</p>
+        <div>
+          <Glass className="rise p-[5%]" style={{ animationDelay: "0.15s", borderLeft: "3px solid #7fb0ff" }}>
+            <p style={{ fontSize: "clamp(13px,1.4vw,19px)", lineHeight: 1.55 }}>Gen 0 is the <span className="text-accent font-semibold">121 real seeds</span>. Each loop scores the whole population, breeds the survivors, and carries the best forward — so average and best fitness <span className="font-semibold">climb generation over generation</span>.</p>
           </Glass>
-          <div className="rise mt-[4%]" style={{ animationDelay: "0.28s" }}>
+          <div className="rise mt-[5%]" style={{ animationDelay: "0.28s" }}>
             <div className="mono text-white/45 tracking-[0.1em] mb-[10px]" style={{ fontSize: 11.5 }}>EACH GENERATION · DEFAULTS</div>
             <div className="flex gap-[9px] flex-wrap">
               {engine.map(([k, v]) => <Chip key={k}>{k} <b className="text-white">{v}</b></Chip>)}
@@ -275,6 +270,10 @@ export const ExecLoop: React.FC = () => {
           </div>
         </div>
       </div>
+      <style>{`
+        .execstep { background: rgba(127,176,255,0.14); color: #bcd3ff; border: 1px solid rgba(127,176,255,0.4); animation: execpulse 2.7s ease-in-out infinite; }
+        @keyframes execpulse { 0%,100% { background: rgba(127,176,255,0.14); color: #bcd3ff; box-shadow: none; } 16% { background: #7fb0ff; color: #06122e; box-shadow: 0 0 0 5px rgba(127,176,255,0.18); } }
+      `}</style>
     </SlideShell>
   );
 };

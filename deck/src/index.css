@@ -41,8 +41,8 @@ body {
 /* darkening + tint scrim over background video so white text stays legible */
 .scrim {
   background:
-    radial-gradient(120% 90% at 80% -10%, rgba(47,95,196,0.25), transparent 55%),
-    linear-gradient(180deg, rgba(5,7,13,0.55) 0%, rgba(5,7,13,0.78) 100%);
+    radial-gradient(120% 90% at 80% -10%, rgba(47,95,196,0.18), transparent 55%),
+    linear-gradient(180deg, rgba(5,7,13,0.74) 0%, rgba(5,7,13,0.9) 100%);
 }
 
 /* staggered slide-content reveal */

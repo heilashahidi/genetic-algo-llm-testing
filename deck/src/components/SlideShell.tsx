@@ -1,22 +1,30 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Logo } from "./Logo";
 
 type Bg = "network" | "warp" | "dust";
 
-const VideoBackground: React.FC<{ name: Bg }> = ({ name }) => (
-  <>
-    <video
-      key={name}
-      autoPlay
-      loop
-      muted
-      playsInline
-      className="absolute inset-0 w-full h-full object-cover z-0"
-      src={`${import.meta.env.BASE_URL}video/${name}.mp4`}
-    />
-    <div className="absolute inset-0 z-0 scrim" />
-  </>
-);
+const VideoBackground: React.FC<{ name: Bg }> = ({ name }) => {
+  const ref = useRef<HTMLVideoElement | null>(null);
+  useEffect(() => {
+    if (ref.current) ref.current.playbackRate = 0.5; // calmer, slower motion
+  }, [name]);
+  return (
+    <>
+      <video
+        ref={ref}
+        key={name}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0 blur-[3px] scale-[1.06]"
+        style={{ opacity: 0.55 }}
+        src={`${import.meta.env.BASE_URL}video/${name}.mp4`}
+      />
+      <div className="absolute inset-0 z-0 scrim" />
+    </>
+  );
+};
 
 export const Kicker: React.FC<{ num: string; sec: string }> = ({ num, sec }) => (
   <div className="flex items-center gap-[10px] mono rise" style={{ fontSize: "clamp(10px,1vw,13px)" }}>

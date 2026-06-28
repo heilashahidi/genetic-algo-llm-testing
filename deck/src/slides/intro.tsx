@@ -6,15 +6,15 @@ import { Arrow, Chromo } from "./ui";
 export const Cover: React.FC = () => (
   <SlideShell page="">
     <div className="flex flex-col justify-center flex-grow">
-      <h1 className="font-extrabold tracking-tight rise" style={{ fontSize: "clamp(32px,5.6vw,78px)", lineHeight: 1.04, animationDelay: "0.06s" }}>
+      <h1 className="font-extrabold tracking-tight rise" style={{ fontSize: "clamp(33.9px,5.9vw,82.7px)", lineHeight: 1.04, animationDelay: "0.06s" }}>
         Evolving<br /><span className="text-accent">Adversarial Prompts</span>
       </h1>
-      <p className="text-white/75 rise mt-[2.4%]" style={{ fontSize: "clamp(15px,1.7vw,26px)", animationDelay: "0.16s", maxWidth: "48ch" }}>
+      <p className="text-white/75 rise mt-[2.4%]" style={{ fontSize: "clamp(18px,2vw,31.2px)", animationDelay: "0.16s", maxWidth: "48ch" }}>
         A <span className="text-white font-semibold">Genetic-Algorithm Framework</span> for LLM Robustness Testing
       </p>
       <div className="rise mt-[3.6%]" style={{ animationDelay: "0.26s" }}>
         <div className="h-px w-[44px] bg-white/25 mb-[14px]" />
-        <div className="text-white/85 font-medium" style={{ fontSize: "clamp(13px,1.5vw,21px)" }}>
+        <div className="text-white/85 font-medium" style={{ fontSize: "clamp(15.6px,1.8vw,25.2px)" }}>
           Matthew Johnson · Heila Shahidi · James Hamil · Austin Wade
         </div>
       </div>
@@ -36,15 +36,15 @@ export const Problem: React.FC = () => {
       </div>
       <div className="grid grid-cols-3 gap-[2.2%] mt-[3.5%]">
         {items.map(([n, t], i) => (
-          <Glass key={n} className="rise p-[5%]" style={{ animationDelay: `${i * 0.1}s` }}>
-            <div className="mono text-[#06122e] bg-accent inline-flex items-center justify-center font-bold rounded-[8px] mb-[12px]" style={{ width: 30, height: 30, fontSize: 14 }}>{n}</div>
-            <p className="text-white/85 leading-snug" style={{ fontSize: "clamp(12px,1.25vw,18px)" }}>{t}</p>
+          <Glass key={n} className="rise p-[3.9%]" style={{ animationDelay: `${i * 0.1}s` }}>
+            <div className="mono text-[#06122e] bg-accent inline-flex items-center justify-center font-bold rounded-[8px] mb-[12px]" style={{ width: 30, height: 30, fontSize: 16.8 }}>{n}</div>
+            <p className="text-white/85 leading-snug" style={{ fontSize: "clamp(14.4px,1.5vw,21.6px)" }}>{t}</p>
           </Glass>
         ))}
       </div>
       <Glass className="rise mt-[2.4%] p-[2.6%]" style={{ animationDelay: "0.34s" }}>
-        <div className="mono text-accent tracking-[0.18em] mb-[6px]" style={{ fontSize: 12 }}>THE QUESTION</div>
-        <p className="text-white/90" style={{ fontSize: "clamp(14px,1.55vw,22px)", lineHeight: 1.45 }}>
+        <div className="mono text-accent tracking-[0.18em] mb-[6px]" style={{ fontSize: 14.4 }}>THE QUESTION</div>
+        <p className="text-white/90" style={{ fontSize: "clamp(16.8px,1.9vw,26.4px)", lineHeight: 1.45 }}>
           Can we <span className="text-accent font-semibold">automatically search</span> for the prompt patterns that bypass safety alignment — and explain <span className="text-warm font-semibold">why</span> they work?
         </p>
       </Glass>
@@ -91,7 +91,7 @@ export const GAPrimer: React.FC = () => {
         <Title className="mt-[1.4%]">How a genetic algorithm <span className="text-accent">works</span></Title>
       </div>
       <Glass className="rise mt-[1.6%] p-[2%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
-        <p className="text-white/90 flex-1" style={{ fontSize: "clamp(12px,1.4vw,20px)", lineHeight: 1.45 }}>
+        <p className="text-white/90 flex-1" style={{ fontSize: "clamp(14.4px,1.7vw,24px)", lineHeight: 1.45 }}>
           Think <span className="text-accent font-semibold">natural selection</span>: keep the fittest, recombine them, add a little random variation — then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of organisms, and you have a <span className="font-semibold">genetic algorithm</span>.
         </p>
         <EvolveGraphic />
@@ -101,15 +101,15 @@ export const GAPrimer: React.FC = () => {
           <React.Fragment key={s.t}>
             <Glass className="flex-1 rise p-[2.4%] text-center" style={{ animationDelay: `${0.12 + i * 0.1}s` }}>
               <s.Icon strokeWidth={1.5} className="mx-auto mb-[7px] text-accent" style={{ width: "clamp(20px,2.2vw,28px)", height: "clamp(20px,2.2vw,28px)" }} />
-              <div className="mono text-white/45" style={{ fontSize: 11 }}>0{i + 1}</div>
-              <h3 className="font-bold mt-[2px]" style={{ fontSize: "clamp(12px,1.3vw,19px)" }}>{s.t}</h3>
-              <p className="text-white/70 mt-[3px] leading-snug" style={{ fontSize: "clamp(10px,1vw,14px)" }}>{s.d}</p>
+              <div className="mono text-white/45" style={{ fontSize: 13.2 }}>0{i + 1}</div>
+              <h3 className="font-bold mt-[2px]" style={{ fontSize: "clamp(14.4px,1.6vw,22.8px)" }}>{s.t}</h3>
+              <p className="text-white/70 mt-[3px] leading-snug" style={{ fontSize: "clamp(12px,1.2vw,16.8px)" }}>{s.d}</p>
             </Glass>
             {i < 4 && <Arrow className="self-center">{i === 3 ? "↻" : "→"}</Arrow>}
           </React.Fragment>
         ))}
       </div>
-      <p className="text-white/75 rise mt-[1.1%]" style={{ fontSize: "clamp(11px,1.2vw,16px)", animationDelay: "0.7s", lineHeight: 1.45 }}>
+      <p className="text-white/75 rise mt-[1.1%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.7s", lineHeight: 1.45 }}>
         <Arrow>→ </Arrow>Why it fits here: we can easily <span className="text-accent font-semibold">score</span> whether a prompt broke the model, but we can't <span className="text-warm font-semibold">calculate</span> the perfect attack. GAs shine exactly there — a measurable goal, a huge search space, and no gradient to follow.
       </p>
     </SlideShell>
@@ -132,22 +132,22 @@ export const Evolution: React.FC = () => {
         <Kicker num="03" sec="Evolution as Search" />
         <Title className="mt-[1.4%]">How evolution maps onto our <span className="text-accent">attack genome</span></Title>
       </div>
-      <p className="text-white/80 rise mt-[1.6%]" style={{ fontSize: "clamp(12px,1.35vw,19px)", lineHeight: 1.5, animationDelay: "0.04s" }}>
+      <p className="text-white/80 rise mt-[1.6%]" style={{ fontSize: "clamp(14.4px,1.6vw,22.8px)", lineHeight: 1.5, animationDelay: "0.04s" }}>
         Keep a <span className="font-semibold">population</span> of candidate strategies, score each with a <span className="text-accent font-semibold">fitness</span> function, then <span className="font-semibold">select</span>, <span className="font-semibold">recombine</span>, and <span className="font-semibold">mutate</span> so better solutions survive. The twist: we <span className="text-warm font-semibold">evolve structure, not text</span> — so every win has an ancestry you can trace gene by gene.
       </p>
       <div className="grid grid-cols-2 gap-[3%] items-center flex-grow mt-[1.5%]">
-        <Glass className="rise p-[4%]" style={{ animationDelay: "0.1s" }}>
-          <div className="mono text-white/45 tracking-[0.1em] mb-[12px]" style={{ fontSize: 11 }}>THE VOCABULARY · MAPPED TO THIS SYSTEM</div>
+        <Glass className="rise p-[3.1%]" style={{ animationDelay: "0.1s" }}>
+          <div className="mono text-white/45 tracking-[0.1em] mb-[12px]" style={{ fontSize: 13.2 }}>THE VOCABULARY · MAPPED TO THIS SYSTEM</div>
           <div className="grid grid-cols-2 gap-x-[22px] gap-y-[11px]">
             {terms.map(([k, v]) => (
               <div key={k}>
-                <div className="mono font-bold text-accent" style={{ fontSize: "clamp(12px,1.2vw,15px)" }}>{k}</div>
-                <div className="text-white/65 leading-tight" style={{ fontSize: "clamp(10px,1.05vw,14px)" }}>{v}</div>
+                <div className="mono font-bold text-accent" style={{ fontSize: "clamp(14.4px,1.4vw,18px)" }}>{k}</div>
+                <div className="text-white/65 leading-tight" style={{ fontSize: "clamp(12px,1.3vw,16.8px)" }}>{v}</div>
               </div>
             ))}
           </div>
         </Glass>
-        <Glass className="rise p-[4%]" style={{ animationDelay: "0.2s" }}><Chromo /></Glass>
+        <Glass className="rise p-[3.1%]" style={{ animationDelay: "0.2s" }}><Chromo /></Glass>
       </div>
     </SlideShell>
   );

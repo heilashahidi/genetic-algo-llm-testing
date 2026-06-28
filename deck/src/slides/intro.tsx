@@ -1,7 +1,7 @@
 import React from "react";
 import { Dices, Target, Filter, Shuffle, RefreshCw } from "lucide-react";
 import { SlideShell, Kicker, Title, Glass } from "../components/SlideShell";
-import { Chip, Arrow, Chromo } from "./ui";
+import { Arrow, Chromo } from "./ui";
 
 export const Cover: React.FC = () => (
   <SlideShell bg="warp" page="">
@@ -12,21 +12,21 @@ export const Cover: React.FC = () => (
       <p className="text-white/75 rise mt-[2.4%]" style={{ fontSize: "clamp(15px,1.7vw,26px)", animationDelay: "0.16s", maxWidth: "48ch" }}>
         A <span className="text-white font-semibold">Genetic-Algorithm Framework</span> for LLM Robustness Testing
       </p>
-      <div className="flex gap-[12px] mt-[3%] flex-wrap rise" style={{ animationDelay: "0.26s" }}>
-        {["local open-weight models", "a 121-attack seed library", "full lineage tracking"].map((t) => <Chip key={t}>{t}</Chip>)}
+      <div className="rise mt-[3.6%]" style={{ animationDelay: "0.26s" }}>
+        <div className="h-px w-[44px] bg-white/25 mb-[14px]" />
+        <div className="text-white/85 font-medium" style={{ fontSize: "clamp(13px,1.5vw,21px)" }}>
+          Matthew Johnson · Heila Shahidi · James Hamil · Austin Wade
+        </div>
       </div>
     </div>
-    <footer className="relative z-10 mono text-white/45 rise" style={{ fontSize: "clamp(11px,1.2vw,16px)", animationDelay: "0.36s" }}>
-      Matthew Johnson · Heila Shahidi · James Hamil · Austin Wade
-    </footer>
   </SlideShell>
 );
 
 export const Problem: React.FC = () => {
   const items: [string, string][] = [
-    ["01", "Adversarial prompts can make a model ignore instructions, leak protected information, or produce content it's aligned to refuse."],
-    ["02", "Today's testing is mostly manual, inconsistent, and hard to analyze at scale — people hand-write jailbreaks one at a time."],
-    ["03", "When an attack works, raw prompt text gives little insight into which trait caused the failure."],
+    ["01", "Deployed LLMs gate real money, data, and safety decisions — yet one crafted prompt can make a model ignore its instructions, leak protected information, or produce content it's aligned to refuse."],
+    ["02", "Today's testing is mostly manual, inconsistent, and hard to analyze at scale — people hand-write adversarial prompts one at a time."],
+    ["03", "When an attack works, the raw prompt text gives little insight into which trait actually caused the failure."],
   ];
   return (
     <SlideShell bg="network" page="Page 01">

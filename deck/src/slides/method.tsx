@@ -91,22 +91,22 @@ export const Schema: React.FC = () => {
         <Kicker num="05" sec="The Genome · Schema v2" />
         <Title className="mt-[1.4%]">Two channels, <span className="text-accent">16 genes</span></Title>
       </div>
-      <div className="flex gap-[2%] mt-[2%] mb-[0.5%] rise" style={{ animationDelay: "0.05s" }}>
-        <Glass className="px-[2%] py-[1.4%] flex items-baseline gap-[10px]">
+      <div className="flex gap-[2%] mt-[1.4%] mb-[0.3%] rise" style={{ animationDelay: "0.05s" }}>
+        <Glass className="px-[2%] py-[1%] flex items-baseline gap-[10px]">
           <span className="font-bold text-accent" style={{ fontSize: "clamp(20px,2.6vw,34px)" }}>{big.toFixed(2)}×10¹³</span>
           <span className="text-white/55" style={{ fontSize: "clamp(11px,1.1vw,16px)" }}>≈ 20 trillion genomes</span>
         </Glass>
-        <Glass className="px-[2%] py-[1.4%] flex items-baseline gap-[10px]">
+        <Glass className="px-[2%] py-[1%] flex items-baseline gap-[10px]">
           <span className="font-bold text-warm" style={{ fontSize: "clamp(20px,2.6vw,34px)" }}>{Math.round(v1).toLocaleString()}×</span>
           <span className="text-white/55" style={{ fontSize: "clamp(11px,1.1vw,16px)" }}>larger than v1</span>
         </Glass>
       </div>
-      <div className="grid grid-cols-2 gap-[2.4%] flex-grow mt-[1.5%]">
+      <div className="grid grid-cols-2 gap-[2.4%] flex-grow mt-[0.7%]">
         {([["SEMANTIC — what the attack does · 9 genes", sem, false], ["PERTURBATION — how it's dressed · 7 genes", per, true]] as [string, [string, string][], boolean][]).map(([title, rows, warm]) => (
-          <Glass key={title} className="rise p-[3.4%]" style={{ animationDelay: warm ? "0.18s" : "0.1s", borderTop: `3px solid ${warm ? "#ffc488" : "#7fb0ff"}` }}>
-            <div className={`mono font-bold tracking-[0.06em] mb-[10px] ${warm ? "text-warm" : "text-accent"}`} style={{ fontSize: 11.5 }}>{title.toUpperCase()}</div>
+          <Glass key={title} className="rise p-[2.6%]" style={{ animationDelay: warm ? "0.18s" : "0.1s", borderTop: `3px solid ${warm ? "#ffc488" : "#7fb0ff"}` }}>
+            <div className={`mono font-bold tracking-[0.06em] mb-[6px] ${warm ? "text-warm" : "text-accent"}`} style={{ fontSize: 11.5 }}>{title.toUpperCase()}</div>
             {rows.map(([k, v]) => (
-              <div key={k} className="mb-[9px]">
+              <div key={k} className="mb-[4px]">
                 <span className="mono font-bold text-white" style={{ fontSize: "clamp(11px,1.15vw,14px)" }}>{k}</span>
                 <div className="mono text-white/45 mt-[1px]" style={{ fontSize: "clamp(9px,0.95vw,12px)" }}>{v}</div>
               </div>
@@ -114,7 +114,7 @@ export const Schema: React.FC = () => {
           </Glass>
         ))}
       </div>
-      <p className="text-white/70 rise mt-[1.6%]" style={{ fontSize: "clamp(11px,1.2vw,16px)", animationDelay: "0.24s" }}>
+      <p className="text-white/70 rise mt-[0.7%]" style={{ fontSize: "clamp(11px,1.2vw,16px)", animationDelay: "0.24s" }}>
         <Arrow>→ </Arrow>Encodes to a <span className="text-accent font-semibold">39-slot multi-hot chromosome</span> — offspring always valid. 5 genes are multi-valued, so attacks stack alleles like real jailbreaks.
       </p>
     </SlideShell>
@@ -212,7 +212,7 @@ export const Pipeline: React.FC = () => {
           <p style={{ fontSize: "clamp(12px,1.3vw,18px)" }}><span className="text-accent font-semibold">persist</span> — config, every generation, summary, and <span className="font-semibold">parent → child lineage</span> stored in Postgres, then the next generation feeds back to <span className="mono">render</span>.</p>
         </Glass>
         <div className="rise mt-[2.4%] flex items-center gap-[4%]" style={{ animationDelay: "0.6s" }}>
-          <Shot src="lineage.png" alt="A real run's parent-to-child lineage across generations, champion highlighted in red" style={{ maxHeight: 270, width: "auto" }} />
+          <Shot src="lineage.png" alt="A real run's parent-to-child lineage across generations, champion highlighted in red" style={{ maxHeight: "min(252px, 30vh)", width: "auto" }} />
           <div className="flex-1">
             <div className="mono text-white/45 tracking-[0.1em] mb-[8px]" style={{ fontSize: 11 }}>REAL RUN · CHAMPION LINEAGE</div>
             <p className="text-white/70" style={{ fontSize: "clamp(11px,1.25vw,16px)", lineHeight: 1.55 }}>Every parent → child relationship is stored, so the champion's full ancestry is recoverable gene by gene. <span className="text-warm font-semibold">Champion in red</span>, partial leaks in amber.</p>

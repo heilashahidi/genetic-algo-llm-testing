@@ -90,26 +90,26 @@ export const GAPrimer: React.FC = () => {
         <Kicker num="02" sec="Genetic Algorithms" />
         <Title className="mt-[1.4%]">How a genetic algorithm <span className="text-accent">works</span></Title>
       </div>
-      <Glass className="rise mt-[2.4%] p-[2.4%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
-        <p className="text-white/90 flex-1" style={{ fontSize: "clamp(13px,1.5vw,21px)", lineHeight: 1.5 }}>
+      <Glass className="rise mt-[1.6%] p-[2%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
+        <p className="text-white/90 flex-1" style={{ fontSize: "clamp(12px,1.4vw,20px)", lineHeight: 1.45 }}>
           Think <span className="text-accent font-semibold">natural selection</span>: keep the fittest, recombine them, add a little random variation — then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of organisms, and you have a <span className="font-semibold">genetic algorithm</span>.
         </p>
         <EvolveGraphic />
       </Glass>
-      <div className="flex items-stretch gap-[1.4%] mt-[3%]">
+      <div className="flex items-stretch gap-[1.4%] mt-[1.8%]">
         {steps.map((s, i) => (
           <React.Fragment key={s.t}>
-            <Glass className="flex-1 rise p-[3.4%] text-center" style={{ animationDelay: `${0.12 + i * 0.1}s` }}>
-              <s.Icon strokeWidth={1.5} className="mx-auto mb-[10px] text-accent" style={{ width: "clamp(22px,2.4vw,30px)", height: "clamp(22px,2.4vw,30px)" }} />
+            <Glass className="flex-1 rise p-[2.4%] text-center" style={{ animationDelay: `${0.12 + i * 0.1}s` }}>
+              <s.Icon strokeWidth={1.5} className="mx-auto mb-[7px] text-accent" style={{ width: "clamp(20px,2.2vw,28px)", height: "clamp(20px,2.2vw,28px)" }} />
               <div className="mono text-white/45" style={{ fontSize: 11 }}>0{i + 1}</div>
-              <h3 className="font-bold mt-[2px]" style={{ fontSize: "clamp(13px,1.4vw,20px)" }}>{s.t}</h3>
-              <p className="text-white/70 mt-[4px] leading-snug" style={{ fontSize: "clamp(11px,1.05vw,15px)" }}>{s.d}</p>
+              <h3 className="font-bold mt-[2px]" style={{ fontSize: "clamp(12px,1.3vw,19px)" }}>{s.t}</h3>
+              <p className="text-white/70 mt-[3px] leading-snug" style={{ fontSize: "clamp(10px,1vw,14px)" }}>{s.d}</p>
             </Glass>
             {i < 4 && <Arrow className="self-center">{i === 3 ? "↻" : "→"}</Arrow>}
           </React.Fragment>
         ))}
       </div>
-      <p className="text-white/75 rise mt-[2.6%]" style={{ fontSize: "clamp(12px,1.3vw,18px)", animationDelay: "0.7s", lineHeight: 1.5 }}>
+      <p className="text-white/75 rise mt-[1.1%]" style={{ fontSize: "clamp(11px,1.2vw,16px)", animationDelay: "0.7s", lineHeight: 1.45 }}>
         <Arrow>→ </Arrow>Why it fits here: we can easily <span className="text-accent font-semibold">score</span> whether a prompt broke the model, but we can't <span className="text-warm font-semibold">calculate</span> the perfect attack. GAs shine exactly there — a measurable goal, a huge search space, and no gradient to follow.
       </p>
     </SlideShell>

@@ -28,6 +28,7 @@ import type {
   PairStat,
 } from "../alleleStats";
 import { fitnessColor } from "./IndividualDetail";
+import { StatTile } from "./StatTile";
 
 interface Props {
   individuals: IndividualRecord[];
@@ -75,6 +76,19 @@ function geneByName(schema: GenomeSchema): Map<string, GeneSchema> {
   return map;
 }
 
+type Tier = "S" | "A" | "B" | "C";
+
+/** Tier from a value's share of the gene's best (positive) value. Non-positive
+ *  or no-max → no tier, so weak/empty alleles stay unbadged. */
+function tierOf(value: number, max: number): Tier | null {
+  if (max <= 0 || value <= 0) return null;
+  const share = value / max;
+  if (share >= 0.8) return "S";
+  if (share >= 0.5) return "A";
+  if (share >= 0.25) return "B";
+  return "C";
+}
+
 export function AlleleExplorer({ individuals, schema }: Props) {
   const [metric, setMetric] = useState<MetricMode>("mean");
   const [minCount, setMinCount] = useState(5);
@@ -98,6 +112,34 @@ export function AlleleExplorer({ individuals, schema }: Props) {
     [individuals, genes, generation],
   );
 
+  // Best positive metric value per gene — drives tiers and the S-tier count.
+  const geneMaxMetric = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const s of pop.alleleStats) {
+      if (s.n < minCount) continue;
+      const v = metricValue(s, metric);
+      if (v > (map.get(s.gene) ?? -Infinity)) map.set(s.gene, v);
+    }
+    return map;
+  }, [pop.alleleStats, minCount, metric]);
+
+  // Gamified headline stats: the standout allele, how many beat the average,
+  // and how many are top-tier — all respecting the min-count filter.
+  const { mvp, winningCount, sTierCount } = useMemo(() => {
+    let mvp: AlleleStat | null = null;
+    let winningCount = 0;
+    let sTierCount = 0;
+    for (const s of pop.alleleStats) {
+      if (s.n < minCount) continue;
+      const v = metricValue(s, metric);
+      if (v <= 0) continue;
+      winningCount += 1;
+      if (!mvp || v > metricValue(mvp, metric)) mvp = s;
+      if (tierOf(v, geneMaxMetric.get(s.gene) ?? 0) === "S") sTierCount += 1;
+    }
+    return { mvp, winningCount, sTierCount };
+  }, [pop.alleleStats, minCount, metric, geneMaxMetric]);
+
   if (pop.counted.length === 0) {
     return (
       <div className="card">
@@ -111,6 +153,53 @@ export function AlleleExplorer({ individuals, schema }: Props) {
 
   return (
     <div className="alleles">
+      <div className="alleles__hero">
+        <div className="alleles__hero-title">
+          <span className="alleles__hero-icon" aria-hidden>
+            🧬
+          </span>
+          <div>
+            <h2>Allele Lab</h2>
+            <p className="alleles__hero-sub">
+              Which alleles break models — ranked by{" "}
+              {metric === "mean"
+                ? "lift over the population mean"
+                : "success rate"}
+              {generation === "all"
+                ? " across all generations"
+                : ` in generation ${generation}`}
+              .
+            </p>
+          </div>
+        </div>
+        <div className="alleles__hero-kpis">
+          {mvp ? (
+            <div className="alleles__mvp">
+              <span className="alleles__mvp-label">
+                <span aria-hidden>👑</span> MVP allele
+              </span>
+              <span className="alleles__mvp-name">
+                <code>{mvp.gene}</code> = {mvp.allele}
+              </span>
+              <span className="alleles__mvp-metric">
+                {metric === "mean"
+                  ? `lift ${signed(mvp.lift)}`
+                  : `${fmt(mvp.successRate)} success`}
+              </span>
+            </div>
+          ) : (
+            <div className="alleles__mvp alleles__mvp--empty">
+              <span className="alleles__mvp-label">
+                <span aria-hidden>👑</span> MVP allele
+              </span>
+              <span className="muted">no standout yet</span>
+            </div>
+          )}
+          <StatTile value={winningCount} label="winning alleles" />
+          <StatTile value={sTierCount} label="S-tier alleles" />
+        </div>
+      </div>
+
       <Toolbar
         metric={metric}
         setMetric={setMetric}
@@ -128,6 +217,7 @@ export function AlleleExplorer({ individuals, schema }: Props) {
         alleleStats={pop.alleleStats}
         metric={metric}
         minCount={minCount}
+        geneMaxMetric={geneMaxMetric}
       />
 
       <FrequencyView individuals={individuals} genes={genes} />
@@ -241,11 +331,13 @@ function Leaderboard({
   alleleStats,
   metric,
   minCount,
+  geneMaxMetric,
 }: {
   genes: GeneSchema[];
   alleleStats: AlleleStat[];
   metric: MetricMode;
   minCount: number;
+  geneMaxMetric: Map<string, number>;
 }) {
   const byGene = useMemo(() => {
     const map = new Map<string, AlleleStat[]>();
@@ -286,6 +378,7 @@ function Leaderboard({
                   stats={byGene.get(gene.name) ?? []}
                   metric={metric}
                   minCount={minCount}
+                  geneMax={geneMaxMetric.get(gene.name) ?? 0}
                 />
               ))}
             </div>
@@ -301,11 +394,13 @@ function GeneBars({
   stats,
   metric,
   minCount,
+  geneMax,
 }: {
   gene: GeneSchema;
   stats: AlleleStat[];
   metric: MetricMode;
   minCount: number;
+  geneMax: number;
 }) {
   const sorted = useMemo(
     () =>
@@ -319,6 +414,14 @@ function GeneBars({
     ...sorted.map((s) => Math.abs(metricValue(s, metric))),
   );
 
+  // This gene's champion: the top allele, if it qualifies and beats the average.
+  const topAllele =
+    sorted.length > 0 &&
+    sorted[0].n >= minCount &&
+    metricValue(sorted[0], metric) > 0
+      ? sorted[0].allele
+      : null;
+
   return (
     <div className="allele-gene">
       <div className="allele-gene__head">
@@ -329,18 +432,20 @@ function GeneBars({
         {sorted.map((stat) => {
           const value = metricValue(stat, metric);
           const below = stat.n < minCount;
+          const isTop = stat.allele === topAllele;
+          const tier = below ? null : tierOf(value, geneMax);
           const widthPct =
             metric === "success"
               ? Math.max(0, Math.min(1, value)) * 100
               : (Math.abs(value) / maxMag) * 100;
           const barColor =
-            metric === "success"
-              ? fitnessColor(value)
-              : liftColor(value);
+            metric === "success" ? fitnessColor(value) : liftColor(value);
           return (
             <div
               key={stat.allele}
-              className={`allele-bar${below ? " allele-bar--dim" : ""}`}
+              className={`allele-bar${below ? " allele-bar--dim" : ""}${
+                isTop ? " allele-bar--top" : ""
+              }`}
               title={
                 below
                   ? `Below min count (n=${stat.n} < ${minCount})`
@@ -349,17 +454,38 @@ function GeneBars({
                     )}, success ${fmt(stat.successRate)}`
               }
             >
-              <span className="allele-bar__label">{stat.allele}</span>
-              <span className="allele-bar__track">
-                <span
-                  className="allele-bar__fill"
-                  style={{ width: `${widthPct}%`, background: barColor }}
-                />
-              </span>
-              <span className="allele-bar__value">
-                {metric === "success" ? fmt(stat.successRate) : signed(stat.lift)}
-              </span>
-              <span className="allele-bar__n muted">n={stat.n}</span>
+              <div className="allele-bar__row">
+                <span className="allele-bar__name">
+                  {isTop && (
+                    <span className="allele-bar__crown" aria-hidden>
+                      👑
+                    </span>
+                  )}
+                  {stat.allele}
+                </span>
+                {tier && (
+                  <span
+                    className={`lb-tier lb-tier--${tier}`}
+                    title={`Tier ${tier}`}
+                  >
+                    {tier}
+                  </span>
+                )}
+                <span className="allele-bar__value">
+                  {metric === "success"
+                    ? fmt(stat.successRate)
+                    : signed(stat.lift)}
+                </span>
+              </div>
+              <div className="allele-bar__meter">
+                <span className="allele-bar__track">
+                  <span
+                    className="allele-bar__fill"
+                    style={{ width: `${widthPct}%`, background: barColor }}
+                  />
+                </span>
+                <span className="allele-bar__n muted">n={stat.n}</span>
+              </div>
             </div>
           );
         })}
@@ -563,7 +689,7 @@ function CombinationView({
             </p>
           ) : (
             <ol className="synergy-list">
-              {pairs.slice(0, 25).map((pair) => (
+              {pairs.slice(0, 25).map((pair, i) => (
                 <li key={`${pair.geneA}:${pair.alleleA}|${pair.geneB}:${pair.alleleB}`}>
                   <button
                     type="button"
@@ -571,6 +697,9 @@ function CombinationView({
                     onClick={() => selectPair(pair)}
                     title="Show this pair in the heatmap"
                   >
+                    <span className="synergy-row__rank" aria-hidden>
+                      {i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}
+                    </span>
                     <span className="synergy-row__pair">
                       <code>
                         {pair.geneA}={pair.alleleA}

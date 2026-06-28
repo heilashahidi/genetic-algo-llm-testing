@@ -14,8 +14,13 @@ import { RunControls } from "../components/RunControls";
 import { FitnessCharts } from "../components/FitnessCharts";
 import { GenomeModal } from "../components/GenomeModal";
 import { LineageTree } from "../components/LineageTree";
-import { IndividualDetail } from "../components/IndividualDetail";
+import {
+  IndividualDetail,
+  fitnessColor,
+  formatFitness,
+} from "../components/IndividualDetail";
 import { AlleleExplorer } from "../components/AlleleExplorer";
+import { StatTile } from "../components/StatTile";
 
 type ViewTab = "tree" | "table" | "alleles";
 
@@ -225,6 +230,26 @@ export function RunDetailPage() {
       });
   }, [selectedId, allIndividuals]);
 
+  // Per-generation roster ranked by fitness for the gamified Table view.
+  const rosterRanked = useMemo(() => {
+    if (!individuals) return [];
+    return [...individuals].sort((a, b) => {
+      const fa = a.fitness ?? -1;
+      const fb = b.fitness ?? -1;
+      if (fb !== fa) return fb - fa;
+      return String(a.individual_id).localeCompare(String(b.individual_id));
+    });
+  }, [individuals]);
+
+  const genStats = useMemo(() => {
+    if (!individuals || individuals.length === 0) return null;
+    const fits = individuals.map((i) => i.fitness ?? 0);
+    const best = Math.max(...fits);
+    const avg = fits.reduce((s, v) => s + v, 0) / fits.length;
+    const solved = individuals.filter((i) => (i.fitness ?? 0) >= 1).length;
+    return { count: individuals.length, best, avg, solved };
+  }, [individuals]);
+
   if (error && run === null) {
     return (
       <section>
@@ -324,7 +349,11 @@ export function RunDetailPage() {
           </div>
 
           {view === "tree" && (
-            <div className="ga-explorer">
+            <div
+              className={`ga-explorer${
+                selectedIndividual ? " ga-explorer--split" : ""
+              }`}
+            >
               <div className="card ga-explorer__graph">
                 {allError && (
                   <div className="alert alert--error">{allError}</div>
@@ -336,27 +365,47 @@ export function RunDetailPage() {
                 />
               </div>
 
-              <aside className="card ga-explorer__panel">
-                <h2 className="ga-explorer__panel-title">Selected Genome</h2>
-                {selectedIndividual ? (
+              {selectedIndividual && (
+                <aside className="card ga-explorer__panel">
+                  <div className="ga-explorer__panel-head">
+                    <h2 className="ga-explorer__panel-title">Selected Genome</h2>
+                    <button
+                      type="button"
+                      className="btn btn--small"
+                      onClick={() => setSelectedId(null)}
+                    >
+                      Close
+                    </button>
+                  </div>
                   <IndividualDetail
                     individual={selectedIndividual}
                     onNavigate={setSelectedId}
                     offspring={offspring}
                   />
-                ) : (
-                  <p className="muted">
-                    Click a node in the tree to inspect that individual.
-                  </p>
-                )}
-              </aside>
+                </aside>
+              )}
             </div>
           )}
 
           {view === "table" && (
-            <div className="card">
-              <div className="page-head">
-                <h2>Individuals</h2>
+            <div className="roster">
+              <div className="roster__head">
+                <div className="roster__title">
+                  <span className="roster__icon" aria-hidden>
+                    🏁
+                  </span>
+                  <div>
+                    <h2>
+                      {selectedGen !== null
+                        ? `Generation ${selectedGen} roster`
+                        : "Roster"}
+                    </h2>
+                    <p className="roster__sub">
+                      Every individual this generation, ranked by fitness — click
+                      one to inspect its genome.
+                    </p>
+                  </div>
+                </div>
                 <label className="field field--inline">
                   <span>Generation</span>
                   <select
@@ -376,6 +425,23 @@ export function RunDetailPage() {
                 </label>
               </div>
 
+              {genStats && (
+                <div className="roster__kpis">
+                  <StatTile value={genStats.count} label="individuals" />
+                  <StatTile
+                    value={genStats.best}
+                    label="best fitness"
+                    format={(v) => v.toFixed(2)}
+                  />
+                  <StatTile
+                    value={genStats.avg}
+                    label="avg fitness"
+                    format={(v) => v.toFixed(2)}
+                  />
+                  <StatTile value={genStats.solved} label="solved" />
+                </div>
+              )}
+
               {individualsError && (
                 <div className="alert alert--error">{individualsError}</div>
               )}
@@ -384,59 +450,99 @@ export function RunDetailPage() {
                 <p className="muted">No generations available yet.</p>
               )}
 
+              {selectedGen !== null && individuals === null && (
+                <p className="muted">Loading individuals…</p>
+              )}
+
               {individuals !== null && individuals.length === 0 && (
                 <p className="muted">No individuals for this generation.</p>
               )}
 
-              {individuals !== null && individuals.length > 0 && (
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Individual</th>
-                      <th>Origin</th>
-                      <th>Fitness</th>
-                      <th>Parent A</th>
-                      <th>Parent B</th>
-                      <th>Phenotype length</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {individuals.map((ind, i) => (
-                      <tr
-                        key={`${String(ind.individual_id)}-${i}`}
-                        className="table__row--clickable"
-                        onClick={() => setModalIndividual(ind)}
-                      >
-                        <td>
-                          <code>{String(ind.individual_id)}</code>
-                        </td>
-                        <td>
-                          {ind.origin ? (
+              {rosterRanked.length > 0 && (
+                <ol className="roster-list">
+                  {rosterRanked.map((ind, i) => {
+                    const rank = i + 1;
+                    const fitness = ind.fitness;
+                    const positive = (fitness ?? 0) > 0;
+                    const champ = rank === 1 && positive;
+                    const medal =
+                      positive && rank <= 3
+                        ? ["👑", "🥈", "🥉"][rank - 1]
+                        : null;
+                    const pct = Math.max(0, Math.min(1, fitness ?? 0)) * 100;
+                    return (
+                      <li key={String(ind.individual_id)}>
+                        <button
+                          type="button"
+                          className={`roster-row${
+                            champ ? " roster-row--champ" : ""
+                          }`}
+                          style={{ animationDelay: `${Math.min(i, 24) * 25}ms` }}
+                          onClick={() => setModalIndividual(ind)}
+                          aria-label={`Individual ${String(
+                            ind.individual_id,
+                          )}, rank ${rank}, fitness ${formatFitness(fitness)}`}
+                        >
+                          <span
+                            className={`roster-row__rank${
+                              medal ? " roster-row__rank--medal" : ""
+                            }`}
+                          >
+                            {medal ?? rank}
+                          </span>
+                          <div className="roster-row__body">
+                            <div className="roster-row__head">
+                              <code className="roster-row__id">
+                                {String(ind.individual_id)}
+                              </code>
+                              {ind.origin && (
+                                <span
+                                  className={`origin-badge origin-badge--${ind.origin}`}
+                                >
+                                  {ind.origin}
+                                </span>
+                              )}
+                            </div>
+                            <div className="roster-row__meter">
+                              <span
+                                className="roster-row__fill"
+                                style={{
+                                  width: `${pct}%`,
+                                  background: fitnessColor(fitness),
+                                }}
+                              />
+                            </div>
+                            <div className="roster-row__meta">
+                              <span>
+                                parents:{" "}
+                                <code>
+                                  {ind.parent_a_id == null
+                                    ? "—"
+                                    : String(ind.parent_a_id)}
+                                </code>
+                                {ind.parent_b_id != null && (
+                                  <>
+                                    {" · "}
+                                    <code>{String(ind.parent_b_id)}</code>
+                                  </>
+                                )}
+                              </span>
+                              <span>φ {ind.phenotype_char_length ?? "—"}</span>
+                            </div>
+                          </div>
+                          <span className="roster-row__fitness">
                             <span
-                              className={`origin-badge origin-badge--${ind.origin}`}
+                              className="fitness-chip"
+                              style={{ background: fitnessColor(fitness) }}
                             >
-                              {ind.origin}
+                              {formatFitness(fitness)}
                             </span>
-                          ) : (
-                            "—"
-                          )}
-                        </td>
-                        <td>{ind.fitness ?? "—"}</td>
-                        <td>
-                          {ind.parent_a_id == null
-                            ? "—"
-                            : String(ind.parent_a_id)}
-                        </td>
-                        <td>
-                          {ind.parent_b_id == null
-                            ? "—"
-                            : String(ind.parent_b_id)}
-                        </td>
-                        <td>{ind.phenotype_char_length ?? "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ol>
               )}
             </div>
           )}

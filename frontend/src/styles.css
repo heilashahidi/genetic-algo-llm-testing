@@ -1237,8 +1237,10 @@ legend {
   gap: 20px;
 }
 @media (min-width: 980px) {
-  .ga-explorer {
-    grid-template-columns: minmax(0, 1fr) 400px;
+  /* The detail column only reserves width while an individual is selected, so
+     the tree spans the full width by default. */
+  .ga-explorer--split {
+    grid-template-columns: minmax(0, 1fr) 380px;
     align-items: start;
   }
 }
@@ -1254,6 +1256,16 @@ legend {
 .ga-explorer__panel-title {
   margin: 0 0 14px;
   font-size: 1.02rem;
+}
+.ga-explorer__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.ga-explorer__panel-head .ga-explorer__panel-title {
+  margin: 0;
 }
 
 /* ==========================================================================
@@ -1271,35 +1283,138 @@ legend {
   margin-bottom: 12px;
   flex-wrap: wrap;
 }
-.lineage__stats {
+/* bound the lineage viewport so fit-to-view can show the whole tree at once */
+.lineage__scroll {
+  max-height: 72vh;
+}
+
+/* HUD stat tiles */
+.lineage__hud {
   display: inline-flex;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
   flex-wrap: wrap;
 }
-.lineage__stat {
+.lineage__hud-stat {
   display: inline-flex;
-  align-items: baseline;
-  gap: 5px;
-  padding: 4px 11px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   background: var(--card);
   box-shadow: var(--shadow-card);
-  font-size: 0.78rem;
-  color: var(--muted);
+  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
-.lineage__stat b {
+.lineage__hud-stat:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card-hover);
+}
+.lineage__hud-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+.lineage__hud-val {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-weight: 600;
+  font-weight: 800;
+  font-size: 1.05rem;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
-.lineage__stat--solved b {
+.lineage__hud-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted-2);
+  font-weight: 600;
+}
+.lineage__hud-stat--solved .lineage__hud-val {
   color: var(--green);
 }
-.lineage__stat--best b {
-  color: var(--amber);
+
+/* crown above the reigning champion node */
+.lineage__crown {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: lineage-crown 2.8s var(--ease) infinite;
+  pointer-events: none;
+}
+.lineage__crown-text {
+  font-size: 14px;
+}
+@keyframes lineage-crown {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+
+/* milestone spark on record-breaking nodes */
+.lineage__spark {
+  fill: var(--violet);
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lineage-spark 1.9s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--violet) 65%, transparent));
+}
+@keyframes lineage-spark {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.82) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(90deg);
+  }
+}
+
+/* gentle pulse on the selected node ring */
+.lineage__node-ring--selected {
+  animation: lineage-sel 1.6s var(--ease) infinite;
+}
+@keyframes lineage-sel {
+  0%,
+  100% {
+    stroke-opacity: 1;
+  }
+  50% {
+    stroke-opacity: 0.45;
+  }
+}
+
+/* legend milestone swatch */
+.lineage__legend-spark {
+  color: var(--violet);
+  font-weight: 800;
+  font-size: 0.95rem;
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--violet) 55%, transparent));
+}
+
+/* empty-state icon */
+.lineage__empty-icon {
+  font-size: 2.2rem;
+  display: block;
+  margin-bottom: 6px;
+  animation: lineage-hatch 2.4s var(--ease) infinite;
+}
+@keyframes lineage-hatch {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-4px) rotate(4deg);
+    opacity: 1;
+  }
 }
 .lineage__hint {
   font-size: 0.74rem;
@@ -1787,6 +1902,104 @@ legend {
   padding-top: 11px;
 }
 
+/* gamified hero header */
+.alleles__hero {
+  --gold: #f4b740;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 22px;
+  margin-bottom: 20px;
+  background:
+    radial-gradient(
+      120% 130% at 6% -12%,
+      color-mix(in srgb, var(--teal) 10%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      120% 120% at 100% 0%,
+      color-mix(in srgb, var(--violet) 9%, transparent),
+      transparent 52%
+    ),
+    var(--card);
+  box-shadow: var(--shadow-card);
+  animation: riseIn 0.5s var(--ease) both;
+}
+.alleles__hero-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.alleles__hero-icon {
+  font-size: 1.9rem;
+  line-height: 1;
+  filter: drop-shadow(0 3px 8px color-mix(in srgb, var(--teal) 45%, transparent));
+  animation: lb-bob 3.4s var(--ease) infinite;
+}
+.alleles__hero-title h2 {
+  margin: 0;
+}
+.alleles__hero-sub {
+  margin: 3px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  max-width: 54ch;
+}
+.alleles__hero-kpis {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.alleles__mvp {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 14px;
+  min-width: 150px;
+  border: 1px solid color-mix(in srgb, var(--gold) 50%, var(--line));
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--gold) 13%, var(--card)),
+    var(--card)
+  );
+  box-shadow: var(--shadow-card);
+}
+.alleles__mvp--empty {
+  border-color: var(--line);
+  background: var(--card);
+}
+.alleles__mvp-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted-2);
+  font-weight: 600;
+}
+.alleles__mvp-name {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.alleles__mvp-name code {
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+.alleles__mvp-metric {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--gold) 55%, var(--ink));
+}
+
 /* leaderboard */
 .alleles__channel {
   margin-bottom: 22px;
@@ -1842,25 +2055,59 @@ legend {
   gap: 6px;
 }
 .allele-bar {
-  display: grid;
-  grid-template-columns: 110px 1fr 48px 44px;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 7px 9px;
+  border-radius: var(--radius-sm);
+  transition: background 0.12s var(--ease), box-shadow 0.12s var(--ease);
 }
 .allele-bar--dim {
-  opacity: 0.4;
+  opacity: 0.45;
 }
-.allele-bar__label {
+.allele-bar--top {
+  background: color-mix(in srgb, var(--gold, #f4b740) 9%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold, #f4b740) 32%, transparent);
+}
+.allele-bar__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.allele-bar__name {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--ink-2);
 }
+.allele-bar__crown {
+  font-size: 12px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgb(16 17 26 / 0.25));
+}
+.allele-bar__value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+.allele-bar__meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .allele-bar__track {
+  flex: 1;
   background: var(--surface);
   border-radius: 999px;
-  height: 14px;
+  height: 8px;
   overflow: hidden;
 }
 .allele-bar__fill {
@@ -1868,16 +2115,13 @@ legend {
   height: 100%;
   border-radius: 999px;
   min-width: 2px;
-  transition: width 0.4s var(--ease);
-}
-.allele-bar__value {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  transition: width 0.5s var(--ease);
 }
 .allele-bar__n {
+  min-width: 40px;
   text-align: right;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
 }
 
 /* combinations */
@@ -1974,6 +2218,15 @@ legend {
 .synergy-row__value {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+.synergy-row__rank {
+  flex: 0 0 auto;
+  min-width: 18px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-2);
 }
 .synergy-row__n {
   font-size: 0.72rem;
@@ -2589,6 +2842,167 @@ legend {
   margin: 0 0 4px;
   font-weight: 700;
   font-size: 1.02rem;
+}
+
+/* ==========================================================================
+   Generation roster (gamified Table view)
+   ========================================================================== */
+.roster {
+  --gold: #f4b740;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 22px;
+  margin-bottom: 22px;
+  background:
+    radial-gradient(
+      120% 130% at 6% -12%,
+      color-mix(in srgb, var(--blue) 9%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      120% 120% at 100% 0%,
+      color-mix(in srgb, var(--green) 8%, transparent),
+      transparent 52%
+    ),
+    var(--card);
+  box-shadow: var(--shadow-card);
+  animation: riseIn 0.5s var(--ease) both;
+}
+.roster__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.roster__title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.roster__icon {
+  font-size: 1.7rem;
+  line-height: 1;
+  animation: lb-bob 3.4s var(--ease) infinite;
+}
+.roster__title h2 {
+  margin: 0;
+}
+.roster__sub {
+  margin: 3px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  max-width: 54ch;
+}
+.roster__kpis {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.roster-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.roster-row {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
+  animation: riseIn 0.4s var(--ease) both;
+  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease),
+    border-color 0.15s var(--ease);
+}
+.roster-row:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+}
+.roster-row:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+.roster-row--champ {
+  border-color: color-mix(in srgb, var(--gold) 50%, var(--line));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 28%, transparent),
+    0 10px 28px -12px color-mix(in srgb, var(--gold) 50%, transparent);
+}
+.roster-row__rank {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.roster-row__rank--medal {
+  background: transparent;
+  border: none;
+  font-size: 1.15rem;
+}
+.roster-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.roster-row__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.roster-row__id {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.roster-row__meter {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.roster-row__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  min-width: 2px;
+  transition: width 0.5s var(--ease);
+}
+.roster-row__meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.roster-row__meta code {
+  font-size: 0.72rem;
+}
+.roster-row__fitness {
+  display: flex;
+  align-items: center;
 }
 
 @media (max-width: 680px) {

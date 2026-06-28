@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import type { IndividualRecord } from "../types";
+import { useCountUp } from "../useCountUp";
 import { fitnessColor, formatFitness, originClass } from "./IndividualDetail";
 
 interface Props {
@@ -138,6 +139,39 @@ function ancestryEdges(rootId: string, byId: Map<string, IndividualRecord>): Set
   return edges;
 }
 
+/** A game-HUD stat tile with an icon and a count-up value. */
+function StatPill({
+  icon,
+  value,
+  label,
+  tone,
+  format,
+  color,
+}: {
+  icon: string;
+  value: number;
+  label: string;
+  tone?: "solved";
+  format?: (v: number) => string;
+  color?: string;
+}) {
+  const shown = useCountUp(value);
+  const text = format ? format(shown) : Math.round(shown).toLocaleString();
+  return (
+    <div
+      className={`lineage__hud-stat${tone ? ` lineage__hud-stat--${tone}` : ""}`}
+    >
+      <span className="lineage__hud-icon" aria-hidden>
+        {icon}
+      </span>
+      <span className="lineage__hud-val" style={color ? { color } : undefined}>
+        {text}
+      </span>
+      <span className="lineage__hud-label">{label}</span>
+    </div>
+  );
+}
+
 export function LineageTree({ individuals, selectedId, onSelect }: Props) {
   const [zoom, setZoom] = useState(1);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -150,6 +184,9 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
   >(null);
   const pan = useRef({ active: false, x: 0, y: 0, sl: 0, st: 0 });
   const draggedRef = useRef(false);
+  // True once the user manually zooms/pans; suspends auto fit-to-view so we
+  // never yank their chosen view out from under them.
+  const userControlledRef = useRef(false);
 
   const {
     byId,
@@ -160,6 +197,7 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
     edges,
     championId,
     championEdges,
+    recordIds,
     width,
     height,
   } = useMemo(() => {
@@ -252,6 +290,19 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
     const championEdges =
       championId && bestFit > 0 ? ancestryEdges(championId, byId) : new Set<string>();
 
+    // Milestone nodes: the individual that set a new run-best fitness in its
+    // generation. Monotonic improvements — the story of the search's progress.
+    const recordIds = new Set<string>();
+    let runningBest = 0;
+    for (const col of columns) {
+      const leader = col.items[0]; // sorted fitness-desc, so [0] is the gen best
+      const f = leader?.fitness ?? 0;
+      if (f > runningBest && f > 0) {
+        recordIds.add(String(leader.individual_id));
+        runningBest = f;
+      }
+    }
+
     const maxRows = columns.reduce((m, c) => Math.max(m, c.items.length), 0);
     const width = SIDE_PAD * 2 + columns.length * COL_WIDTH;
     const height = TOP_PAD + maxRows * ROW_HEIGHT + ROW_HEIGHT;
@@ -265,6 +316,7 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
       edges,
       championId: bestFit > 0 ? championId : null,
       championEdges,
+      recordIds,
       width,
       height,
     };
@@ -277,6 +329,7 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
 
   const zoomTo = useCallback(
     (next: number, fx?: number, fy?: number) => {
+      userControlledRef.current = true;
       const clamped = +clamp(next, ZOOM_MIN, ZOOM_MAX).toFixed(2);
       const el = scrollRef.current;
       if (el) {
@@ -318,12 +371,49 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
     return () => el.removeEventListener("wheel", onWheel);
   }, [zoom, zoomTo]);
 
+  // Scale the whole tree to fit the viewport (never zooming past 100%).
+  const fitToView = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el || width <= 0 || height <= 0) return;
+    const pad = 24; // breathing room around the content
+    const scaleX = (el.clientWidth - pad) / width;
+    const scaleY = (el.clientHeight - pad) / height;
+    const fit = clamp(Math.min(1, scaleX, scaleY), ZOOM_MIN, ZOOM_MAX);
+    pendingFocal.current = null;
+    setZoom(+fit.toFixed(3));
+    el.scrollLeft = 0;
+    el.scrollTop = 0;
+  }, [width, height]);
+
+  // Auto-fit on first load and as the tree (or its viewport) changes size,
+  // until the user takes manual control of zoom/pan.
+  useLayoutEffect(() => {
+    if (!userControlledRef.current) fitToView();
+  }, [fitToView]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => {
+      if (!userControlledRef.current) fitToView();
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [fitToView]);
+
   const onPanMove = useCallback((e: MouseEvent) => {
     const el = scrollRef.current;
     if (!el || !pan.current.active) return;
     const dx = e.clientX - pan.current.x;
     const dy = e.clientY - pan.current.y;
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) draggedRef.current = true;
+    // Promote to a real drag only past a small threshold. Until then this stays
+    // a click, so the node underneath stays hit-testable and selection works
+    // (panning sets is-panning, which disables node pointer-events).
+    if (!draggedRef.current && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+      draggedRef.current = true;
+      userControlledRef.current = true;
+      el.classList.add("is-panning");
+    }
     el.scrollLeft = pan.current.sl - dx;
     el.scrollTop = pan.current.st - dy;
   }, []);
@@ -346,7 +436,6 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
         st: el.scrollTop,
       };
       draggedRef.current = false;
-      el.classList.add("is-panning");
       window.addEventListener("mousemove", onPanMove);
       window.addEventListener("mouseup", onPanUp);
     },
@@ -354,21 +443,17 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
   );
 
   const resetView = useCallback(() => {
-    pendingFocal.current = null;
-    setZoom(1);
-    requestAnimationFrame(() => {
-      const el = scrollRef.current;
-      if (el) {
-        el.scrollLeft = 0;
-        el.scrollTop = 0;
-      }
-    });
-  }, []);
+    userControlledRef.current = false;
+    fitToView();
+  }, [fitToView]);
 
   if (individuals.length === 0) {
     return (
       <div className="empty">
-        <p>Waiting for the first generation…</p>
+        <span className="lineage__empty-icon" aria-hidden>
+          🧬
+        </span>
+        <p>Spawning the first generation…</p>
       </div>
     );
   }
@@ -402,19 +487,17 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
   return (
     <div className="lineage">
       <div className="lineage__toolbar">
-        <div className="lineage__stats">
-          <span className="lineage__stat">
-            <b>{individuals.length}</b> individuals
-          </span>
-          <span className="lineage__stat">
-            <b>{columns.length}</b> generations
-          </span>
-          <span className="lineage__stat lineage__stat--solved">
-            <b>{solved}</b> solved
-          </span>
-          <span className="lineage__stat lineage__stat--best">
-            best <b>{best.toFixed(2)}</b>
-          </span>
+        <div className="lineage__hud">
+          <StatPill icon="🧬" value={individuals.length} label="individuals" />
+          <StatPill icon="🌱" value={columns.length} label="generations" />
+          <StatPill icon="🔓" value={solved} label="solved" tone="solved" />
+          <StatPill
+            icon="⭐"
+            value={best}
+            label="best fitness"
+            format={(v) => v.toFixed(2)}
+            color={fitnessColor(best)}
+          />
         </div>
         <div className="lineage__toolbar-right">
           <div className="lineage__seg" role="group" aria-label="Connections">
@@ -559,6 +642,7 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
                 const selected = n.id === selectedId;
                 const dimmed = hasSelection && !highlighted!.has(n.id);
                 const champ = n.id === championId;
+                const isRecord = recordIds.has(n.id) && !champ;
                 const cls =
                   "lineage__node" +
                   (dimmed ? " lineage__node--dim" : "") +
@@ -604,6 +688,28 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
                             fill="url(#ln-sheen)"
                           />
                         </g>
+                        {champ && (
+                          <g className="lineage__crown" aria-hidden="true">
+                            <text
+                              className="lineage__crown-text"
+                              y={-(n.r + 9)}
+                              textAnchor="middle"
+                            >
+                              👑
+                            </text>
+                          </g>
+                        )}
+                        {isRecord && (
+                          <text
+                            className="lineage__spark"
+                            aria-hidden="true"
+                            x={n.r * 0.62}
+                            y={-(n.r * 0.62)}
+                            textAnchor="middle"
+                          >
+                            ✦
+                          </text>
+                        )}
                         {selected && n.ind.fitness != null && (
                           <text
                             className="lineage__node-text"
@@ -685,11 +791,9 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
           >
             +
           </button>
-          {zoom !== 1 && (
-            <button type="button" className="lineage__reset" onClick={resetView}>
-              Reset
-            </button>
-          )}
+          <button type="button" className="lineage__reset" onClick={resetView}>
+            Fit
+          </button>
         </div>
       </div>
 
@@ -724,7 +828,13 @@ function Legend() {
       </div>
       <div className="lineage__legend-item">
         <span className="lineage__legend-champ" />
-        <span className="muted">champion + bloodline</span>
+        <span className="muted">champion 👑 + bloodline</span>
+      </div>
+      <div className="lineage__legend-item">
+        <span className="lineage__legend-spark" aria-hidden>
+          ✦
+        </span>
+        <span className="muted">new best (milestone)</span>
       </div>
       <div className="lineage__legend-item">
         <span className="lineage__legend-leader" />

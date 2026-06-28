@@ -1,52 +1,9 @@
-import { useEffect, useRef, useState } from "react";
 import type { TraitLeaderboardEntry, TraitModelExploit } from "../types";
+import { useCountUp } from "../useCountUp";
 
 /** Gene names are snake_case; render them as readable words. */
 function humanize(gene: string): string {
   return gene.replace(/_/g, " ");
-}
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-}
-
-/**
- * Tween the displayed number from its previously shown value to `value`
- * whenever `value` changes (so polling that leaves a count unchanged does not
- * re-trigger the animation, but a real increase counts up). First mount counts
- * up from zero.
- */
-function useCountUp(value: number, durationMs = 800): number {
-  const [shown, setShown] = useState(0);
-  const shownRef = useRef(0);
-  shownRef.current = shown;
-  const rafRef = useRef<number>();
-
-  useEffect(() => {
-    if (shownRef.current === value) return;
-    if (prefersReducedMotion()) {
-      setShown(value);
-      return;
-    }
-    const from = shownRef.current;
-    const start = performance.now();
-    const step = (now: number) => {
-      const t = Math.min(1, (now - start) / durationMs);
-      const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
-      setShown(Math.round(from + (value - from) * eased));
-      if (t < 1) rafRef.current = requestAnimationFrame(step);
-    };
-    rafRef.current = requestAnimationFrame(step);
-    return () => {
-      if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
-    };
-  }, [value, durationMs]);
-
-  return shown;
 }
 
 type Tier = "S" | "A" | "B" | "C";
@@ -115,7 +72,7 @@ function PodiumCard({ entry, rank }: { entry: TraitLeaderboardEntry; rank: numbe
         </div>
         <TraitName entry={entry} />
         <div className="lb-pcard__count">
-          <span className="lb-pcard__num">{count.toLocaleString()}</span>
+          <span className="lb-pcard__num">{Math.round(count).toLocaleString()}</span>
           <span className="lb-pcard__unit">exploits</span>
         </div>
         <ModelKills models={entry.models} limit={2} />
@@ -155,7 +112,7 @@ function LeaderRow({
         <ModelKills models={entry.models} />
       </div>
       <div className="lb-row__count">
-        <span className="lb-row__num">{count.toLocaleString()}</span>
+        <span className="lb-row__num">{Math.round(count).toLocaleString()}</span>
         <span className="lb-row__unit">exploits</span>
       </div>
     </li>

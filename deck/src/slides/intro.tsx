@@ -123,9 +123,6 @@ export const Evolution: React.FC = () => {
     ["genome", "all 16 genes = one attack"],
     ["population", "100 genomes per generation"],
     ["fitness", "how well it breaks the model"],
-    ["selection", "keep the fitter genomes"],
-    ["crossover", "blend two parents' genes"],
-    ["mutation", "flip a gene to explore"],
     ["generation", "one full cycle, repeat 30×"],
     ["elitism", "carry the best forward intact"],
   ];

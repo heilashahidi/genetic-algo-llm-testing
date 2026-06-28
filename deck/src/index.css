@@ -38,18 +38,23 @@ body {
 
 .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 
-/* darkening + tint scrim over background video so white text stays legible */
-.scrim {
-  background:
-    radial-gradient(120% 90% at 80% -10%, rgba(47,95,196,0.18), transparent 55%),
-    linear-gradient(180deg, rgba(5,7,13,0.74) 0%, rgba(5,7,13,0.9) 100%);
+/* aurora wash — soft blurred color blobs drifting behind the lineage field */
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(95px);
+  opacity: 0.5;
+  mix-blend-mode: screen;
+  will-change: transform;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
+@keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(7vw,5vh) scale(1.16); } }
+@keyframes drift2 { from { transform: translate(0,0) scale(1.12); } to { transform: translate(-8vw,6vh) scale(0.94); } }
 
 /* staggered slide-content reveal */
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 .rise { animation: rise 0.6s cubic-bezier(0.2,0.7,0.2,1) both; }
-
-@keyframes orbit { to { transform: rotate(360deg); } }
-.orbit { animation: orbit 8s linear infinite; transform-origin: 50% 50%; }
 
 ::selection { background: rgba(127,176,255,0.3); }

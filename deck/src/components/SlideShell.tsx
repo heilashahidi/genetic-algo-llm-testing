@@ -1,30 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { Logo } from "./Logo";
-
-type Bg = "network" | "warp" | "dust";
-
-const VideoBackground: React.FC<{ name: Bg }> = ({ name }) => {
-  const ref = useRef<HTMLVideoElement | null>(null);
-  useEffect(() => {
-    if (ref.current) ref.current.playbackRate = 0.5; // calmer, slower motion
-  }, [name]);
-  return (
-    <>
-      <video
-        ref={ref}
-        key={name}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0 blur-[3px] scale-[1.06]"
-        style={{ opacity: 0.55 }}
-        src={`${import.meta.env.BASE_URL}video/${name}.mp4`}
-      />
-      <div className="absolute inset-0 z-0 scrim" />
-    </>
-  );
-};
 
 export const Kicker: React.FC<{ num: string; sec: string }> = ({ num, sec }) => (
   <div className="flex items-center gap-[10px] mono rise" style={{ fontSize: "clamp(10px,1vw,13px)" }}>
@@ -34,7 +9,6 @@ export const Kicker: React.FC<{ num: string; sec: string }> = ({ num, sec }) => 
 );
 
 interface ShellProps {
-  bg?: Bg;
   page?: string;
   children: React.ReactNode;
   className?: string;
@@ -42,9 +16,9 @@ interface ShellProps {
   bare?: boolean;
 }
 
-export const SlideShell: React.FC<ShellProps> = ({ bg = "network", page, children, className = "", bare }) => (
-  <div className="relative w-full h-full bg-black text-white overflow-hidden flex flex-col px-[5.2%] py-[3.6%]">
-    <VideoBackground name={bg} />
+// Transparent slide frame — the shared LivingBackground shows through from behind.
+export const SlideShell: React.FC<ShellProps> = ({ page, children, className = "", bare }) => (
+  <div className="relative w-full h-full text-white overflow-hidden flex flex-col px-[5.2%] py-[3.6%]">
     {!bare && (
       <header className="relative z-10 w-full flex justify-between items-center">
         <Logo />

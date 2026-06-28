@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Maximize, Minimize } from "lucide-react";
+import { LivingBackground } from "./LivingBackground";
 
 interface PresentationProps {
   children: React.ReactNode[];
@@ -50,9 +51,10 @@ export const Presentation: React.FC<PresentationProps> = ({ children }) => {
     <div
       ref={containerRef}
       onMouseMove={onMouseMove}
-      className="relative w-screen h-screen overflow-hidden bg-black"
+      className="relative w-screen h-screen overflow-hidden bg-[#05070d]"
     >
-      <div className="w-full h-full relative">
+      <LivingBackground />
+      <div className="w-full h-full relative z-10">
         {children.map((slide, index) => {
           const active = index === currentSlide;
           const transform = active ? "scale(1)" : index < currentSlide ? "scale(0.95)" : "scale(1.05)";

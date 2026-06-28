@@ -4,7 +4,7 @@ import { SlideShell, Kicker, Title, Glass } from "../components/SlideShell";
 import { Arrow, Chromo } from "./ui";
 
 export const Cover: React.FC = () => (
-  <SlideShell bg="warp" page="">
+  <SlideShell page="">
     <div className="flex flex-col justify-center flex-grow">
       <h1 className="font-extrabold tracking-tight rise" style={{ fontSize: "clamp(32px,5.6vw,78px)", lineHeight: 1.04, animationDelay: "0.06s" }}>
         Evolving<br /><span className="text-accent">Adversarial Prompts</span>
@@ -29,7 +29,7 @@ export const Problem: React.FC = () => {
     ["03", "When an attack works, the raw prompt text gives little insight into which trait actually caused the failure."],
   ];
   return (
-    <SlideShell bg="network" page="Page 01">
+    <SlideShell page="Page 01">
       <div className="mt-[2%]">
         <Kicker num="01" sec="The Problem" />
         <Title className="mt-[1.4%]">Robustness testing tells us a prompt <span className="text-warm">worked</span>, not <span className="text-accent">why</span></Title>
@@ -85,7 +85,7 @@ export const GAPrimer: React.FC = () => {
     { t: "Repeat", d: "Over many generations the population keeps getting better.", Icon: RefreshCw },
   ];
   return (
-    <SlideShell bg="dust" page="Page 02">
+    <SlideShell page="Page 02">
       <div className="mt-[2%]">
         <Kicker num="02" sec="Genetic Algorithms" />
         <Title className="mt-[1.4%]">How a genetic algorithm <span className="text-accent">works</span></Title>
@@ -127,7 +127,7 @@ export const Evolution: React.FC = () => {
     ["elitism", "carry the best forward intact"],
   ];
   return (
-    <SlideShell bg="network" page="Page 03">
+    <SlideShell page="Page 03">
       <div className="mt-[2%]">
         <Kicker num="03" sec="Evolution as Search" />
         <Title className="mt-[1.4%]">How evolution maps onto our <span className="text-accent">attack genome</span></Title>

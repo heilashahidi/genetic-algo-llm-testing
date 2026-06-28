@@ -3,7 +3,7 @@ import { SlideShell, Kicker, Title, Glass } from "../components/SlideShell";
 import { Arrow, Shot } from "./ui";
 
 export const HonestTest: React.FC = () => (
-  <SlideShell bg="network" page="Page 11">
+  <SlideShell page="Page 11">
     <div className="mt-[2%]">
       <Kicker num="11" sec="The Honest Test" />
       <Title className="mt-[1.4%]">GA vs. random at <span className="text-accent">equal budget</span> — and evolution wins</Title>
@@ -31,7 +31,7 @@ export const Interpret: React.FC = () => {
     "Are wins driven by semantic structure, surface perturbation, or their interaction?",
   ];
   return (
-    <SlideShell bg="network" page="Page 12">
+    <SlideShell page="Page 12">
       <div className="mt-[2%]">
         <Kicker num="12" sec="Interpretability" />
         <Title className="mt-[1.4%]">Which <span className="text-accent">traits</span> drive successful attacks</Title>
@@ -66,7 +66,7 @@ export const Models: React.FC = () => {
     ["Gemma-2-9B-it · stretch", "9B", "4%", "35%", 35, "strong", "Hard-target stress test", false],
   ];
   return (
-    <SlideShell bg="dust" page="Page 13">
+    <SlideShell page="Page 13">
       <div className="mt-[2%]">
         <Kicker num="13" sec="Target Models" />
         <Title className="mt-[1.4%]">Small, local, aligned — an <span className="text-accent">easy → hard</span> gradient</Title>
@@ -107,7 +107,7 @@ export const Takeaways: React.FC = () => {
     ["Real, controllable system", "Postgres control plane, live dashboard, Dockerized, reproducible, offline-testable — not a one-shot script.", "⚙️"],
   ];
   return (
-    <SlideShell bg="warp" page="Page 14">
+    <SlideShell page="Page 14">
       <div className="mt-[2%]">
         <Kicker num="14" sec="Takeaways" />
         <Title className="mt-[1.4%]">Which traits broke it — <span className="text-accent">seeded real, evolved beyond</span></Title>

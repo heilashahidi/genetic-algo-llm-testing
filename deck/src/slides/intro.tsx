@@ -45,10 +45,34 @@ export const Problem: React.FC = () => {
       <Glass className="rise mt-[2.4%] p-[2.6%]" style={{ animationDelay: "0.34s" }}>
         <div className="mono text-accent tracking-[0.18em] mb-[6px]" style={{ fontSize: 12 }}>THE QUESTION</div>
         <p className="text-white/90" style={{ fontSize: "clamp(14px,1.55vw,22px)", lineHeight: 1.45 }}>
-          Can we <span className="text-accent font-semibold">automatically search</span> for the prompt patterns that bypass safety alignment — and explain, <span className="text-warm font-semibold">gene by gene</span>, why they work?
+          Can we <span className="text-accent font-semibold">automatically search</span> for the prompt patterns that bypass safety alignment — and explain <span className="text-warm font-semibold">why</span> they work?
         </p>
       </Glass>
     </SlideShell>
+  );
+};
+
+const EvolveGraphic: React.FC = () => {
+  const gens = [
+    [70, 82, 90, 98, 105],
+    [55, 68, 78, 88, 96],
+    [38, 50, 62, 72, 82],
+    [20, 30, 42, 54, 66],
+  ];
+  const xs = [34, 108, 182, 256];
+  const col = (y: number) => {
+    const f = (110 - y) / 90;
+    return f > 0.6 ? "#7fb0ff" : f > 0.4 ? "rgba(127,176,255,0.55)" : "rgba(255,255,255,0.3)";
+  };
+  return (
+    <svg viewBox="0 0 300 132" style={{ width: "clamp(170px,17vw,290px)", flex: "none" }} aria-label="population fitness rising over generations">
+      <path d={`M${xs[0]},${gens[0][0]} L${xs[1]},${gens[1][0]} L${xs[2]},${gens[2][0]} L${xs[3]},${gens[3][0]}`} stroke="#7fb0ff" strokeWidth="1.5" strokeDasharray="3 3" fill="none" opacity="0.7" />
+      {gens.map((ys, g) => ys.map((y, i) => (
+        <circle key={`${g}-${i}`} cx={xs[g]} cy={y} r={g === 3 && i === 0 ? 5 : 4} fill={col(y)} stroke={g === 3 && i === 0 ? "#fff" : "none"} strokeWidth="1" />
+      )))}
+      <text x="34" y="126" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="9" className="mono">gen 0</text>
+      <text x="256" y="126" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="9" className="mono">later</text>
+    </svg>
   );
 };
 
@@ -66,10 +90,11 @@ export const GAPrimer: React.FC = () => {
         <Kicker num="02" sec="Genetic Algorithms" />
         <Title className="mt-[1.4%]">How a genetic algorithm <span className="text-accent">works</span></Title>
       </div>
-      <Glass className="rise mt-[2.4%] p-[2.4%]" style={{ animationDelay: "0.05s" }}>
-        <p className="text-white/90" style={{ fontSize: "clamp(13px,1.5vw,21px)", lineHeight: 1.5 }}>
-          Think <span className="text-accent font-semibold">selective breeding</span>: keep the best, mix them, sprinkle in random change — then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of animals, and you have a <span className="font-semibold">genetic algorithm</span>.
+      <Glass className="rise mt-[2.4%] p-[2.4%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
+        <p className="text-white/90 flex-1" style={{ fontSize: "clamp(13px,1.5vw,21px)", lineHeight: 1.5 }}>
+          Think <span className="text-accent font-semibold">natural selection</span>: keep the fittest, recombine them, add a little random variation — then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of organisms, and you have a <span className="font-semibold">genetic algorithm</span>.
         </p>
+        <EvolveGraphic />
       </Glass>
       <div className="flex items-stretch gap-[1.4%] mt-[3%]">
         {steps.map((s, i) => (

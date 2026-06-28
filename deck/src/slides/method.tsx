@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { SlideShell, Kicker, Title, Glass } from "../components/SlideShell";
-import { Chip, Arrow, BarRow, useCountUp } from "./ui";
+import { Chip, Arrow, BarRow, useCountUp, Shot } from "./ui";
 
 const GENES: [string, string, "sem" | "per"][] = [
   ["primary_strategy", "role_hijack", "sem"],
@@ -189,7 +189,6 @@ export const Target: React.FC = () => (
 
 export const Pipeline: React.FC = () => {
   const stages: [string, string][] = [["render", "genome → prompt"], ["harness", "mock · OpenAI-compatible"], ["fitness", "score in [0,1]"], ["select · cross · mutate", "next generation"]];
-  const defaults: [string, string][] = [["population", "100"], ["generations", "30"], ["elitism", "5"], ["tournament", "3"], ["crossover", "0.85"], ["mutation", "0.15"], ["active alleles", "≤3"], ["concurrent", "8"]];
   return (
     <SlideShell bg="network" page="Page 08">
       <div className="mt-[2%]">
@@ -212,11 +211,11 @@ export const Pipeline: React.FC = () => {
         <Glass className="rise mt-[2.4%] p-[2.2%]" style={{ animationDelay: "0.5s", borderLeft: "3px solid #7fb0ff" }}>
           <p style={{ fontSize: "clamp(12px,1.3vw,18px)" }}><span className="text-accent font-semibold">persist</span> — config, every generation, summary, and <span className="font-semibold">parent → child lineage</span> stored in Postgres, then the next generation feeds back to <span className="mono">render</span>.</p>
         </Glass>
-        <div className="rise mt-[2.4%]" style={{ animationDelay: "0.6s" }}>
-          <div className="mono text-white/45 tracking-[0.1em] mb-[10px]" style={{ fontSize: 11.5 }}>ENGINE SETTINGS · DEFAULTS</div>
-          <div className="flex gap-[10px] flex-wrap">
-            {defaults.map(([k, v]) => <Chip key={k}>{k} <b className="text-white">{v}</b></Chip>)}
-            <Chip tone="warm">stop_on_success</Chip>
+        <div className="rise mt-[2.4%] flex items-center gap-[4%]" style={{ animationDelay: "0.6s" }}>
+          <Shot src="lineage.png" alt="A real run's parent-to-child lineage across generations, champion highlighted in red" style={{ maxHeight: 270, width: "auto" }} />
+          <div className="flex-1">
+            <div className="mono text-white/45 tracking-[0.1em] mb-[8px]" style={{ fontSize: 11 }}>REAL RUN · CHAMPION LINEAGE</div>
+            <p className="text-white/70" style={{ fontSize: "clamp(11px,1.25vw,16px)", lineHeight: 1.55 }}>Every parent → child relationship is stored, so the champion's full ancestry is recoverable gene by gene. <span className="text-warm font-semibold">Champion in red</span>, partial leaks in amber.</p>
           </div>
         </div>
       </div>

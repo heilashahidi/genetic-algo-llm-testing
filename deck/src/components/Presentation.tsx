@@ -57,14 +57,21 @@ export const Presentation: React.FC<PresentationProps> = ({ children }) => {
       <div className="w-full h-full relative z-10">
         {children.map((slide, index) => {
           const active = index === currentSlide;
-          const transform = active ? "scale(1)" : index < currentSlide ? "scale(0.95)" : "scale(1.05)";
+          // every slide stays mounted (content is cheap now that the background is shared),
+          // so transitions are a clean directional fade with no content blink or re-animation.
+          const offset = active ? 0 : index < currentSlide ? -20 : 20;
           return (
             <div
               key={index}
-              style={{ transform, transition: "opacity 500ms ease-in-out, transform 500ms ease-in-out" }}
-              className={`absolute inset-0 w-full h-full ${active ? "opacity-100 pointer-events-auto z-10" : "opacity-0 pointer-events-none"}`}
+              style={{
+                opacity: active ? 1 : 0,
+                transform: `translateY(${offset}px)`,
+                transition: "opacity 360ms ease, transform 540ms cubic-bezier(0.22,0.61,0.36,1)",
+                willChange: "opacity, transform",
+              }}
+              className={`absolute inset-0 w-full h-full ${active ? "pointer-events-auto z-10" : "pointer-events-none z-0"}`}
             >
-              {active ? slide : null}
+              {slide}
             </div>
           );
         })}

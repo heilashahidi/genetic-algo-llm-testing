@@ -9,8 +9,8 @@ export const Cover: React.FC = () => (
       <h1 className="font-extrabold tracking-tight rise" style={{ fontSize: "clamp(33.9px,5.9vw,82.7px)", lineHeight: 1.04, animationDelay: "0.06s" }}>
         Evolving<br /><span className="text-accent">Adversarial Prompts</span>
       </h1>
-      <p className="text-white/75 rise mt-[2.4%]" style={{ fontSize: "clamp(18px,2vw,31.2px)", animationDelay: "0.16s", maxWidth: "48ch" }}>
-        A <span className="text-white font-semibold">Genetic-Algorithm Framework</span> for LLM Robustness Testing
+      <p className="text-white/75 rise mt-[2.4%]" style={{ fontSize: "clamp(18px,2vw,31.2px)", animationDelay: "0.16s", maxWidth: "52ch" }}>
+        A <span className="text-white font-semibold">Genetic-Algorithm Framework</span> that finds adversarial prompts, and <span className="text-accent font-semibold">explains</span> what makes them work
       </p>
       <div className="rise mt-[3.6%]" style={{ animationDelay: "0.26s" }}>
         <div className="h-px w-[44px] bg-white/25 mb-[14px]" />
@@ -22,6 +22,36 @@ export const Cover: React.FC = () => (
   </SlideShell>
 );
 
+export const WhatWeDo: React.FC = () => {
+  const cards: [string, string, React.ReactNode][] = [
+    ["Automated search, not hand red-teaming", "A system searches for prompts that break an LLM's safety rules, instead of writing adversarial prompts by hand one at a time.", null],
+    ["A genetic algorithm breeds prompts", "Keep the prompts that work, combine them, mutate them, across many generations, so the population gets stronger over time.", null],
+    ["Every attack is a structured genome", <>Not raw text. So when an attack lands we can point to the <span className="text-accent font-semibold">traits</span> that caused it, like <span className="mono text-white/80">developer-mode persona + base64 wrapper + caps</span>, not just "this paragraph worked."</>],
+  ];
+  return (
+    <SlideShell page="Page 01">
+      <div className="mt-[2%]">
+        <Kicker num="01" sec="What We're Doing" />
+        <Title className="mt-[1.4%]">We search for prompts that break an LLM, and <span className="text-accent">explain</span> what makes them work</Title>
+      </div>
+      <div className="grid grid-cols-3 gap-[2.2%] mt-[3.2%]">
+        {cards.map(([t, d, extra], i) => (
+          <Glass key={t} className="rise p-[3.4%]" style={{ animationDelay: `${i * 0.1}s`, borderTop: "3px solid #7fb0ff" }}>
+            <div className="mono text-white/45" style={{ fontSize: 13.2 }}>0{i + 1}</div>
+            <h3 className="font-bold mt-[4px] mb-[8px]" style={{ fontSize: "clamp(16.8px,1.9vw,25.2px)" }}>{t}</h3>
+            <p className="text-white/75 leading-snug" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)" }}>{extra ?? d}</p>
+          </Glass>
+        ))}
+      </div>
+      <Glass className="rise mt-[2.4%] p-[2.6%]" style={{ animationDelay: "0.34s", background: "linear-gradient(100deg, rgba(19,32,58,0.6), rgba(33,64,127,0.5))" }}>
+        <p style={{ fontSize: "clamp(16.8px,2vw,27.6px)", lineHeight: 1.45 }}>
+          Two outputs: <span className="text-warm font-semibold">effective attacks</span>, and a <span className="text-accent font-semibold">trait-level explanation</span> of what's effective. Robustness testing plus interpretability.
+        </p>
+      </Glass>
+    </SlideShell>
+  );
+};
+
 export const Problem: React.FC = () => {
   const items: [string, string][] = [
     ["01", "Deployed LLMs gate real money, data, and safety decisions, yet one crafted prompt can make a model ignore its instructions, leak protected information, or produce content it's aligned to refuse."],
@@ -29,23 +59,26 @@ export const Problem: React.FC = () => {
     ["03", "When an attack works, the raw prompt text gives little insight into which trait actually caused the failure."],
   ];
   return (
-    <SlideShell page="Page 01">
+    <SlideShell page="Page 02">
       <div className="mt-[2%]">
-        <Kicker num="01" sec="The Problem" />
+        <Kicker num="02" sec="The Problem" />
         <Title className="mt-[1.4%]">Robustness testing tells us a prompt <span className="text-warm">worked</span>, not <span className="text-accent">why</span></Title>
       </div>
-      <div className="grid grid-cols-3 gap-[2.2%] mt-[3.5%]">
+      <div className="grid grid-cols-3 gap-[2.2%] mt-[2.6%]">
         {items.map(([n, t], i) => (
-          <Glass key={n} className="rise p-[3.9%]" style={{ animationDelay: `${i * 0.1}s` }}>
-            <div className="mono text-[#06122e] bg-accent inline-flex items-center justify-center font-bold rounded-[8px] mb-[12px]" style={{ width: 30, height: 30, fontSize: 16.8 }}>{n}</div>
+          <Glass key={n} className="rise p-[3.2%]" style={{ animationDelay: `${i * 0.1}s` }}>
+            <div className="mono text-[#06122e] bg-accent inline-flex items-center justify-center font-bold rounded-[8px] mb-[10px]" style={{ width: 30, height: 30, fontSize: 16.8 }}>{n}</div>
             <p className="text-white/85 leading-snug" style={{ fontSize: "clamp(14.4px,1.5vw,21.6px)" }}>{t}</p>
           </Glass>
         ))}
       </div>
-      <Glass className="rise mt-[2.4%] p-[2.6%]" style={{ animationDelay: "0.34s" }}>
+      <Glass className="rise mt-[1.8%] p-[2.2%]" style={{ animationDelay: "0.34s" }}>
         <div className="mono text-accent tracking-[0.18em] mb-[6px]" style={{ fontSize: 14.4 }}>THE QUESTION</div>
-        <p className="text-white/90" style={{ fontSize: "clamp(16.8px,1.9vw,26.4px)", lineHeight: 1.45 }}>
+        <p className="text-white/90" style={{ fontSize: "clamp(16.8px,1.9vw,24px)", lineHeight: 1.4 }}>
           Can we <span className="text-accent font-semibold">automatically search</span> for the prompt patterns that bypass safety alignment, and explain <span className="text-warm font-semibold">why</span> they work?
+        </p>
+        <p className="text-white/60 mt-[8px]" style={{ fontSize: "clamp(13.2px,1.4vw,18px)", lineHeight: 1.4 }}>
+          Both sides need it: offense needs coverage, defense can't patch a weakness it can't characterize. The goal is <span className="text-white/80 font-semibold">transferable knowledge</span> ("authority framing + obfuscation beats this model"), not a one-off string that breaks on the next version.
         </p>
       </Glass>
     </SlideShell>
@@ -85,9 +118,9 @@ export const GAPrimer: React.FC = () => {
     { t: "Repeat", d: "Over many generations the population keeps getting better.", Icon: RefreshCw },
   ];
   return (
-    <SlideShell page="Page 02">
+    <SlideShell page="Page 05">
       <div className="mt-[2%]">
-        <Kicker num="02" sec="Genetic Algorithms" />
+        <Kicker num="05" sec="Genetic Algorithms" />
         <Title className="mt-[1.4%]">How a genetic algorithm <span className="text-accent">works</span></Title>
       </div>
       <Glass className="rise mt-[1.6%] p-[2%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
@@ -127,9 +160,9 @@ export const Evolution: React.FC = () => {
     ["elitism", "carry the best forward intact"],
   ];
   return (
-    <SlideShell page="Page 03">
+    <SlideShell page="Page 06">
       <div className="mt-[2%]">
-        <Kicker num="03" sec="Evolution as Search" />
+        <Kicker num="06" sec="Evolution as Search" />
         <Title className="mt-[1.4%]">How evolution maps onto our <span className="text-accent">attack genome</span></Title>
       </div>
       <p className="text-white/80 rise mt-[1.6%]" style={{ fontSize: "clamp(14.4px,1.6vw,22.8px)", lineHeight: 1.5, animationDelay: "0.04s" }}>

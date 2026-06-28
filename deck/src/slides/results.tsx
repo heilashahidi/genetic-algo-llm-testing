@@ -36,10 +36,49 @@ const ClimbChart: React.FC = () => {
   );
 };
 
+export const ReviewTable: React.FC = () => {
+  const rows: [string, React.ReactNode][] = [
+    ["Genome / chromosome", <>16-gene attack spec → 39-slot vector (semantic + perturbation)</>],
+    ["Phenotype", "the rendered prompt text sent to the model"],
+    ["Population", <><span className="text-white font-semibold">20</span> candidate attacks per generation</>],
+    ["Initial population", "seeded from 121 real collected jailbreaks, not random"],
+    ["Fitness", "did the target LLM leak the protected secret, or refuse"],
+    ["Selection", "tournament + elitism (top 5 carried forward)"],
+    ["Crossover", "swap gene blocks between two parents (85%, channel-aware option)"],
+    ["Mutation", "flip bits / resample genes (15%) for diversity"],
+    ["Generation loop", <>evaluate → store → evolve; <span className="text-white font-semibold">15</span> generations, full schedule</>],
+    ["Baseline", "seed-only population; a random-search harness for controlled validation"],
+  ];
+  return (
+    <SlideShell page="Page 13">
+      <div className="mt-[1.4%]">
+        <Kicker num="13" sec="Review" />
+        <Title className="mt-[1.2%]">Every GA concept, mapped to <span className="text-accent">what we built</span></Title>
+      </div>
+      <Glass className="rise p-[1.2%] mt-[1.2%]">
+        <div className="grid items-center" style={{ gridTemplateColumns: "0.85fr 2.15fr" }}>
+          {["GA CONCEPT", "IN OUR PROJECT"].map((h) => (
+            <div key={h} className="mono text-white/40 pb-[6px] tracking-[0.06em]" style={{ fontSize: 12.6, borderBottom: "1px solid rgba(255,255,255,0.12)" }}>{h}</div>
+          ))}
+          {rows.map(([c, v], i) => (
+            <React.Fragment key={c}>
+              <div className="py-[4px] mono font-semibold text-accent" style={{ borderBottom: i < rows.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none", fontSize: "clamp(12px,1.3vw,16.8px)", paddingLeft: 8 }}>{c}</div>
+              <div className="py-[4px] text-white/80" style={{ borderBottom: i < rows.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none", fontSize: "clamp(12px,1.3vw,16.8px)" }}>{v}</div>
+            </React.Fragment>
+          ))}
+        </div>
+      </Glass>
+      <p className="text-white/70 rise mt-[1.2%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.3s" }}>
+        <Arrow>→ </Arrow>We turned "is this LLM robust?" into an evolutionary search, and made the answer <span className="text-accent font-semibold">explainable</span> by evolving structured genes instead of raw text.
+      </p>
+    </SlideShell>
+  );
+};
+
 export const HonestTest: React.FC = () => (
-  <SlideShell page="Page 11">
+  <SlideShell page="Page 14">
     <div className="mt-[2%]">
-      <Kicker num="11" sec="The Honest Test" />
+      <Kicker num="14" sec="The Honest Test" />
       <Title className="mt-[1.4%]">Evolution beats the <span className="text-accent">seed it grew from</span>, on live models</Title>
     </div>
     <div className="grid gap-[2.6%] flex-grow mt-[2.4%] items-center" style={{ gridTemplateColumns: "1fr 1.25fr" }}>
@@ -74,9 +113,9 @@ export const Interpret: React.FC = () => {
     "Are wins driven by semantic structure, surface perturbation, or their interaction?",
   ];
   return (
-    <SlideShell page="Page 12">
+    <SlideShell page="Page 15">
       <div className="mt-[2%]">
-        <Kicker num="12" sec="Interpretability" />
+        <Kicker num="15" sec="Interpretability" />
         <Title className="mt-[1.4%]">Which <span className="text-accent">traits</span> drive successful attacks</Title>
       </div>
       <div className="grid grid-cols-2 gap-[4%] flex-grow mt-[2%] items-center">
@@ -115,9 +154,9 @@ export const Interpret: React.FC = () => {
 };
 
 export const Models: React.FC = () => (
-  <SlideShell page="Page 13">
+  <SlideShell page="Page 16">
     <div className="mt-[2%]">
-      <Kicker num="13" sec="Target Models" />
+      <Kicker num="16" sec="Target Models" />
       <Title className="mt-[1.4%]">Five local models, one <span className="text-accent">measured</span> hard → soft gradient</Title>
     </div>
     <Glass className="rise p-[2.3%] mt-[2.5%]">
@@ -162,9 +201,9 @@ export const Verify: React.FC = () => {
     "Qwen3.5-9B · Granite-4.1-8B · Gemma-4-E4B · Phi-4-mini all real",
   ];
   return (
-    <SlideShell page="Page 14">
+    <SlideShell page="Page 17">
       <div className="mt-[2%]">
-        <Kicker num="14" sec="Verification" />
+        <Kicker num="17" sec="Verification" />
         <Title className="mt-[1.4%]">Every claim <span className="text-accent">adversarially fact-checked</span> before it shipped</Title>
       </div>
       <div className="grid grid-cols-4 gap-[2%] mt-[2.6%]">
@@ -190,7 +229,7 @@ export const Verify: React.FC = () => {
             The precise <span className="text-warm font-semibold">HarmBench ASR figures</span> (26% / 90% …), unverifiable, predating every model we test and swinging <span className="text-warm font-semibold">~3×</span> across attack harnesses.
           </p>
           <p className="text-white/55 mt-[12px]" style={{ fontSize: "clamp(12px,1.3vw,16.8px)" }}>
-            → That kill is exactly why slide 13 uses our <span className="text-accent">own measured</span> numbers, not borrowed benchmarks.
+            → That kill is exactly why the Target Models slide uses our <span className="text-accent">own measured</span> numbers, not borrowed benchmarks.
           </p>
         </Glass>
       </div>
@@ -205,12 +244,12 @@ export const Takeaways: React.FC = () => {
   const pillars: [string, string, string][] = [
     ["Structured & interpretable", "A 16-gene genome (~20-trillion search space) seeded from 121 real attacks, every win traceable gene-by-gene and across its lineage.", "🧬"],
     ["Honest methodology", "GA measured against the seed-only baseline across a real hard→soft model gradient, then every surrounding claim adversarially fact-checked.", "⚖️"],
-    ["Real, controllable system", "Postgres control plane, live dashboard, Dockerized, reproducible, offline-testable, not a one-shot script.", "⚙️"],
+    ["Real, controllable system", "Postgres control plane, HTTP API, parallel LLM evaluation, live dashboard, reproducible and offline-testable, not a one-shot script.", "⚙️"],
   ];
   return (
-    <SlideShell page="Page 15">
+    <SlideShell page="Page 18">
       <div className="mt-[2%]">
-        <Kicker num="15" sec="Takeaways" />
+        <Kicker num="18" sec="Takeaways" />
         <Title className="mt-[1.4%]">Which traits broke it: <span className="text-accent">seeded real, evolved beyond</span></Title>
       </div>
       <div className="grid grid-cols-3 gap-[2.4%] mt-[3%]">

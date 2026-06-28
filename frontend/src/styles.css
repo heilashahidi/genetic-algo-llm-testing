@@ -1,13 +1,16 @@
 /* ==========================================================================
    GA Control Plane — house-style design language
-   Calm, technical, light-mode editorial. A tool, not a consumer app.
-   Reference: frontend/design/reference.png (Vercel-style, adapted to light mode).
-   Near-white canvas, white cards, hairline borders, flat surfaces (no fill
-   depth), one restrained electric-blue accent. Color is reserved for meaning
-   (affordance + semantic state), never decoration.
+   Calm, technical, dark-first. A tool, not a consumer app.
+   Reference: frontend/design/reference.png (Vercel-style).
+   Default is the pure-black dark theme below; a light theme stays one toggle
+   away (data-theme="light"). Both share the same grammar: a flat canvas, near-
+   surface cards defined by hairline borders (not fills or shadows), monospace
+   uppercase technical labels, thin line-icons, and ONE electric-blue accent.
+   Color is reserved for meaning (affordance + semantic state), never decoration.
    ========================================================================== */
 
-:root {
+:root,
+:root[data-theme="light"] {
   color-scheme: light;
 
   /* Surfaces — flat, near-neutral; depth comes from hairlines, not fills */
@@ -52,6 +55,10 @@
   /* Motion */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
+  /* Type — Geist sans for prose, Geist Mono for technical labels/ids/code */
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+
   --radius: var(--radius-card);
   --space: 16px;
 }
@@ -64,30 +71,32 @@
   color-scheme: dark;
 
   --canvas: #000000;
-  --surface: #1a1a1a;
+  --surface: #161616;
   --paper: #0a0a0a;
   --card: #0a0a0a;
 
   --ink: #ededed;
-  --ink-2: #b4b7bd;
-  --muted: #8b9097;
-  --muted-2: #6b7077;
+  --ink-2: #a8a8a8;
+  --muted: #8a8a8a;
+  --muted-2: #6a6a6a;
 
   --line: #262626;
-  --line-2: #181818;
+  --line-2: #1c1c1c;
 
-  --accent: #3291ff;
+  --accent: #3b8eea;
   --red: #ff6166;
   --green: #3dd68c;
-  --blue: #3291ff;
+  --blue: #3b8eea;
   --amber: #f5c451;
   --violet: #a78bfa;
   --rose: #fb7185;
   --teal: #2dd4bf;
 
-  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.5);
-  --shadow-card-hover: 0 4px 20px -6px rgb(0 0 0 / 0.7);
-  --shadow-pop: 0 16px 50px -16px rgb(0 0 0 / 0.8),
+  /* Flat by design: depth comes from hairlines, not fills. Shadows are kept
+     minimal and reserved for elements that genuinely float (overlays, hover). */
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-card-hover: 0 8px 28px -10px rgb(0 0 0 / 0.8);
+  --shadow-pop: 0 16px 50px -16px rgb(0 0 0 / 0.85),
     0 2px 10px -4px rgb(0 0 0 / 0.6);
   --shadow-ring: 0 0 0 1px rgb(255 255 255 / 0.06);
 }
@@ -110,27 +119,27 @@ html {
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "ss01", "cv11", "cv02";
 }
 
 body {
   margin: 0;
-  font-family: "Inter Tight", "Inter", ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  letter-spacing: -0.011em;
+  font-family: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: -0.006em;
   color: var(--ink);
   background: var(--canvas);
   line-height: 1.5;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 code,
 .mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.88em;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+  font-size: 0.86em;
   letter-spacing: 0;
 }
 
@@ -279,7 +288,7 @@ code,
 }
 .app__brand-sub {
   display: block;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.04em;
   color: var(--muted-2);
@@ -294,6 +303,7 @@ code,
 }
 
 .app__nav a {
+  position: relative;
   display: inline-flex;
   align-items: center;
   padding: 7px 12px;
@@ -310,6 +320,29 @@ code,
 }
 .app__nav a.is-active {
   color: var(--ink);
+}
+/* accent "you are here" indicator — the nav's slice of the app's energy */
+.app__nav a.is-active:not(.btn)::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 1px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 10px -1px color-mix(in srgb, var(--accent) 70%, transparent);
+  animation: navIn 0.3s var(--ease) both;
+}
+@keyframes navIn {
+  from {
+    opacity: 0;
+    transform: scaleX(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
 }
 /* keep the primary CTA in the nav looking like a button, not a tab */
 .app__nav a.btn--primary {
@@ -569,10 +602,10 @@ legend {
 }
 .table th {
   background: var(--card);
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
 }
 .table tbody tr:last-child td {
@@ -582,12 +615,41 @@ legend {
   cursor: pointer;
   transition: background 0.12s var(--ease);
 }
+.table__row--clickable td {
+  transition: box-shadow 0.18s var(--ease);
+}
 .table__row--clickable:hover {
-  background: var(--line-2);
+  background: color-mix(in srgb, var(--accent) 5%, var(--card));
+}
+.table__row--clickable:hover td:first-child {
+  box-shadow: inset 3px 0 0 0 var(--accent);
+}
+/* a run with active work carries the app's accent energy */
+.table tr.is-live td:first-child {
+  box-shadow: inset 3px 0 0 0 var(--accent);
 }
 .table__actions {
   text-align: right;
   white-space: nowrap;
+}
+
+/* generation shown as a "level" chip — mono, tabular */
+.gen-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.gen-pill__k {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-2);
+}
+.gen-pill__v {
+  font-size: 0.92rem;
+  color: var(--ink);
 }
 
 /* ==========================================================================
@@ -793,7 +855,7 @@ legend {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .field textarea {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 0.82rem;
   line-height: 1.55;
   resize: vertical;
@@ -914,26 +976,70 @@ legend {
   gap: 6px;
 }
 .meta-label {
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
+}
+/* generation as a "level" — a tabular figure that ticks up as the run evolves */
+.meta-gen {
+  font-size: 1.4rem;
   font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+/* a run still doing work carries the accent energy */
+.meta-grid.meta-card--live {
+  border-left: 2px solid var(--accent);
+  background: radial-gradient(
+      90% 120% at 0% 0%,
+      color-mix(in srgb, var(--accent) 8%, transparent),
+      transparent 60%
+    ),
+    var(--card);
 }
 
 /* ==========================================================================
-   Fitness charts — gamified "evolution progress" panel
+   Shared KPI tile (StatTile) — flat hairline, mono label
+   ========================================================================== */
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 11px 16px;
+  min-width: 112px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+.kpi__num {
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.kpi__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-2);
+}
+
+/* ==========================================================================
+   Fitness charts — "evolution progress" panel
    ========================================================================== */
 .fitchart {
-  --gold: #f4b740;
-  position: relative;
-  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   padding: 22px;
   margin-bottom: 20px;
   background: var(--card);
-  box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
 .fitchart__head {
@@ -946,26 +1052,20 @@ legend {
 }
 .fitchart__title {
   display: flex;
-  align-items: center;
-  gap: 13px;
-}
-.fitchart__icon {
-  font-size: 1.7rem;
-  line-height: 1;
-  filter: drop-shadow(0 3px 8px color-mix(in srgb, var(--blue) 45%, transparent));
-  animation: lb-bob 3.4s var(--ease) infinite;
+  flex-direction: column;
+  gap: 5px;
 }
 .fitchart__title h2 {
   margin: 0;
 }
 .fitchart__sub {
-  margin: 3px 0 0;
+  margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
   max-width: 62ch;
 }
 
-/* KPI HUD */
+/* KPI row */
 .fitchart__kpis {
   display: flex;
   gap: 10px;
@@ -975,31 +1075,30 @@ legend {
 .fitchart__hero {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  padding: 9px 16px;
-  min-width: 142px;
-  border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--line));
+  gap: 4px;
+  padding: 11px 16px;
+  min-width: 132px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
   border-radius: var(--radius-md);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--gold) 12%, var(--card)),
-    var(--card)
-  );
-  box-shadow: var(--shadow-card);
+  background: radial-gradient(
+      120% 100% at 0% 0%,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 70%
+    ),
+    var(--card);
 }
-.fitchart__hero-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+.fitchart__hero-label,
+.fitchart__call-label {
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
-  font-weight: 600;
 }
 .fitchart__hero-num {
-  font-size: 1.7rem;
-  font-weight: 800;
+  font-size: 1.6rem;
+  font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.08;
   font-variant-numeric: tabular-nums;
@@ -1011,26 +1110,15 @@ legend {
 .fitchart__call {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 9px 14px;
-  min-width: 142px;
+  gap: 4px;
+  padding: 11px 16px;
+  min-width: 132px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--card);
-  box-shadow: var(--shadow-card);
-}
-.fitchart__call-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--muted-2);
-  font-weight: 600;
 }
 .fitchart__call-val {
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 
@@ -1048,13 +1136,8 @@ legend {
 .fitchart__chart {
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--blue) 4%, var(--card)),
-    var(--card) 62%
-  );
+  background: var(--card);
   padding: 14px 14px 8px;
-  box-shadow: var(--shadow-card);
 }
 .fitchart__chart-head {
   display: flex;
@@ -1141,12 +1224,6 @@ legend {
 .fitchart-empty {
   text-align: center;
   padding: 44px 16px;
-}
-.fitchart-empty__icon {
-  font-size: 2.2rem;
-  display: block;
-  margin-bottom: 8px;
-  opacity: 0.6;
 }
 .fitchart-empty__title {
   margin: 0 0 4px;
@@ -1404,7 +1481,7 @@ legend {
   border-radius: var(--radius-md);
   overflow: auto;
   max-height: 320px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   line-height: 1.55;
   white-space: pre-wrap;
@@ -1445,7 +1522,8 @@ legend {
   bottom: -1px;
   height: 2px;
   border-radius: 999px;
-  background: var(--ink);
+  background: var(--accent);
+  box-shadow: 0 0 10px -1px color-mix(in srgb, var(--accent) 65%, transparent);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 0.2s var(--ease);
@@ -1565,83 +1643,30 @@ legend {
 }
 .lineage__hud-stat {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 7px 13px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--card);
-  box-shadow: var(--shadow-card);
-  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
-}
-.lineage__hud-stat:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-card-hover);
-}
-.lineage__hud-icon {
-  font-size: 1rem;
-  line-height: 1;
 }
 .lineage__hud-val {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-weight: 800;
-  font-size: 1.05rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 1rem;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 .lineage__hud-label {
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
-  font-weight: 600;
 }
 .lineage__hud-stat--solved .lineage__hud-val {
   color: var(--green);
-}
-
-/* crown above the reigning champion node */
-.lineage__crown {
-  transform-box: fill-box;
-  transform-origin: center bottom;
-  animation: lineage-crown 2.8s var(--ease) infinite;
-  pointer-events: none;
-}
-.lineage__crown-text {
-  font-size: 14px;
-}
-@keyframes lineage-crown {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2.5px);
-  }
-}
-
-/* milestone spark on record-breaking nodes */
-.lineage__spark {
-  fill: var(--violet);
-  font-size: 11px;
-  font-weight: 700;
-  pointer-events: none;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: lineage-spark 1.9s ease-in-out infinite;
-  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--violet) 65%, transparent));
-}
-@keyframes lineage-spark {
-  0%,
-  100% {
-    opacity: 0.5;
-    transform: scale(0.82) rotate(0deg);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.15) rotate(90deg);
-  }
 }
 
 /* gentle pulse on the selected node ring */
@@ -1658,32 +1683,6 @@ legend {
   }
 }
 
-/* legend milestone swatch */
-.lineage__legend-spark {
-  color: var(--violet);
-  font-weight: 800;
-  font-size: 0.95rem;
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--violet) 55%, transparent));
-}
-
-/* empty-state icon */
-.lineage__empty-icon {
-  font-size: 2.2rem;
-  display: block;
-  margin-bottom: 6px;
-  animation: lineage-hatch 2.4s var(--ease) infinite;
-}
-@keyframes lineage-hatch {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-4deg);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateY(-4px) rotate(4deg);
-    opacity: 1;
-  }
-}
 .lineage__hint {
   font-size: 0.74rem;
   color: var(--muted-2);
@@ -1861,16 +1860,13 @@ legend {
   transform: scale(1.12);
 }
 .lineage__node-circle {
-  stroke: #ffffff;
-  stroke-width: 2;
+  stroke: var(--card);
+  stroke-width: 1.5;
   transition: stroke 0.12s var(--ease);
 }
 .lineage__node--selected .lineage__node-circle {
   stroke: var(--ink);
   stroke-width: 2.5;
-}
-.lineage__node-sheen {
-  pointer-events: none;
 }
 .lineage__node-text {
   font-size: 10px;
@@ -1888,33 +1884,16 @@ legend {
   stroke-width: 1.5;
   opacity: 0.7;
 }
-/* champion — the one celebratory marker: amber ring + breathing halo */
+/* champion — the one accent marker on the frontier */
 .lineage__node-ring--champ {
   fill: none;
-  stroke: var(--amber);
+  stroke: var(--accent);
   stroke-width: 2.5;
 }
 .lineage__node-ring--selected {
   fill: none;
   stroke: var(--ink);
   stroke-width: 2;
-}
-.lineage__node-halo {
-  fill: var(--amber);
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: lineage-halo 2.4s var(--ease) infinite;
-}
-@keyframes lineage-halo {
-  0%,
-  100% {
-    opacity: 0.16;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(1.16);
-  }
 }
 
 /* floating zoom control */
@@ -1959,7 +1938,7 @@ legend {
 .lineage__zoom-val {
   min-width: 44px;
   text-align: center;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.76rem;
   font-variant-numeric: tabular-nums;
   color: var(--muted);
@@ -2001,7 +1980,7 @@ legend {
   transform: translate(-50%, 16px);
 }
 .lineage__tip-id {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.76rem;
   font-weight: 600;
   color: var(--ink);
@@ -2030,10 +2009,12 @@ legend {
   color: var(--muted);
 }
 .lineage__tip-champ {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--amber);
-  letter-spacing: 0.02em;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 0.08em;
 }
 
 /* legend */
@@ -2080,8 +2061,8 @@ legend {
   width: 14px;
   height: 14px;
   border-radius: 999px;
-  border: 2px solid var(--amber);
-  background: color-mix(in srgb, var(--amber) 22%, transparent);
+  border: 2px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
   display: inline-block;
 }
 .lineage__legend-leader {
@@ -2170,11 +2151,8 @@ legend {
   padding-top: 11px;
 }
 
-/* gamified hero header */
+/* hero header */
 .alleles__hero {
-  --gold: #f4b740;
-  position: relative;
-  overflow: hidden;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -2185,25 +2163,18 @@ legend {
   padding: 22px;
   margin-bottom: 20px;
   background: var(--card);
-  box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
 .alleles__hero-title {
   display: flex;
-  align-items: center;
-  gap: 13px;
-}
-.alleles__hero-icon {
-  font-size: 1.9rem;
-  line-height: 1;
-  filter: drop-shadow(0 3px 8px color-mix(in srgb, var(--teal) 45%, transparent));
-  animation: lb-bob 3.4s var(--ease) infinite;
+  flex-direction: column;
+  gap: 5px;
 }
 .alleles__hero-title h2 {
   margin: 0;
 }
 .alleles__hero-sub {
-  margin: 3px 0 0;
+  margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
   max-width: 54ch;
@@ -2216,34 +2187,32 @@ legend {
 .alleles__mvp {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 9px 14px;
+  gap: 4px;
+  padding: 11px 16px;
   min-width: 150px;
-  border: 1px solid color-mix(in srgb, var(--gold) 50%, var(--line));
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
   border-radius: var(--radius-md);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--gold) 13%, var(--card)),
-    var(--card)
-  );
-  box-shadow: var(--shadow-card);
+  background: radial-gradient(
+      120% 100% at 0% 0%,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 70%
+    ),
+    var(--card);
 }
 .alleles__mvp--empty {
-  border-color: var(--line);
+  border-left-color: var(--line);
   background: var(--card);
 }
 .alleles__mvp-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
-  font-weight: 600;
 }
 .alleles__mvp-name {
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 .alleles__mvp-name code {
@@ -2252,9 +2221,9 @@ legend {
 }
 .alleles__mvp-metric {
   font-variant-numeric: tabular-nums;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 0.85rem;
-  color: color-mix(in srgb, var(--gold) 55%, var(--ink));
+  color: var(--ink-2);
 }
 
 /* leaderboard */
@@ -2263,11 +2232,11 @@ legend {
 }
 .alleles__channel-title {
   margin: 0 0 12px;
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 600;
   color: var(--muted-2);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 .alleles__gene-grid {
   display: grid;
@@ -2289,11 +2258,10 @@ legend {
   border-radius: var(--radius-card);
   padding: 14px;
   background: var(--card);
-  transition: box-shadow 0.15s var(--ease), border-color 0.15s var(--ease);
+  transition: border-color 0.15s var(--ease);
 }
 .allele-gene:hover {
-  box-shadow: var(--shadow-card-hover);
-  border-color: color-mix(in srgb, var(--accent) 25%, var(--line));
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
 }
 .allele-gene__head {
   display: flex;
@@ -2302,9 +2270,10 @@ legend {
   margin-bottom: 10px;
 }
 .allele-gene__type {
-  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 .allele-gene__bars {
   display: flex;
@@ -2323,8 +2292,8 @@ legend {
   opacity: 0.45;
 }
 .allele-bar--top {
-  background: color-mix(in srgb, var(--gold, #f4b740) 9%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold, #f4b740) 32%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 .allele-bar__row {
   display: flex;
@@ -2344,14 +2313,9 @@ legend {
   font-weight: 600;
   color: var(--ink-2);
 }
-.allele-bar__crown {
-  font-size: 12px;
-  line-height: 1;
-  filter: drop-shadow(0 1px 2px rgb(16 17 26 / 0.25));
-}
 .allele-bar__value {
   font-variant-numeric: tabular-nums;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 0.82rem;
   color: var(--ink);
 }
@@ -2478,10 +2442,11 @@ legend {
 }
 .synergy-row__rank {
   flex: 0 0 auto;
-  min-width: 18px;
+  min-width: 20px;
   text-align: center;
-  font-weight: 800;
-  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.78rem;
   font-variant-numeric: tabular-nums;
   color: var(--muted-2);
 }
@@ -2489,17 +2454,13 @@ legend {
   font-size: 0.72rem;
 }
 
-/* parallel categories — gamified "run flow" */
+/* parallel categories — "run flow" */
 .parcats {
-  --gold: #f4b740;
-  position: relative;
-  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   padding: 22px;
   margin-bottom: 20px;
   background: var(--card);
-  box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
 .parcats__head {
@@ -2512,20 +2473,14 @@ legend {
 }
 .parcats__title {
   display: flex;
-  align-items: center;
-  gap: 13px;
-}
-.parcats__icon {
-  font-size: 1.7rem;
-  line-height: 1;
-  filter: drop-shadow(0 3px 8px color-mix(in srgb, var(--teal) 45%, transparent));
-  animation: lb-bob 3.4s var(--ease) infinite;
+  flex-direction: column;
+  gap: 5px;
 }
 .parcats__title h2 {
   margin: 0;
 }
 .parcats__sub {
-  margin: 3px 0 0;
+  margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
   max-width: 66ch;
@@ -2541,37 +2496,34 @@ legend {
 .parcats__call {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 9px 14px;
+  gap: 4px;
+  padding: 11px 16px;
   min-width: 150px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--card);
-  box-shadow: var(--shadow-card);
 }
 .parcats__call--champ {
-  border-color: color-mix(in srgb, var(--gold) 50%, var(--line));
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--gold) 12%, var(--card)),
-    var(--card)
-  );
+  border-left: 2px solid var(--accent);
+  background: radial-gradient(
+      120% 100% at 0% 0%,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 70%
+    ),
+    var(--card);
 }
 .parcats__call-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
-  font-weight: 600;
 }
 .parcats__call-name {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 .parcats__call-name code {
@@ -2591,16 +2543,16 @@ legend {
   margin-bottom: 14px;
 }
 .parcats__picker-label {
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  font-weight: 600;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
   margin-right: 2px;
 }
 .parcats__chip {
   font: inherit;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -2634,23 +2586,17 @@ legend {
   flex-wrap: wrap;
   padding: 11px 14px;
   margin-bottom: 16px;
-  border: 1px solid color-mix(in srgb, var(--gold) 38%, var(--line));
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
   border-radius: var(--radius-md);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--gold) 9%, var(--card)),
-    var(--card)
-  );
+  background: var(--card);
 }
 .parcats__loadout-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  font-weight: 700;
-  color: color-mix(in srgb, var(--gold) 55%, var(--ink));
+  letter-spacing: 0.1em;
+  color: var(--accent);
   white-space: nowrap;
 }
 .parcats__loadout-chips {
@@ -2668,7 +2614,7 @@ legend {
   background: var(--card);
 }
 .parcats__loadout-gene {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -2676,7 +2622,7 @@ legend {
 }
 .parcats__loadout-val {
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--ink);
 }
 
@@ -2736,7 +2682,7 @@ legend {
   stroke: var(--line);
 }
 .parcats__pill-text {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 700;
   fill: var(--ink-2);
@@ -2878,31 +2824,21 @@ legend {
   text-align: center;
   padding: 44px 16px;
 }
-.parcats__empty-icon {
-  font-size: 2.2rem;
-  display: block;
-  margin-bottom: 8px;
-  opacity: 0.6;
-}
 .parcats__empty-title {
   margin: 0 0 4px;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 1.02rem;
 }
 
 /* ==========================================================================
-   Allele frequency — gamified "allele race"
+   Allele frequency — "allele race"
    ========================================================================== */
 .freq {
-  --gold: #f4b740;
-  position: relative;
-  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   padding: 22px;
   margin-bottom: 20px;
   background: var(--card);
-  box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
 
@@ -2916,20 +2852,14 @@ legend {
 }
 .freq__title {
   display: flex;
-  align-items: center;
-  gap: 13px;
-}
-.freq__icon {
-  font-size: 1.7rem;
-  line-height: 1;
-  filter: drop-shadow(0 3px 8px color-mix(in srgb, var(--blue) 45%, transparent));
-  animation: lb-bob 3.4s var(--ease) infinite;
+  flex-direction: column;
+  gap: 5px;
 }
 .freq__title h2 {
   margin: 0;
 }
 .freq__sub {
-  margin: 3px 0 0;
+  margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
   max-width: 56ch;
@@ -2946,13 +2876,12 @@ legend {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--card);
-  box-shadow: var(--shadow-card);
 }
 .freq__genes-title {
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 700;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
 }
 .freq__genes-group {
@@ -2961,10 +2890,10 @@ legend {
   gap: 9px;
 }
 .freq__genes-channel {
+  font-family: var(--font-mono);
   font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 700;
+  letter-spacing: 0.08em;
   color: var(--muted-2);
   padding: 2px 8px;
   border: 1px solid var(--line);
@@ -2981,7 +2910,7 @@ legend {
   align-items: center;
   gap: 6px;
   font: inherit;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -2997,8 +2926,6 @@ legend {
 .freq__gene:hover {
   color: var(--ink);
   border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-card);
 }
 .freq__gene:focus-visible {
   outline: none;
@@ -3007,33 +2934,16 @@ legend {
 .freq__gene--on {
   color: #fff;
   border-color: var(--ink);
-  background: linear-gradient(180deg, #2a2c34, var(--ink));
-  box-shadow: 0 0 0 1px var(--ink),
-    0 6px 16px -6px color-mix(in srgb, var(--blue) 60%, transparent),
-    inset 0 1px 0 0 rgb(255 255 255 / 0.12);
+  background: var(--ink);
 }
 .freq__gene--on:hover {
   color: #fff;
-  transform: translateY(-1px);
 }
 .freq__gene-dot {
   height: 6px;
   width: 6px;
   border-radius: 999px;
   background: #fff;
-  box-shadow: 0 0 0 2px rgb(255 255 255 / 0.25);
-  animation: freqGeneDot 1.8s var(--ease) infinite;
-}
-@keyframes freqGeneDot {
-  0%,
-  100% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.25);
-  }
 }
 
 /* KPI row + "biggest mover" callout */
@@ -3046,37 +2956,35 @@ legend {
 .freq__mover {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 9px 14px;
+  gap: 4px;
+  padding: 11px 16px;
   min-width: 150px;
-  border: 1px solid color-mix(in srgb, var(--amber) 45%, var(--line));
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
   border-radius: var(--radius-md);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--amber) 12%, var(--card)),
-    var(--card)
-  );
-  box-shadow: var(--shadow-card);
+  background: radial-gradient(
+      120% 100% at 0% 0%,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 70%
+    ),
+    var(--card);
 }
 .freq__mover--flat {
-  border-color: var(--line);
+  border-left-color: var(--line);
   background: var(--card);
 }
 .freq__mover-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
-  font-weight: 600;
 }
 .freq__mover-name {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 
@@ -3095,14 +3003,8 @@ legend {
 .freq__chart {
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  /* faint top-down tint lifts the plot off the panel without hurting legibility */
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--blue) 4%, var(--card)),
-    var(--card) 62%
-  );
+  background: var(--card);
   padding: 14px 14px 8px;
-  box-shadow: var(--shadow-card);
 }
 /* recharts axis tick labels — keep them quiet and consistent with the house ink */
 .freq__chart .recharts-cartesian-axis-tick text {
@@ -3126,10 +3028,10 @@ legend {
   margin: 0;
 }
 .freq__standings-gen {
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  font-weight: 600;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
 }
 
@@ -3145,45 +3047,33 @@ legend {
 }
 .freq-row {
   display: grid;
-  grid-template-columns: 28px 1fr auto;
+  grid-template-columns: 26px 1fr auto;
   align-items: center;
   gap: 12px;
-  padding: 9px 12px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--card);
-  box-shadow: var(--shadow-card);
   animation: riseIn 0.4s var(--ease) both;
-  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease),
-    border-color 0.15s var(--ease);
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
 }
 .freq-row:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-card-hover);
+  background: var(--surface);
   border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
 }
 .freq-row--leader {
-  border-color: color-mix(in srgb, var(--gold) 50%, var(--line));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 26%, transparent),
-    0 10px 28px -14px color-mix(in srgb, var(--gold) 50%, transparent);
+  border-left: 2px solid var(--accent);
 }
 .freq-row__rank {
-  display: grid;
-  place-items: center;
-  height: 26px;
-  width: 26px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  font-weight: 800;
-  font-size: 0.78rem;
-  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted-2);
   font-variant-numeric: tabular-nums;
+  text-align: center;
 }
-.freq-row__rank--medal {
-  background: transparent;
-  border: none;
-  font-size: 1.05rem;
+.freq-row--leader .freq-row__rank {
+  color: var(--accent);
 }
 .freq-row__body {
   display: flex;
@@ -3231,7 +3121,7 @@ legend {
 }
 .freq-row__share {
   font-variant-numeric: tabular-nums;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 0.9rem;
   color: var(--ink);
 }
@@ -3319,15 +3209,9 @@ legend {
   text-align: center;
   padding: 40px 16px;
 }
-.freq-empty__icon {
-  font-size: 2.2rem;
-  display: block;
-  margin-bottom: 8px;
-  opacity: 0.6;
-}
 .freq-empty__title {
   margin: 0 0 4px;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 1.02rem;
 }
 
@@ -3467,119 +3351,96 @@ legend {
 }
 
 /* ==========================================================================
-   Trait leaderboard — gamified arena
+   Trait leaderboard — calm ranked board
    ========================================================================== */
 .lb-panel {
-  --gold: #f4b740;
-  --silver: #c3c8d2;
-  --bronze: #d68b4c;
-  position: relative;
-  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  padding: 22px;
+  padding: 24px;
   margin-bottom: 22px;
   background: var(--card);
-  box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
-
 .lb-panel__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 }
 .lb-panel__title {
   display: flex;
-  align-items: center;
-  gap: 13px;
-}
-.lb-panel__trophy {
-  font-size: 1.9rem;
-  line-height: 1;
-  filter: drop-shadow(0 3px 8px rgb(244 183 64 / 0.45));
-  animation: lb-bob 3.4s var(--ease) infinite;
-}
-@keyframes lb-bob {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-3deg);
-  }
-  50% {
-    transform: translateY(-4px) rotate(3deg);
-  }
+  flex-direction: column;
+  gap: 6px;
 }
 .lb-panel__title h2 {
   margin: 0;
 }
 .lb-panel__sub {
-  margin: 3px 0 0;
+  margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
-  max-width: 54ch;
+  max-width: 62ch;
 }
 .lb-panel__kpis {
   display: flex;
-  gap: 10px;
 }
 .lb-kpi {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-width: 92px;
-  padding: 9px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--card);
-  box-shadow: var(--shadow-card);
+  gap: 3px;
+  min-width: 96px;
+  padding: 2px 20px;
+}
+.lb-kpi + .lb-kpi {
+  border-left: 1px solid var(--line);
 }
 .lb-kpi__num {
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
-  line-height: 1.1;
+  line-height: 1.05;
 }
 .lb-kpi__label {
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
-  font-weight: 600;
 }
 
-/* trait name (shared by podium + list) */
+/* trait name (gene · allele) */
 .lb-trait {
   display: inline-flex;
   align-items: baseline;
-  gap: 7px;
+  gap: 8px;
   flex-wrap: wrap;
   min-width: 0;
 }
 .lb-trait__gene {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.76rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.01em;
   color: var(--muted);
 }
 .lb-trait__allele {
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--ink);
 }
 .lb-trait__flag {
-  font-size: 0.64rem;
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   color: var(--green);
-  background: color-mix(in srgb, var(--green) 14%, var(--card));
-  border: 1px solid color-mix(in srgb, var(--green) 35%, transparent);
-  border-radius: var(--radius-pill);
-  padding: 1px 7px;
+  border: 1px solid color-mix(in srgb, var(--green) 40%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
 }
 
 /* defeated target models */
@@ -3587,234 +3448,231 @@ legend {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  justify-content: inherit;
 }
 .lb-kill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
+  gap: 6px;
+  padding: 2px 9px;
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
-  background: var(--surface);
-  font-size: 0.74rem;
-  color: var(--ink-2);
-}
-.lb-kill__dot {
-  font-size: 0.72em;
-  line-height: 1;
+  font-size: 0.72rem;
+  color: var(--muted);
 }
 .lb-kill__n {
-  color: var(--muted);
-  font-weight: 700;
+  color: var(--ink-2);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 .lb-kill--more {
-  color: var(--muted);
-  font-weight: 600;
+  color: var(--muted-2);
+  border-style: dashed;
 }
 
-/* podium (top 3) */
+/* podium (top 3) — stepped pedestals, the winner lifted + accent-spotlit */
 .lb-podium {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: end;
   gap: 14px;
-  margin-bottom: 18px;
+  margin: 18px 0 10px;
 }
 .lb-slot {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   animation: riseIn 0.55s var(--ease) both;
 }
-.lb-slot--1 {
+/* podium order on wide screens: 2nd · 1st · 3rd */
+.lb-podium--full .lb-slot--1 {
   order: 2;
 }
-.lb-slot--2 {
+.lb-podium--full .lb-slot--2 {
   order: 1;
 }
-.lb-slot--3 {
+.lb-podium--full .lb-slot--3 {
   order: 3;
 }
+
 .lb-pcard {
-  position: relative;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 9px;
-  text-align: center;
-  padding: 18px 14px 16px;
+  gap: 12px;
+  padding: 18px;
   border: 1px solid var(--line);
+  border-bottom: none;
   border-radius: var(--radius-card) var(--radius-card) 0 0;
   background: var(--card);
-  box-shadow: var(--shadow-card);
-  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
-.lb-slot:hover .lb-pcard {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-card-hover);
+.lb-pcard__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
-.lb-pcard__medal {
-  font-size: 2.1rem;
-  line-height: 1;
-  filter: drop-shadow(0 2px 5px rgb(16 17 26 / 0.2));
+.lb-pcard__rank {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  min-width: 28px;
+  padding: 0 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.lb-pcard__lead {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
 }
 .lb-pcard__count {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
+  align-items: baseline;
+  gap: 7px;
 }
 .lb-pcard__num {
   font-size: 1.85rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
   color: var(--ink);
 }
 .lb-pcard__unit {
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
-  font-weight: 600;
 }
+
+/* stepped pedestals give the podium its silhouette (even base, stepped tops) */
 .lb-pedestal {
-  display: grid;
-  place-items: center;
   border: 1px solid var(--line);
   border-top: none;
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-  background: linear-gradient(180deg, var(--surface), var(--card));
-}
-.lb-pedestal__rank {
-  font-weight: 800;
-  font-size: 1rem;
-  color: var(--muted-2);
-  font-variant-numeric: tabular-nums;
-  padding: 6px 0;
+  background: var(--surface);
 }
 .lb-slot--1 .lb-pedestal {
-  height: 56px;
+  height: 30px;
 }
 .lb-slot--2 .lb-pedestal {
-  height: 40px;
+  height: 18px;
 }
 .lb-slot--3 .lb-pedestal {
-  height: 28px;
+  height: 10px;
 }
 
-/* medal accents */
+/* the winner — accent spotlight, breathing glow, lifted figures */
 .lb-slot--1 .lb-pcard {
-  border-color: color-mix(in srgb, var(--gold) 55%, var(--line));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 30%, transparent),
-    0 12px 32px -10px color-mix(in srgb, var(--gold) 55%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: radial-gradient(
+      130% 90% at 50% -20%,
+      color-mix(in srgb, var(--accent) 18%, transparent),
+      transparent 68%
+    ),
+    var(--card);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 18px 40px -22px color-mix(in srgb, var(--accent) 65%, transparent);
+  animation: lb-glow 3.6s var(--ease) 0.6s infinite;
+}
+.lb-slot--1 .lb-pcard__rank {
+  border-color: transparent;
+  background: var(--accent);
+  color: #fff;
 }
 .lb-slot--1 .lb-pcard__num {
-  color: color-mix(in srgb, var(--gold) 55%, var(--ink));
+  font-size: 2.15rem;
+}
+.lb-slot--1 .lb-bar__fill {
+  background: var(--accent);
 }
 .lb-slot--1 .lb-pedestal {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--gold) 24%, var(--card)),
-    var(--card)
-  );
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-top: 2px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 9%, var(--card));
 }
-.lb-slot--1 .lb-pedestal__rank {
-  color: color-mix(in srgb, var(--gold) 55%, var(--ink));
-}
-.lb-slot--2 .lb-pcard {
-  border-color: color-mix(in srgb, var(--silver) 62%, var(--line));
-}
-.lb-slot--3 .lb-pcard {
-  border-color: color-mix(in srgb, var(--bronze) 50%, var(--line));
-}
-
-/* champion shimmer sweep */
-.lb-slot--1 .lb-pcard::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -60%;
-  width: 45%;
-  background: linear-gradient(
-    100deg,
-    transparent,
-    rgb(255 255 255 / 0.55),
-    transparent
-  );
-  transform: skewX(-18deg);
-  animation: lb-sheen 3.8s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes lb-sheen {
-  0% {
-    left: -60%;
-  }
-  55%,
+@keyframes lb-glow {
+  0%,
   100% {
-    left: 140%;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 16%, transparent),
+      0 16px 36px -24px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 34%, transparent),
+      0 22px 48px -20px color-mix(in srgb, var(--accent) 80%, transparent);
   }
 }
 
-/* ranked list (rank 4+) */
+/* stack on narrow screens — natural 1·2·3 order, no pedestals */
+@media (max-width: 560px) {
+  .lb-podium {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  .lb-podium--full .lb-slot {
+    order: 0;
+  }
+  .lb-pedestal {
+    display: none;
+  }
+  .lb-pcard {
+    border-bottom: 1px solid var(--line);
+    border-radius: var(--radius-card);
+  }
+}
+
+/* ranked list — hairline-divided rows, accent reserved for the leader */
 .lb-list {
   list-style: none;
-  margin: 0;
+  margin: 14px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 .lb-row {
   display: grid;
-  grid-template-columns: 30px 1fr auto;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 14px;
-  padding: 11px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--card);
-  box-shadow: var(--shadow-card);
+  gap: 20px;
+  padding: 16px 4px;
+  border-top: 1px solid var(--line);
   animation: riseIn 0.45s var(--ease) both;
-  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease),
-    border-color 0.15s var(--ease);
 }
-.lb-row:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-card-hover);
-  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+.lb-row:last-child {
+  border-bottom: 1px solid var(--line);
 }
 .lb-row__rank {
-  display: grid;
-  place-items: center;
-  height: 28px;
-  width: 28px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  font-weight: 800;
-  font-size: 0.8rem;
-  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted-2);
   font-variant-numeric: tabular-nums;
+}
+.lb-row--leader .lb-row__rank {
+  color: var(--accent);
 }
 .lb-row__body {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 10px;
   min-width: 0;
 }
 .lb-row__top {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .lb-bar {
-  height: 7px;
+  height: 4px;
   border-radius: 999px;
   background: var(--surface);
   overflow: hidden;
@@ -3823,88 +3681,54 @@ legend {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--accent);
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
   transition: width 0.6s var(--ease);
+}
+.lb-row--leader .lb-bar__fill {
+  background: var(--accent);
 }
 .lb-row__count {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 1px;
+  gap: 2px;
 }
 .lb-row__num {
-  font-size: 1.15rem;
-  font-weight: 800;
+  font-size: 1.3rem;
+  font-weight: 600;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   line-height: 1;
   color: var(--ink);
 }
 .lb-row__unit {
+  font-family: var(--font-mono);
   font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--muted-2);
-  font-weight: 600;
-}
-
-/* tier badges */
-.lb-tier {
-  display: inline-grid;
-  place-items: center;
-  height: 20px;
-  min-width: 20px;
-  padding: 0 6px;
-  border-radius: var(--radius-sm);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  color: #fff;
-  text-shadow: 0 1px 1px rgb(0 0 0 / 0.2);
-}
-.lb-tier--S {
-  background: linear-gradient(135deg, var(--gold, #f4b740), #e0901a);
-}
-.lb-tier--A {
-  background: linear-gradient(135deg, var(--violet), var(--blue));
-}
-.lb-tier--B {
-  background: linear-gradient(135deg, var(--teal), var(--green));
-}
-.lb-tier--C {
-  background: var(--muted-2);
 }
 
 /* empty state */
 .lb-empty {
   text-align: center;
-  padding: 36px 16px;
-}
-.lb-empty__icon {
-  font-size: 2.4rem;
-  display: block;
-  margin-bottom: 8px;
-  opacity: 0.6;
+  padding: 40px 16px;
 }
 .lb-empty__title {
   margin: 0 0 4px;
-  font-weight: 700;
-  font-size: 1.02rem;
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 /* ==========================================================================
-   Generation roster (gamified Table view)
+   Generation roster (Table view)
    ========================================================================== */
 .roster {
-  --gold: #f4b740;
-  position: relative;
-  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   padding: 22px;
   margin-bottom: 22px;
   background: var(--card);
-  box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
 .roster__head {
@@ -3917,19 +3741,14 @@ legend {
 }
 .roster__title {
   display: flex;
-  align-items: center;
-  gap: 13px;
-}
-.roster__icon {
-  font-size: 1.7rem;
-  line-height: 1;
-  animation: lb-bob 3.4s var(--ease) infinite;
+  flex-direction: column;
+  gap: 5px;
 }
 .roster__title h2 {
   margin: 0;
 }
 .roster__sub {
-  margin: 3px 0 0;
+  margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
   max-width: 54ch;
@@ -3954,49 +3773,37 @@ legend {
   font: inherit;
   cursor: pointer;
   display: grid;
-  grid-template-columns: 32px 1fr auto;
+  grid-template-columns: 30px 1fr auto;
   align-items: center;
-  gap: 14px;
-  padding: 11px 14px;
+  gap: 16px;
+  padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--card);
-  box-shadow: var(--shadow-card);
   animation: riseIn 0.4s var(--ease) both;
-  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease),
-    border-color 0.15s var(--ease);
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
 }
 .roster-row:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-card-hover);
-  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+  background: var(--surface);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
 }
 .roster-row:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 32%, transparent);
 }
 .roster-row--champ {
-  border-color: color-mix(in srgb, var(--gold) 50%, var(--line));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 28%, transparent),
-    0 10px 28px -12px color-mix(in srgb, var(--gold) 50%, transparent);
+  border-left: 2px solid var(--accent);
 }
 .roster-row__rank {
-  display: grid;
-  place-items: center;
-  height: 28px;
-  width: 28px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  font-weight: 800;
-  font-size: 0.8rem;
-  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted-2);
   font-variant-numeric: tabular-nums;
+  text-align: center;
 }
-.roster-row__rank--medal {
-  background: transparent;
-  border: none;
-  font-size: 1.15rem;
+.roster-row--champ .roster-row__rank {
+  color: var(--accent);
 }
 .roster-row__body {
   display: flex;
@@ -4040,19 +3847,6 @@ legend {
 .roster-row__fitness {
   display: flex;
   align-items: center;
-}
-
-@media (max-width: 680px) {
-  .lb-podium {
-    grid-template-columns: 1fr;
-  }
-  /* stack the podium in natural 1-2-3 order on narrow screens */
-  .lb-slot {
-    order: 0 !important;
-  }
-  .lb-slot .lb-pedestal {
-    height: 22px !important;
-  }
 }
 
 /* ==========================================================================

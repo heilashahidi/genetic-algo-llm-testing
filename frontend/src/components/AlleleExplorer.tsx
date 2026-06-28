@@ -161,29 +161,22 @@ export function AlleleExplorer({ individuals, schema }: Props) {
     <div className="alleles">
       <div className="alleles__hero">
         <div className="alleles__hero-title">
-          <span className="alleles__hero-icon" aria-hidden>
-            🧬
-          </span>
-          <div>
-            <h2>Allele Lab</h2>
-            <p className="alleles__hero-sub">
-              Which alleles break models — ranked by{" "}
-              {metric === "mean"
-                ? "lift over the population mean"
-                : "success rate"}
-              {generation === "all"
-                ? " across all generations"
-                : ` in generation ${generation}`}
-              .
-            </p>
-          </div>
+          <h2>Allele lab</h2>
+          <p className="alleles__hero-sub">
+            Which alleles break models — ranked by{" "}
+            {metric === "mean"
+              ? "lift over the population mean"
+              : "success rate"}
+            {generation === "all"
+              ? " across all generations"
+              : ` in generation ${generation}`}
+            .
+          </p>
         </div>
         <div className="alleles__hero-kpis">
           {mvp ? (
             <div className="alleles__mvp">
-              <span className="alleles__mvp-label">
-                <span aria-hidden>👑</span> MVP allele
-              </span>
+              <span className="alleles__mvp-label">top allele</span>
               <span className="alleles__mvp-name">
                 <code>{mvp.gene}</code> = {mvp.allele}
               </span>
@@ -195,14 +188,12 @@ export function AlleleExplorer({ individuals, schema }: Props) {
             </div>
           ) : (
             <div className="alleles__mvp alleles__mvp--empty">
-              <span className="alleles__mvp-label">
-                <span aria-hidden>👑</span> MVP allele
-              </span>
+              <span className="alleles__mvp-label">top allele</span>
               <span className="muted">no standout yet</span>
             </div>
           )}
           <StatTile value={winningCount} label="winning alleles" />
-          <StatTile value={sTierCount} label="S-tier alleles" />
+          <StatTile value={sTierCount} label="top-tier alleles" />
         </div>
       </div>
 
@@ -223,7 +214,6 @@ export function AlleleExplorer({ individuals, schema }: Props) {
         alleleStats={pop.alleleStats}
         metric={metric}
         minCount={minCount}
-        geneMaxMetric={geneMaxMetric}
       />
 
       <FrequencyView individuals={individuals} genes={genes} />
@@ -337,13 +327,11 @@ function Leaderboard({
   alleleStats,
   metric,
   minCount,
-  geneMaxMetric,
 }: {
   genes: GeneSchema[];
   alleleStats: AlleleStat[];
   metric: MetricMode;
   minCount: number;
-  geneMaxMetric: Map<string, number>;
 }) {
   const byGene = useMemo(() => {
     const map = new Map<string, AlleleStat[]>();
@@ -384,7 +372,6 @@ function Leaderboard({
                   stats={byGene.get(gene.name) ?? []}
                   metric={metric}
                   minCount={minCount}
-                  geneMax={geneMaxMetric.get(gene.name) ?? 0}
                 />
               ))}
             </div>
@@ -400,13 +387,11 @@ function GeneBars({
   stats,
   metric,
   minCount,
-  geneMax,
 }: {
   gene: GeneSchema;
   stats: AlleleStat[];
   metric: MetricMode;
   minCount: number;
-  geneMax: number;
 }) {
   const sorted = useMemo(
     () =>
@@ -439,7 +424,6 @@ function GeneBars({
           const value = metricValue(stat, metric);
           const below = stat.n < minCount;
           const isTop = stat.allele === topAllele;
-          const tier = below ? null : tierOf(value, geneMax);
           const widthPct =
             metric === "success"
               ? Math.max(0, Math.min(1, value)) * 100
@@ -461,22 +445,7 @@ function GeneBars({
               }
             >
               <div className="allele-bar__row">
-                <span className="allele-bar__name">
-                  {isTop && (
-                    <span className="allele-bar__crown" aria-hidden>
-                      👑
-                    </span>
-                  )}
-                  {stat.allele}
-                </span>
-                {tier && (
-                  <span
-                    className={`lb-tier lb-tier--${tier}`}
-                    title={`Tier ${tier}`}
-                  >
-                    {tier}
-                  </span>
-                )}
+                <span className="allele-bar__name">{stat.allele}</span>
                 <span className="allele-bar__value">
                   {metric === "success"
                     ? fmt(stat.successRate)
@@ -500,7 +469,7 @@ function GeneBars({
   );
 }
 
-/* -- View 2: Frequency over generations (gamified "allele race") ---------- */
+/* -- View 2: Frequency over generations ("allele race") ------------------- */
 
 /** Format a 0..1 share as a percent, with one decimal only for small values. */
 function pctLabel(value: number): string {
@@ -542,16 +511,13 @@ function Momentum({ delta }: { delta: number }) {
 /** One standings row: rank/medal, color-coded share bar, count-up percent. */
 function FreqRow({ standing, rank }: { standing: FreqStanding; rank: number }) {
   const shown = useCountUp(standing.latest * 100);
-  const medal = rank <= 3 ? ["👑", "🥈", "🥉"][rank - 1] : null;
   const widthPct = Math.max(2, Math.min(100, standing.latest * 100));
   return (
     <li
       className={`freq-row${rank === 1 ? " freq-row--leader" : ""}`}
       style={{ animationDelay: `${Math.min(rank, 12) * 40}ms` }}
     >
-      <span className={`freq-row__rank${medal ? " freq-row__rank--medal" : ""}`}>
-        {medal ?? rank}
-      </span>
+      <span className="freq-row__rank">{String(rank).padStart(2, "0")}</span>
       <div className="freq-row__body">
         <div className="freq-row__head">
           <span className="freq-row__name">
@@ -610,10 +576,12 @@ function FreqTooltip({ active, payload, label }: FreqTooltipProps) {
   );
 }
 
-const FREQ_GRID = "#edeef1";
-const FREQ_AXIS_LINE = "#e7e8ea";
-const FREQ_TICK = { fill: "#6b6e76", fontSize: 12, fontWeight: 500 } as const;
-const FREQ_AXIS_LABEL = { fill: "#9a9da5", fontSize: 11 } as const;
+// Grid / axis / tick chrome is theme-driven by the global recharts CSS
+// overrides (stroke/fill: var(--line)/var(--muted)); these are fallbacks only.
+const FREQ_GRID = "#8884";
+const FREQ_AXIS_LINE = "#8883";
+const FREQ_TICK = { fontSize: 12, fontWeight: 500 } as const;
+const FREQ_AXIS_LABEL = { fontSize: 11 } as const;
 // Fixed 0–100% scale, shared by both chart types and the standings bars: the
 // axis is never zoomed, so a small carrier share can never look like a big one.
 const PCT_TICKS = [0, 0.25, 0.5, 0.75, 1];
@@ -800,17 +768,12 @@ function FrequencyView({
     <div className="freq">
       <div className="freq__head">
         <div className="freq__title">
-          <span className="freq__icon" aria-hidden>
-            📈
-          </span>
-          <div>
-            <h2>Allele frequency over generations</h2>
-            <p className="freq__sub">
-              {isMulti
-                ? "Each allele's carrier share per generation — lines overlap and need not sum to 100%."
-                : "Allele proportions per generation (they sum to 100%) — watch selection pressure crown a winner."}
-            </p>
-          </div>
+          <h2>Allele frequency over generations</h2>
+          <p className="freq__sub">
+            {isMulti
+              ? "Each allele's carrier share per generation — lines overlap and need not sum to 100%."
+              : "Allele proportions per generation (they sum to 100%) — watch selection pressure settle on a winner."}
+          </p>
         </div>
       </div>
 
@@ -818,10 +781,7 @@ function FrequencyView({
 
       {points.length === 0 ? (
         <div className="freq-empty">
-          <span className="freq-empty__icon" aria-hidden>
-            🏁
-          </span>
-          <p className="freq-empty__title">No race yet</p>
+          <p className="freq-empty__title">No data yet</p>
           <p className="muted">
             Allele shares appear here the moment individuals are scored.
           </p>
@@ -838,9 +798,7 @@ function FrequencyView({
             />
             {topMover ? (
               <div className="freq__mover">
-                <span className="freq__mover-label">
-                  <span aria-hidden>⚡</span> biggest mover
-                </span>
+                <span className="freq__mover-label">biggest mover</span>
                 <span className="freq__mover-name">
                   <span
                     className="freq-row__dot"
@@ -852,9 +810,7 @@ function FrequencyView({
               </div>
             ) : (
               <div className="freq__mover freq__mover--flat">
-                <span className="freq__mover-label">
-                  <span aria-hidden>⚡</span> biggest mover
-                </span>
+                <span className="freq__mover-label">biggest mover</span>
                 <span className="muted">all steady</span>
               </div>
             )}
@@ -901,7 +857,7 @@ function FrequencyView({
                     />
                     <Tooltip
                       content={<FreqTooltip />}
-                      cursor={{ stroke: "#c7c9cf", strokeDasharray: "4 4" }}
+                      cursor={{ stroke: "#8886", strokeDasharray: "4 4" }}
                     />
                     {alleles.map((allele, i) => (
                       <Line
@@ -978,7 +934,7 @@ function FrequencyView({
                     />
                     <Tooltip
                       content={<FreqTooltip />}
-                      cursor={{ stroke: "#c7c9cf", strokeDasharray: "4 4" }}
+                      cursor={{ stroke: "#8886", strokeDasharray: "4 4" }}
                     />
                     {alleles.map((allele, i) => (
                       <Area
@@ -1124,7 +1080,7 @@ function CombinationView({
                     title="Show this pair in the heatmap"
                   >
                     <span className="synergy-row__rank" aria-hidden>
-                      {i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}
+                      {String(i + 1).padStart(2, "0")}
                     </span>
                     <span className="synergy-row__pair">
                       <code>
@@ -1138,7 +1094,8 @@ function CombinationView({
                     <span
                       className="synergy-row__value"
                       style={{
-                        color: pair.synergy >= 0 ? "#16a34a" : "#d1495b",
+                        color:
+                          pair.synergy >= 0 ? "var(--green)" : "var(--red)",
                       }}
                     >
                       synergy {signed(pair.synergy)}
@@ -1234,7 +1191,7 @@ function Heatmap({
   );
 }
 
-/* -- View 4: Parallel categories — gamified "run flow" -------------------- */
+/* -- View 4: Parallel categories — "run flow" ----------------------------- */
 
 const PARCATS_WIDTH_PER_AXIS = 196;
 const PARCATS_HEIGHT = 480;
@@ -1328,7 +1285,7 @@ function ParcatsLegend({ hasChampion }: { hasChampion: boolean }) {
       {hasChampion && (
         <div className="parcats__legend-item">
           <span className="parcats__legend-champ" />
-          <span className="muted">champion run 👑 (highest fitness)</span>
+          <span className="muted">champion run (highest fitness)</span>
         </div>
       )}
       <div className="parcats__legend-item">
@@ -1470,18 +1427,13 @@ function ParcatsView({
     <div className="parcats">
       <div className="parcats__head">
         <div className="parcats__title">
-          <span className="parcats__icon" aria-hidden>
-            🧭
-          </span>
-          <div>
-            <h2>Parallel categories</h2>
-            <p className="parcats__sub">
-              Every individual is a <strong>run</strong> flowing left→right
-              through its genes; ribbon color is its fitness and each station is
-              tinted by the average fitness of the runs through it. Hover a
-              station to trace its runs.
-            </p>
-          </div>
+          <h2>Parallel categories</h2>
+          <p className="parcats__sub">
+            Every individual is a <strong>run</strong> flowing left→right
+            through its genes; ribbon color is its fitness and each station is
+            tinted by the average fitness of the runs through it. Hover a
+            station to trace its runs.
+          </p>
         </div>
       </div>
 
@@ -1490,9 +1442,7 @@ function ParcatsView({
         <StatTile value={axisGenes.length} label="checkpoints" />
         {hottest ? (
           <div className="parcats__call">
-            <span className="parcats__call-label">
-              <span aria-hidden>🔥</span> hottest station
-            </span>
+            <span className="parcats__call-label">hottest station</span>
             <span className="parcats__call-name">
               <code>{hottest.gene}</code> = {hottest.seg.label}
             </span>
@@ -1505,17 +1455,13 @@ function ParcatsView({
           </div>
         ) : (
           <div className="parcats__call parcats__call--flat">
-            <span className="parcats__call-label">
-              <span aria-hidden>🔥</span> hottest station
-            </span>
+            <span className="parcats__call-label">hottest station</span>
             <span className="muted">not enough data</span>
           </div>
         )}
         {champion && (
           <div className="parcats__call parcats__call--champ">
-            <span className="parcats__call-label">
-              <span aria-hidden>👑</span> champion run
-            </span>
+            <span className="parcats__call-label">champion run</span>
             <span className="parcats__call-name">
               <code>{champion.id}</code>
             </span>
@@ -1549,9 +1495,7 @@ function ParcatsView({
 
       {champion && axisGenes.length >= 2 && (
         <div className="parcats__loadout">
-          <span className="parcats__loadout-label">
-            <span aria-hidden>👑</span> winning build
-          </span>
+          <span className="parcats__loadout-label">winning build</span>
           <div className="parcats__loadout-chips">
             {champion.pts.map((pt) => (
               <span
@@ -1569,9 +1513,6 @@ function ParcatsView({
 
       {axisGenes.length < 2 ? (
         <div className="parcats__empty">
-          <span className="parcats__empty-icon" aria-hidden>
-            🧭
-          </span>
           <p className="parcats__empty-title">Pick at least two axes</p>
           <p className="muted">
             Toggle genes above to chart how runs flow between their categories.

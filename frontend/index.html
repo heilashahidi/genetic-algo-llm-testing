@@ -3,28 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="dark light" />
     <title>GA Control Plane</title>
     <script>
-      // Apply the saved (or system-preferred) theme before first paint to avoid
-      // a flash. The data-theme attribute drives every CSS token; useTheme reads
-      // back whatever is set here.
+      // Apply the saved theme before first paint to avoid a flash. Dark is the
+      // default first impression (the reference look); only an explicit prior
+      // choice of light overrides it. The data-theme attribute drives every CSS
+      // token; useTheme reads back whatever is set here.
       (function () {
         try {
           var t = localStorage.getItem("ga.theme");
-          if (t !== "light" && t !== "dark") {
-            t = window.matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light";
-          }
-          document.documentElement.dataset.theme = t;
-        } catch (e) {}
+          document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@400;450;500;600;700&display=swap"
       rel="stylesheet"
     />
   </head>

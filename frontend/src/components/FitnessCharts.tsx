@@ -16,15 +16,17 @@ import { useCountUp } from "../useCountUp";
 import { StatTile } from "./StatTile";
 import { fitnessColor } from "./IndividualDetail";
 
-// Series + chart chrome (house tokens, mirrored from the other gamified views).
-const BEST = "#3b6ef6";
+// Series colors. Grid / axis / tick chrome is theme-driven by the global
+// recharts CSS overrides (stroke/fill: var(--line)/var(--muted)), so the values
+// passed here are only fallbacks and stay legible in both themes.
+const BEST = "#3b82f6"; // electric-blue accent, echoes the UI
 const AVG = "#8b5cf6";
 const SUCCESS = "#30a46c";
 const THRESHOLD = "#d9a441"; // the solve bar (fitness 1.0)
-const GRID = "#edeef1";
-const AXIS_LINE = "#e7e8ea";
-const TICK = { fill: "#6b6e76", fontSize: 12, fontWeight: 500 } as const;
-const AXIS_LABEL = { fill: "#9a9da5", fontSize: 11 } as const;
+const GRID = "#8884";
+const AXIS_LINE = "#8883";
+const TICK = { fontSize: 12, fontWeight: 500 } as const;
+const AXIS_LABEL = { fontSize: 11 } as const;
 // Fixed 0–1 fitness scale, 0-baseline, never zoomed — so a small gain never
 // looks like a big one and the chart matches the HUD figures.
 const FIT_TICKS = [0, 0.25, 0.5, 0.75, 1];
@@ -109,24 +111,16 @@ export function FitnessCharts({ data }: { data: GenerationRecord[] }) {
     <div className="fitchart">
       <div className="fitchart__head">
         <div className="fitchart__title">
-          <span className="fitchart__icon" aria-hidden>
-            📈
-          </span>
-          <div>
-            <h2>Evolution progress</h2>
-            <p className="fitchart__sub">
-              How the population's fitness and solve-rate climb each generation.
-              The dashed line marks the solve bar (fitness 1.0).
-            </p>
-          </div>
+          <h2>Evolution progress</h2>
+          <p className="fitchart__sub">
+            How the population's fitness and solve-rate climb each generation.
+            The dashed line marks the solve bar (fitness 1.0).
+          </p>
         </div>
       </div>
 
       {!hasData ? (
         <div className="fitchart-empty">
-          <span className="fitchart-empty__icon" aria-hidden>
-            🧬
-          </span>
           <p className="fitchart-empty__title">No generations yet</p>
           <p className="muted">
             Fitness and success-rate curves appear here as the run evolves.
@@ -136,9 +130,7 @@ export function FitnessCharts({ data }: { data: GenerationRecord[] }) {
         <>
           <div className="fitchart__kpis">
             <div className="fitchart__hero">
-              <span className="fitchart__hero-label">
-                <span aria-hidden>⭐</span> peak fitness
-              </span>
+              <span className="fitchart__hero-label">peak fitness</span>
               <PeakNum value={stats.peak} />
               <span className="fitchart__hero-sub">
                 {stats.peakGen != null && stats.peak > 0
@@ -158,9 +150,7 @@ export function FitnessCharts({ data }: { data: GenerationRecord[] }) {
             />
             <StatTile value={data.length} label="generations" />
             <div className="fitchart__call">
-              <span className="fitchart__call-label">
-                <span aria-hidden>🏁</span> first solve
-              </span>
+              <span className="fitchart__call-label">first solve</span>
               <span className="fitchart__call-val">
                 {stats.firstSolveGen != null ? (
                   `generation ${stats.firstSolveGen}`
@@ -230,7 +220,7 @@ export function FitnessCharts({ data }: { data: GenerationRecord[] }) {
                   />
                   <Tooltip
                     content={<FitTooltip />}
-                    cursor={{ stroke: "#c7c9cf", strokeDasharray: "4 4" }}
+                    cursor={{ stroke: "#8886", strokeDasharray: "4 4" }}
                   />
                   <ReferenceLine
                     y={1}
@@ -336,7 +326,7 @@ export function FitnessCharts({ data }: { data: GenerationRecord[] }) {
                   />
                   <Tooltip
                     content={<FitTooltip />}
-                    cursor={{ stroke: "#c7c9cf", strokeDasharray: "4 4" }}
+                    cursor={{ stroke: "#8886", strokeDasharray: "4 4" }}
                   />
                   <Area
                     dataKey="success_rate"

@@ -140,16 +140,14 @@ function ancestryEdges(rootId: string, byId: Map<string, IndividualRecord>): Set
   return edges;
 }
 
-/** A game-HUD stat tile with an icon and a count-up value. */
+/** A HUD stat: a count-up value with a mono label. */
 function StatPill({
-  icon,
   value,
   label,
   tone,
   format,
   color,
 }: {
-  icon: string;
   value: number;
   label: string;
   tone?: "solved";
@@ -162,9 +160,6 @@ function StatPill({
     <div
       className={`lineage__hud-stat${tone ? ` lineage__hud-stat--${tone}` : ""}`}
     >
-      <span className="lineage__hud-icon" aria-hidden>
-        {icon}
-      </span>
       <span className="lineage__hud-val" style={color ? { color } : undefined}>
         {text}
       </span>
@@ -198,7 +193,6 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
     edges,
     championId,
     championEdges,
-    recordIds,
     width,
     height,
   } = useMemo(() => {
@@ -291,19 +285,6 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
     const championEdges =
       championId && bestFit > 0 ? ancestryEdges(championId, byId) : new Set<string>();
 
-    // Milestone nodes: the individual that set a new run-best fitness in its
-    // generation. Monotonic improvements — the story of the search's progress.
-    const recordIds = new Set<string>();
-    let runningBest = 0;
-    for (const col of columns) {
-      const leader = col.items[0]; // sorted fitness-desc, so [0] is the gen best
-      const f = leader?.fitness ?? 0;
-      if (f > runningBest && f > 0) {
-        recordIds.add(String(leader.individual_id));
-        runningBest = f;
-      }
-    }
-
     const maxRows = columns.reduce((m, c) => Math.max(m, c.items.length), 0);
     const width = SIDE_PAD * 2 + columns.length * COL_WIDTH;
     const height = TOP_PAD + maxRows * ROW_HEIGHT + ROW_HEIGHT;
@@ -317,7 +298,6 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
       edges,
       championId: bestFit > 0 ? championId : null,
       championEdges,
-      recordIds,
       width,
       height,
     };
@@ -451,9 +431,6 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
   if (individuals.length === 0) {
     return (
       <div className="empty">
-        <span className="lineage__empty-icon" aria-hidden>
-          🧬
-        </span>
         <p>Spawning the first generation…</p>
       </div>
     );
@@ -489,11 +466,10 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
     <div className="lineage">
       <div className="lineage__toolbar">
         <div className="lineage__hud">
-          <StatPill icon="🧬" value={individuals.length} label="individuals" />
-          <StatPill icon="🌱" value={columns.length} label="generations" />
-          <StatPill icon="🔓" value={solved} label="solved" tone="solved" />
+          <StatPill value={individuals.length} label="individuals" />
+          <StatPill value={columns.length} label="generations" />
+          <StatPill value={solved} label="solved" tone="solved" />
           <StatPill
-            icon="⭐"
             value={best}
             label="best fitness"
             format={(v) => v.toFixed(2)}
@@ -535,23 +511,6 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
             role="img"
             aria-label="Genetic algorithm lineage tree"
           >
-            <defs>
-              <filter id="ln-shadow" x="-60%" y="-60%" width="220%" height="220%">
-                <feDropShadow
-                  dx="0"
-                  dy="1.5"
-                  stdDeviation="2.2"
-                  floodColor="#0b0b18"
-                  floodOpacity="0.22"
-                />
-              </filter>
-              <radialGradient id="ln-sheen" cx="36%" cy="28%" r="78%">
-                <stop offset="0%" stopColor="#fff" stopOpacity="0.62" />
-                <stop offset="42%" stopColor="#fff" stopOpacity="0.14" />
-                <stop offset="100%" stopColor="#fff" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-
             {/* Generation lanes — soft backdrop heatmap tinted by avg fitness */}
             <g className="lineage__lanes">
               {lanes.map((lane) => (
@@ -643,7 +602,6 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
                 const selected = n.id === selectedId;
                 const dimmed = hasSelection && !highlighted!.has(n.id);
                 const champ = n.id === championId;
-                const isRecord = recordIds.has(n.id) && !champ;
                 const cls =
                   "lineage__node" +
                   (dimmed ? " lineage__node--dim" : "") +
@@ -669,7 +627,6 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
                       style={{ animationDelay: `${n.col * 45}ms` }}
                     >
                       <g className="lineage__node-inner">
-                        {champ && <circle className="lineage__node-halo" r={n.r + 8} />}
                         {selected ? (
                           <circle className="lineage__node-ring--selected" r={n.r + 5} />
                         ) : champ ? (
@@ -677,40 +634,11 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
                         ) : n.leader ? (
                           <circle className="lineage__node-ring--leader" r={n.r + 3.5} />
                         ) : null}
-                        <g filter="url(#ln-shadow)">
-                          <circle
-                            className="lineage__node-circle"
-                            r={n.r}
-                            fill={fitnessColor(n.ind.fitness)}
-                          />
-                          <circle
-                            className="lineage__node-sheen"
-                            r={n.r}
-                            fill="url(#ln-sheen)"
-                          />
-                        </g>
-                        {champ && (
-                          <g className="lineage__crown" aria-hidden="true">
-                            <text
-                              className="lineage__crown-text"
-                              y={-(n.r + 9)}
-                              textAnchor="middle"
-                            >
-                              👑
-                            </text>
-                          </g>
-                        )}
-                        {isRecord && (
-                          <text
-                            className="lineage__spark"
-                            aria-hidden="true"
-                            x={n.r * 0.62}
-                            y={-(n.r * 0.62)}
-                            textAnchor="middle"
-                          >
-                            ✦
-                          </text>
-                        )}
+                        <circle
+                          className="lineage__node-circle"
+                          r={n.r}
+                          fill={fitnessColor(n.ind.fitness)}
+                        />
                         {selected && n.ind.fitness != null && (
                           <text
                             className="lineage__node-text"
@@ -748,7 +676,7 @@ export function LineageTree({ individuals, selectedId, onSelect }: Props) {
                   {formatFitness(hoveredNode.ind.fitness)}
                 </span>
                 {hoveredNode.id === championId && (
-                  <span className="lineage__tip-champ">★ champion</span>
+                  <span className="lineage__tip-champ">champion</span>
                 )}
               </div>
               {(hoveredNode.ind.parent_a_id != null ||
@@ -829,13 +757,7 @@ function Legend() {
       </div>
       <div className="lineage__legend-item">
         <span className="lineage__legend-champ" />
-        <span className="muted">champion 👑 + bloodline</span>
-      </div>
-      <div className="lineage__legend-item">
-        <span className="lineage__legend-spark" aria-hidden>
-          ✦
-        </span>
-        <span className="muted">new best (milestone)</span>
+        <span className="muted">champion + bloodline</span>
       </div>
       <div className="lineage__legend-item">
         <span className="lineage__legend-leader" />

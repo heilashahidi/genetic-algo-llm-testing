@@ -21,6 +21,7 @@ import {
 } from "../components/IndividualDetail";
 import { AlleleExplorer } from "../components/AlleleExplorer";
 import { StatTile } from "../components/StatTile";
+import { useCountUp } from "../useCountUp";
 
 type ViewTab = "tree" | "table" | "alleles";
 
@@ -28,6 +29,16 @@ function formatTime(value: string | null): string {
   if (!value) return "—";
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+}
+
+/** Generation rendered as a count-up "level" — it ticks up as the run evolves. */
+function GenerationLevel({ value }: { value: number | null }) {
+  const shown = useCountUp(value ?? 0);
+  return (
+    <strong className="meta-gen">
+      {value == null ? "—" : Math.round(shown)}
+    </strong>
+  );
 }
 
 export function RunDetailPage() {
@@ -230,7 +241,7 @@ export function RunDetailPage() {
       });
   }, [selectedId, allIndividuals]);
 
-  // Per-generation roster ranked by fitness for the gamified Table view.
+  // Per-generation roster ranked by fitness for the Table view.
   const rosterRanked = useMemo(() => {
     if (!individuals) return [];
     return [...individuals].sort((a, b) => {
@@ -295,14 +306,18 @@ export function RunDetailPage() {
             </div>
           </div>
 
-          <div className="meta-grid card">
+          <div
+            className={`meta-grid card${
+              isTerminal(run.status) ? "" : " meta-card--live"
+            }`}
+          >
             <div>
               <span className="meta-label">Status</span>
               <StatusBadge status={run.status} />
             </div>
             <div>
               <span className="meta-label">Generation</span>
-              <strong>{run.current_generation ?? "—"}</strong>
+              <GenerationLevel value={run.current_generation ?? null} />
             </div>
             <div>
               <span className="meta-label">Heartbeat</span>
@@ -389,20 +404,15 @@ export function RunDetailPage() {
             <div className="roster">
               <div className="roster__head">
                 <div className="roster__title">
-                  <span className="roster__icon" aria-hidden>
-                    🏁
-                  </span>
-                  <div>
-                    <h2>
-                      {selectedGen !== null
-                        ? `Generation ${selectedGen} roster`
-                        : "Roster"}
-                    </h2>
-                    <p className="roster__sub">
-                      Every individual this generation, ranked by fitness — click
-                      one to inspect its genome.
-                    </p>
-                  </div>
+                  <h2>
+                    {selectedGen !== null
+                      ? `Generation ${selectedGen} roster`
+                      : "Roster"}
+                  </h2>
+                  <p className="roster__sub">
+                    Every individual this generation, ranked by fitness — click
+                    one to inspect its genome.
+                  </p>
                 </div>
                 <label className="field field--inline">
                   <span>Generation</span>
@@ -463,10 +473,6 @@ export function RunDetailPage() {
                     const fitness = ind.fitness;
                     const positive = (fitness ?? 0) > 0;
                     const champ = rank === 1 && positive;
-                    const medal =
-                      positive && rank <= 3
-                        ? ["👑", "🥈", "🥉"][rank - 1]
-                        : null;
                     const pct = Math.max(0, Math.min(1, fitness ?? 0)) * 100;
                     return (
                       <li key={String(ind.individual_id)}>
@@ -481,12 +487,8 @@ export function RunDetailPage() {
                             ind.individual_id,
                           )}, rank ${rank}, fitness ${formatFitness(fitness)}`}
                         >
-                          <span
-                            className={`roster-row__rank${
-                              medal ? " roster-row__rank--medal" : ""
-                            }`}
-                          >
-                            {medal ?? rank}
+                          <span className="roster-row__rank">
+                            {String(rank).padStart(2, "0")}
                           </span>
                           <div className="roster-row__body">
                             <div className="roster-row__head">

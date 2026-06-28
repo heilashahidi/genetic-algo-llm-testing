@@ -17,6 +17,11 @@ function shortId(id: string): string {
   return id.length > 12 ? `${id.slice(0, 8)}…` : id;
 }
 
+/** A run with work in flight — gets the accent "live" rail in the table. */
+function isLive(status: RunRecord["status"]): boolean {
+  return status === "running" || status === "queued" || status === "paused";
+}
+
 export function RunsListPage() {
   const navigate = useNavigate();
   const [runs, setRuns] = useState<RunRecord[] | null>(null);
@@ -90,17 +95,12 @@ export function RunsListPage() {
       <section className="lb-panel">
         <header className="lb-panel__head">
           <div className="lb-panel__title">
-            <span className="lb-panel__trophy" aria-hidden>
-              🏆
-            </span>
-            <div>
-              <h2>Trait Leaderboard</h2>
-              <p className="lb-panel__sub">
-                The traits breaking models hardest — present in successful
-                jailbreaks (fitness ≥ 1.0) across every run, and the targets
-                they've taken down.
-              </p>
-            </div>
+            <h2>Trait leaderboard</h2>
+            <p className="lb-panel__sub">
+              The traits breaking models hardest — present in successful
+              jailbreaks (fitness ≥ 1.0) across every run, and the targets
+              they've taken down.
+            </p>
           </div>
           {leaderboard !== null && leaderboard.length > 0 && (
             <div className="lb-panel__kpis">
@@ -150,7 +150,9 @@ export function RunsListPage() {
             {runs.map((run) => (
               <tr
                 key={run.id}
-                className="table__row--clickable"
+                className={`table__row--clickable${
+                  isLive(run.status) ? " is-live" : ""
+                }`}
                 onClick={() => navigate(`/runs/${run.id}`)}
               >
                 <td>
@@ -159,7 +161,18 @@ export function RunsListPage() {
                 <td>
                   <StatusBadge status={run.status} />
                 </td>
-                <td>{run.current_generation ?? "—"}</td>
+                <td>
+                  {run.current_generation == null ? (
+                    "—"
+                  ) : (
+                    <span className="gen-pill">
+                      <span className="gen-pill__k">gen</span>
+                      <span className="gen-pill__v">
+                        {run.current_generation}
+                      </span>
+                    </span>
+                  )}
+                </td>
                 <td>{formatTime(run.created_at)}</td>
                 <td
                   className="table__actions"

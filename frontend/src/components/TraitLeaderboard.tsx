@@ -6,20 +6,6 @@ function humanize(gene: string): string {
   return gene.replace(/_/g, " ");
 }
 
-type Tier = "S" | "A" | "B" | "C";
-
-/** Threat tier from a trait's exploit share of the current leader. */
-function tierFor(exploits: number, max: number): Tier {
-  const share = max > 0 ? exploits / max : 0;
-  if (share >= 0.8) return "S";
-  if (share >= 0.5) return "A";
-  if (share >= 0.25) return "B";
-  return "C";
-}
-
-/** "🥇/🥈/🥉"-style icon, with a crown for the reigning champion. */
-const RANK_ICON: Record<number, string> = { 1: "👑", 2: "🥈", 3: "🥉" };
-
 function TraitName({ entry }: { entry: TraitLeaderboardEntry }) {
   return (
     <span className="lb-trait">
@@ -50,36 +36,50 @@ function ModelKills({
           className="lb-kill"
           title={`Broke ${m.model} ${m.exploits} time(s)`}
         >
-          <span className="lb-kill__dot" aria-hidden>
-            🎯
-          </span>
           {m.model}
           <b className="lb-kill__n">×{m.exploits}</b>
         </span>
       ))}
-      {hidden > 0 && <span className="lb-kill lb-kill--more">+{hidden}</span>}
+      {hidden > 0 && <span className="lb-kill lb-kill--more">+{hidden} more</span>}
     </div>
   );
 }
 
-function PodiumCard({ entry, rank }: { entry: TraitLeaderboardEntry; rank: number }) {
+/** A podium card for a top-3 trait. Rank 1 gets the accent "winner" treatment. */
+function PodiumCard({
+  entry,
+  rank,
+  max,
+}: {
+  entry: TraitLeaderboardEntry;
+  rank: number;
+  max: number;
+}) {
   const count = useCountUp(entry.exploits);
+  const pct = max > 0 ? Math.max(8, (entry.exploits / max) * 100) : 0;
   return (
-    <div className={`lb-slot lb-slot--${rank}`} style={{ animationDelay: `${rank * 90}ms` }}>
-      <div className="lb-pcard">
-        <div className="lb-pcard__medal" aria-hidden>
-          {RANK_ICON[rank]}
+    <div
+      className={`lb-slot lb-slot--${rank}`}
+      style={{ animationDelay: `${rank * 80}ms` }}
+    >
+      <article className="lb-pcard">
+        <div className="lb-pcard__top">
+          <span className="lb-pcard__rank">{String(rank).padStart(2, "0")}</span>
+          {rank === 1 && <span className="lb-pcard__lead">leader</span>}
         </div>
         <TraitName entry={entry} />
         <div className="lb-pcard__count">
-          <span className="lb-pcard__num">{Math.round(count).toLocaleString()}</span>
+          <span className="lb-pcard__num">
+            {Math.round(count).toLocaleString()}
+          </span>
           <span className="lb-pcard__unit">exploits</span>
         </div>
+        <div className="lb-bar">
+          <span className="lb-bar__fill" style={{ width: `${pct}%` }} />
+        </div>
         <ModelKills models={entry.models} limit={2} />
-      </div>
-      <div className="lb-pedestal">
-        <span className="lb-pedestal__rank">#{rank}</span>
-      </div>
+      </article>
+      <div className="lb-pedestal" aria-hidden />
     </div>
   );
 }
@@ -94,22 +94,21 @@ function LeaderRow({
   max: number;
 }) {
   const count = useCountUp(entry.exploits);
-  const pct = max > 0 ? Math.max(5, (entry.exploits / max) * 100) : 0;
-  const tier = tierFor(entry.exploits, max);
+  const pct = max > 0 ? Math.max(4, (entry.exploits / max) * 100) : 0;
   return (
-    <li className="lb-row" style={{ animationDelay: `${rank * 40}ms` }}>
-      <span className="lb-row__rank">{rank}</span>
+    <li
+      className="lb-row"
+      style={{ animationDelay: `${Math.min(rank, 12) * 40}ms` }}
+    >
+      <span className="lb-row__rank">{String(rank).padStart(2, "0")}</span>
       <div className="lb-row__body">
         <div className="lb-row__top">
           <TraitName entry={entry} />
-          <span className={`lb-tier lb-tier--${tier}`} title={`Tier ${tier}`}>
-            {tier}
-          </span>
+          <ModelKills models={entry.models} limit={3} />
         </div>
         <div className="lb-bar">
           <span className="lb-bar__fill" style={{ width: `${pct}%` }} />
         </div>
-        <ModelKills models={entry.models} />
       </div>
       <div className="lb-row__count">
         <span className="lb-row__num">{Math.round(count).toLocaleString()}</span>
@@ -120,9 +119,9 @@ function LeaderRow({
 }
 
 /**
- * Gamified trait leaderboard: a medal podium for the top three traits, a ranked
- * list below with dominance bars and threat tiers, and "defeated target" chips
- * for the models each trait has broken.
+ * Trait leaderboard: a winner's podium for the top three traits (rank 1 lifted
+ * and accented), then a hairline-divided ranked list for the rest. One accent,
+ * mono labels, count-up figures — a calm, modern read on a game podium.
  */
 export function TraitLeaderboard({
   entries,
@@ -132,12 +131,9 @@ export function TraitLeaderboard({
   if (entries.length === 0) {
     return (
       <div className="lb-empty">
-        <span className="lb-empty__icon" aria-hidden>
-          🏆
-        </span>
-        <p className="lb-empty__title">No champions yet</p>
+        <p className="lb-empty__title">No exploits yet</p>
         <p className="muted">
-          Winning traits climb the ranks here the moment a run breaks a model.
+          Traits climb this board the moment a run breaks a model.
         </p>
       </div>
     );
@@ -149,12 +145,20 @@ export function TraitLeaderboard({
 
   return (
     <div className="lb">
-      <div className="lb-podium">
+      <div
+        className={`lb-podium${top.length === 3 ? " lb-podium--full" : ""}`}
+        style={
+          top.length < 3
+            ? { gridTemplateColumns: `repeat(${top.length}, minmax(0, 1fr))` }
+            : undefined
+        }
+      >
         {top.map((entry, i) => (
           <PodiumCard
             key={`${entry.gene}:${entry.allele}`}
             entry={entry}
             rank={i + 1}
+            max={max}
           />
         ))}
       </div>

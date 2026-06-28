@@ -123,16 +123,16 @@ export const GAPrimer: React.FC = () => {
         <Kicker num="05" sec="Genetic Algorithms" />
         <Title className="mt-[1.4%]">How a genetic algorithm <span className="text-accent">works</span></Title>
       </div>
-      <Glass className="rise mt-[1.6%] p-[2%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
-        <p className="text-white/90 flex-1" style={{ fontSize: "clamp(14.4px,1.7vw,24px)", lineHeight: 1.45 }}>
+      <Glass className="rise mt-[1.2%] p-[1.7%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
+        <p className="text-white/90 flex-1" style={{ fontSize: "clamp(14.4px,1.7vw,24px)", lineHeight: 1.4 }}>
           Think <span className="text-accent font-semibold">natural selection</span>: keep the fittest, recombine them, add a little random variation, then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of organisms, and you have a <span className="font-semibold">genetic algorithm</span>.
         </p>
         <EvolveGraphic />
       </Glass>
-      <div className="flex items-stretch gap-[1.4%] mt-[1.8%]">
+      <div className="flex items-stretch gap-[1.4%] mt-[1.3%]">
         {steps.map((s, i) => (
           <React.Fragment key={s.t}>
-            <Glass className="flex-1 rise p-[2.4%] text-center" style={{ animationDelay: `${0.12 + i * 0.1}s` }}>
+            <Glass className="flex-1 rise p-[2%] text-center" style={{ animationDelay: `${0.12 + i * 0.1}s` }}>
               <s.Icon strokeWidth={1.5} className="mx-auto mb-[7px] text-accent" style={{ width: "clamp(20px,2.2vw,28px)", height: "clamp(20px,2.2vw,28px)" }} />
               <div className="mono text-white/45" style={{ fontSize: 13.2 }}>0{i + 1}</div>
               <h3 className="font-bold mt-[2px]" style={{ fontSize: "clamp(14.4px,1.6vw,22.8px)" }}>{s.t}</h3>

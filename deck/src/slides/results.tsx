@@ -101,7 +101,7 @@ export const HonestTest: React.FC = () => (
       </div>
     </div>
     <p className="text-white/70 rise mt-[1.6%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.3s" }}>
-      <Arrow>→ </Arrow>8 GA runs · 2,500 genomes · live Ollama, no synthetic stand-in. On Llama-3.1 the GA climbed from a <span className="text-warm font-semibold">10%</span> seed population to <span className="text-accent font-semibold">95%</span>. The genome is finding attacks the seed library never held.
+      <Arrow>→ </Arrow>8 GA runs · 2,500 genomes · live Ollama, no synthetic stand-in. On Llama-3.1 the GA climbed from a <span className="text-warm font-semibold">10%</span> seed population to a <span className="text-accent font-semibold">95%</span> peak generation. The genome is finding attacks the seed library never held.
     </p>
   </SlideShell>
 );
@@ -198,7 +198,7 @@ export const Verify: React.FC = () => {
     "Llama 3.3 ships 70B-only; 3.1-8B is the strongest small Llama",
     "vLLM runs 16–19× Ollama under concurrent batched load",
     "temp = 0 ≠ deterministic; batch size silently corrupts fitness",
-    "Qwen3.5-9B · Granite-4.1-8B · Gemma-4-E4B · Phi-4-mini all real",
+    "All 5 target models are real Ollama SKUs at the sizes we cite",
   ];
   return (
     <SlideShell page="Page 17">

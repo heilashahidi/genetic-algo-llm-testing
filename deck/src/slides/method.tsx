@@ -27,9 +27,9 @@ export const TwoProblems: React.FC = () => {
         <Kicker num="07" sec="Design Problems" />
         <Title className="mt-[1.4%]">Two hard questions decide whether the GA <span className="text-accent">works at all</span></Title>
       </div>
-      <div className="grid grid-cols-2 gap-[2.6%] flex-grow mt-[2.6%] items-stretch">
+      <div className="grid grid-cols-2 gap-[2.6%] flex-grow mt-[2%] items-stretch">
         {cols.map(([tag, color, q, lead, body], i) => (
-          <Glass key={tag} className="rise p-[3.1%] flex flex-col" style={{ animationDelay: `${i * 0.12}s`, borderTop: `3px solid ${color}` }}>
+          <Glass key={tag} className="rise p-[2.7%] flex flex-col" style={{ animationDelay: `${i * 0.12}s`, borderTop: `3px solid ${color}` }}>
             <div className="mono font-bold tracking-[0.08em] mb-[14px]" style={{ fontSize: 14.4, color }}>{tag}</div>
             <h3 className="font-bold mb-[12px]" style={{ fontSize: "clamp(18px,2.1vw,28.8px)", lineHeight: 1.2 }}>{q}</h3>
             <p className="text-white/75 mb-[10px]" style={{ fontSize: "clamp(14.4px,1.55vw,21.6px)", lineHeight: 1.5 }}>{lead}</p>
@@ -124,22 +124,22 @@ export const Schema: React.FC = () => {
         <Kicker num="09" sec="The Genome · Schema v2" />
         <Title className="mt-[1.4%]">Two channels, <span className="text-accent">16 genes</span></Title>
       </div>
-      <div className="flex gap-[2%] mt-[1.4%] mb-[0.3%] rise" style={{ animationDelay: "0.05s" }}>
-        <Glass className="px-[2%] py-[1%] flex items-baseline gap-[10px]">
+      <div className="flex gap-[2%] mt-[1%] mb-[0.3%] rise" style={{ animationDelay: "0.05s" }}>
+        <Glass className="px-[2%] py-[0.7%] flex items-baseline gap-[10px]">
           <span className="font-bold text-accent" style={{ fontSize: "clamp(21.2px,2.8vw,36px)" }}>{big.toFixed(2)}×10¹³</span>
           <span className="text-white/55" style={{ fontSize: "clamp(13.2px,1.3vw,19.2px)" }}>≈ 20 trillion genomes</span>
         </Glass>
-        <Glass className="px-[2%] py-[1%] flex items-baseline gap-[10px]">
+        <Glass className="px-[2%] py-[0.7%] flex items-baseline gap-[10px]">
           <span className="font-bold text-warm" style={{ fontSize: "clamp(21.2px,2.8vw,36px)" }}>{Math.round(v1).toLocaleString()}×</span>
           <span className="text-white/55" style={{ fontSize: "clamp(13.2px,1.3vw,19.2px)" }}>larger than v1</span>
         </Glass>
       </div>
-      <div className="grid grid-cols-2 gap-[2.4%] flex-grow mt-[0.7%]">
+      <div className="grid grid-cols-2 gap-[2.4%] flex-grow mt-[0.5%]">
         {([["SEMANTIC · what the attack does · 9 genes", sem, false], ["PERTURBATION · how it's dressed · 7 genes", per, true]] as [string, [string, string][], boolean][]).map(([title, rows, warm]) => (
-          <Glass key={title} className="rise p-[2.6%]" style={{ animationDelay: warm ? "0.18s" : "0.1s", borderTop: `3px solid ${warm ? "#ffc488" : "#7fb0ff"}` }}>
-            <div className={`mono font-bold tracking-[0.06em] mb-[6px] ${warm ? "text-warm" : "text-accent"}`} style={{ fontSize: 13.8 }}>{title.toUpperCase()}</div>
+          <Glass key={title} className="rise p-[1.7%]" style={{ animationDelay: warm ? "0.18s" : "0.1s", borderTop: `3px solid ${warm ? "#ffc488" : "#7fb0ff"}` }}>
+            <div className={`mono font-bold tracking-[0.06em] mb-[5px] ${warm ? "text-warm" : "text-accent"}`} style={{ fontSize: 13.8 }}>{title.toUpperCase()}</div>
             {rows.map(([k, v]) => (
-              <div key={k} className="mb-[4px]">
+              <div key={k} className="mb-[3px]">
                 <span className="mono font-bold text-white" style={{ fontSize: "clamp(13.2px,1.4vw,16.8px)" }}>{k}</span>
                 <div className="mono text-white/45 mt-[1px]" style={{ fontSize: "clamp(10.8px,1.1vw,14.4px)" }}>{v}</div>
               </div>
@@ -358,7 +358,7 @@ export const Fitness: React.FC = () => {
         <div className="flex-1">
           {tiers.map(([v, l, c, d], i) => (
             <div key={l} onMouseEnter={() => setHot(i)}
-              className="flex items-center gap-[16px] rounded-[12px] px-[18px] py-[14px] mb-[10px] rise transition-all"
+              className="flex items-center gap-[16px] rounded-[12px] px-[18px] py-[12px] mb-[8px] rise transition-all"
               style={{ animationDelay: `${i * 0.1}s`, background: hot === i ? "rgba(255,255,255,0.08)" : "transparent", border: `1px solid ${hot === i ? c : "rgba(255,255,255,0.1)"}` }}>
               <div className="mono font-bold" style={{ fontSize: "clamp(21.6px,2.4vw,31.2px)", color: c, minWidth: 54 }}>{v}</div>
               <div>

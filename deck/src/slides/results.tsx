@@ -148,16 +148,69 @@ export const Models: React.FC = () => (
   </SlideShell>
 );
 
-export const Takeaways: React.FC = () => {
-  const pillars: [string, string, string][] = [
-    ["Structured & interpretable", "A 16-gene genome (~20-trillion search space) seeded from 121 real attacks — every win traceable gene-by-gene and across its lineage.", "🧬"],
-    ["Honest methodology", "GA measured against random and seed-only baselines at equal budget, across a real easy→hard model gradient.", "⚖️"],
-    ["Real, controllable system", "Postgres control plane, live dashboard, Dockerized, reproducible, offline-testable — not a one-shot script.", "⚙️"],
+export const Verify: React.FC = () => {
+  const stats: [string, string][] = [
+    ["24", "primary sources"],
+    ["105", "claims extracted"],
+    ["25", "adversarially verified"],
+    ["20 / 5", "confirmed / killed"],
+  ];
+  const held: string[] = [
+    "Llama 3.3 ships 70B-only — 3.1-8B is the strongest small Llama",
+    "vLLM runs 16–19× Ollama under concurrent batched load",
+    "temp = 0 ≠ deterministic — batch size silently corrupts fitness",
+    "Qwen3.5-9B · Granite-4.1-8B · Gemma-4-E4B · Phi-4-mini all real",
   ];
   return (
     <SlideShell page="Page 14">
       <div className="mt-[2%]">
-        <Kicker num="14" sec="Takeaways" />
+        <Kicker num="14" sec="Verification" />
+        <Title className="mt-[1.4%]">Every claim <span className="text-accent">adversarially fact-checked</span> before it shipped</Title>
+      </div>
+      <div className="grid grid-cols-4 gap-[2%] mt-[2.6%]">
+        {stats.map(([n, l], i) => (
+          <Glass key={l} className="rise p-[2.6%] text-center" style={{ animationDelay: `${i * 0.1}s`, borderBottom: "3px solid #7fb0ff" }}>
+            <div className="font-bold text-accent" style={{ fontSize: "clamp(28px,3.6vw,52px)", lineHeight: 1 }}>{n}</div>
+            <div className="mono text-white/55 mt-[8px] tracking-[0.04em]" style={{ fontSize: "clamp(11px,1.2vw,15px)" }}>{l}</div>
+          </Glass>
+        ))}
+      </div>
+      <div className="grid gap-[2.4%] flex-grow mt-[2.6%] items-stretch" style={{ gridTemplateColumns: "1.25fr 1fr" }}>
+        <Glass className="rise p-[2.6%]" style={{ animationDelay: "0.2s", borderTop: "3px solid #2fb46a" }}>
+          <div className="mono font-bold tracking-[0.1em] mb-[12px]" style={{ fontSize: 14.4, color: "#5fd99a" }}>✓ HELD · 3-0</div>
+          {held.map((h) => (
+            <p key={h} className="text-white/80 mb-[9px] flex gap-[10px]" style={{ fontSize: "clamp(13.2px,1.45vw,19.2px)" }}>
+              <span style={{ color: "#5fd99a" }}>✓</span>{h}
+            </p>
+          ))}
+        </Glass>
+        <Glass className="rise p-[2.6%]" style={{ animationDelay: "0.3s", borderTop: "3px solid #e06b67" }}>
+          <div className="mono font-bold tracking-[0.1em] mb-[12px]" style={{ fontSize: 14.4, color: "#f08a86" }}>✗ KILLED · 5</div>
+          <p className="text-white/80" style={{ fontSize: "clamp(13.2px,1.45vw,19.2px)" }}>
+            The precise <span className="text-warm font-semibold">HarmBench ASR figures</span> (26% / 90% …) — unverifiable, predating every model we test and swinging <span className="text-warm font-semibold">~3×</span> across attack harnesses.
+          </p>
+          <p className="text-white/55 mt-[12px]" style={{ fontSize: "clamp(12px,1.3vw,16.8px)" }}>
+            → That kill is exactly why slide 13 uses our <span className="text-accent">own measured</span> numbers, not borrowed benchmarks.
+          </p>
+        </Glass>
+      </div>
+      <p className="text-white/60 rise mt-[2%]" style={{ fontSize: "clamp(12px,1.3vw,17px)", animationDelay: "0.4s" }}>
+        <Arrow>→ </Arrow>6 search angles · a claim counts as <span className="text-white font-semibold">confirmed</span> only if <span className="text-accent font-semibold">≤1 of 3</span> independent skeptics could refute it.
+      </p>
+    </SlideShell>
+  );
+};
+
+export const Takeaways: React.FC = () => {
+  const pillars: [string, string, string][] = [
+    ["Structured & interpretable", "A 16-gene genome (~20-trillion search space) seeded from 121 real attacks — every win traceable gene-by-gene and across its lineage.", "🧬"],
+    ["Honest methodology", "GA measured against the seed-only baseline across a real hard→soft model gradient — then every surrounding claim adversarially fact-checked.", "⚖️"],
+    ["Real, controllable system", "Postgres control plane, live dashboard, Dockerized, reproducible, offline-testable — not a one-shot script.", "⚙️"],
+  ];
+  return (
+    <SlideShell page="Page 15">
+      <div className="mt-[2%]">
+        <Kicker num="15" sec="Takeaways" />
         <Title className="mt-[1.4%]">Which traits broke it — <span className="text-accent">seeded real, evolved beyond</span></Title>
       </div>
       <div className="grid grid-cols-3 gap-[2.4%] mt-[3%]">

@@ -9,11 +9,11 @@ export const Cover: React.FC = () => (
         <Chip tone="warm">RED-TEAM RESEARCH</Chip>
         <Chip>INTERPRETABLE BY DESIGN</Chip>
       </div>
-      <h1 className="font-extrabold tracking-tight rise" style={{ fontSize: "clamp(34px,6.4vw,92px)", lineHeight: 1.02, animationDelay: "0.06s" }}>
-        Evolving prompts<br />to <span className="text-accent">break an LLM</span>
+      <h1 className="font-extrabold tracking-tight rise" style={{ fontSize: "clamp(32px,5.6vw,78px)", lineHeight: 1.04, animationDelay: "0.06s" }}>
+        Evolving<br /><span className="text-accent">Adversarial Prompts</span>
       </h1>
-      <p className="text-white/75 rise mt-[2%]" style={{ fontSize: "clamp(15px,1.7vw,26px)", animationDelay: "0.16s", maxWidth: "44ch" }}>
-        A genetic-algorithm framework for <span className="text-white font-semibold">interpretable</span> LLM robustness testing.
+      <p className="text-white/75 rise mt-[2.4%]" style={{ fontSize: "clamp(15px,1.7vw,26px)", animationDelay: "0.16s", maxWidth: "48ch" }}>
+        A <span className="text-white font-semibold">Genetic-Algorithm Framework</span> for LLM Robustness Testing
       </p>
       <div className="flex gap-[12px] mt-[3%] flex-wrap rise" style={{ animationDelay: "0.26s" }}>
         {["local open-weight models", "a 121-attack seed library", "full lineage tracking"].map((t) => <Chip key={t}>{t}</Chip>)}

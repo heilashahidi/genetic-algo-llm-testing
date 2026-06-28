@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { SlideShell, Kicker, Title, Glass } from "../components/SlideShell";
-import { Chip, Arrow, BarRow, useCountUp, Shot } from "./ui";
+import { Arrow, BarRow, useCountUp, Shot } from "./ui";
 
 const GENES: [string, string, "sem" | "per"][] = [
   ["primary_strategy", "role_hijack", "sem"],
@@ -189,7 +189,6 @@ export const Target: React.FC = () => (
 
 export const Pipeline: React.FC = () => {
   const stages: [string, string][] = [["render", "genome → prompt"], ["harness", "mock · OpenAI-compatible"], ["fitness", "score in [0,1]"], ["select · cross · mutate", "next generation"]];
-  const defaults: [string, string][] = [["population", "100"], ["generations", "30"], ["elitism", "5"], ["tournament", "3"], ["crossover", "0.85"], ["mutation", "0.15"]];
   return (
     <SlideShell bg="network" page="Page 08">
       <div className="mt-[2%]">
@@ -217,15 +216,59 @@ export const Pipeline: React.FC = () => {
           <div className="flex-1">
             <div className="mono text-white/45 tracking-[0.1em] mb-[8px]" style={{ fontSize: 11 }}>REAL RUN · CHAMPION LINEAGE</div>
             <p className="text-white/70" style={{ fontSize: "clamp(11px,1.25vw,16px)", lineHeight: 1.55 }}>Every parent → child relationship is stored, so the champion's full ancestry is recoverable gene by gene. <span className="text-warm font-semibold">Champion in red</span>, partial leaks in amber.</p>
-            <div className="mono text-white/45 tracking-[0.1em] mt-[16px] mb-[9px]" style={{ fontSize: 11 }}>ENGINE DEFAULTS</div>
-            <div className="flex gap-[9px] flex-wrap">
-              {defaults.map(([k, v]) => <Chip key={k}>{k} <b className="text-white">{v}</b></Chip>)}
-              <Chip tone="warm">≤3 active alleles</Chip>
-              <Chip tone="warm">stop_on_success</Chip>
-            </div>
           </div>
         </div>
       </div>
+    </SlideShell>
+  );
+};
+
+export const ExecLoop: React.FC = () => {
+  const steps: [string, string][] = [
+    ["Score the population", "all 100 genomes evaluated 0–1"],
+    ["Carry the elites", "top 5 copied to the next gen, untouched"],
+    ["Pick parents", "a tournament of 3 favours the fitter"],
+    ["Recombine", "0.85 of offspring blend two parents"],
+    ["Mutate", "0.15 flips a gene · ≤3 active alleles"],
+    ["Next generation", "100 fresh genomes → repeat ×30"],
+  ];
+  return (
+    <SlideShell bg="network" page="Page 09">
+      <div className="mt-[2%]">
+        <Kicker num="09" sec="The Execution Loop" />
+        <Title className="mt-[1.4%]">Inside one generation — <span className="text-accent">100 genomes in, 100 out</span></Title>
+      </div>
+      <div className="grid grid-cols-2 gap-[6%] items-center flex-grow mt-[1%]">
+        <div className="rise relative">
+          <div className="absolute left-[15px] top-[16px] bottom-[42px] w-[2px] bg-white/12" />
+          {steps.map(([t, d], i) => (
+            <div key={t} className="flex items-start gap-[14px] mb-[13px] relative">
+              <div className="execstep mono font-bold rounded-full grid place-items-center shrink-0 z-10" style={{ width: 32, height: 32, fontSize: 13, animationDelay: `${i * 0.45}s` }}>{i + 1}</div>
+              <div className="pt-[4px]">
+                <div className="mono font-bold leading-tight" style={{ fontSize: "clamp(13px,1.35vw,17px)" }}>{t}</div>
+                <div className="text-white/55 leading-tight mt-[1px]" style={{ fontSize: "clamp(11px,1.1vw,14px)" }}>{d}</div>
+              </div>
+            </div>
+          ))}
+          <div className="flex items-center gap-[14px]">
+            <div className="rounded-full grid place-items-center shrink-0 z-10 text-accent" style={{ width: 32, height: 32, fontSize: 16, border: "2px solid rgba(127,176,255,0.5)" }}>↻</div>
+            <div className="mono text-accent" style={{ fontSize: "clamp(11px,1.15vw,15px)" }}>repeat ×30 · stop on first success</div>
+          </div>
+        </div>
+        <div>
+          <Glass className="rise p-[5%]" style={{ animationDelay: "0.15s", borderLeft: "3px solid #7fb0ff" }}>
+            <p style={{ fontSize: "clamp(13px,1.4vw,19px)", lineHeight: 1.55 }}>The population size never changes — <span className="text-accent font-semibold">elitism keeps the best</span>, everything else is bred and mutated. So best and average fitness <span className="font-semibold">climb generation over generation</span> while the search stays the same width.</p>
+          </Glass>
+          <Glass className="rise mt-[5%] p-[5%]" style={{ animationDelay: "0.28s" }}>
+            <div className="mono text-white/45 tracking-[0.1em] mb-[8px]" style={{ fontSize: 11 }}>FULLY REPRODUCIBLE</div>
+            <p className="text-white/70" style={{ fontSize: "clamp(11px,1.2vw,15px)", lineHeight: 1.5 }}>A fixed seed (42) replays the exact same 30-generation run — every parent, child, and mutation.</p>
+          </Glass>
+        </div>
+      </div>
+      <style>{`
+        .execstep { background: rgba(127,176,255,0.14); color: #bcd3ff; border: 1px solid rgba(127,176,255,0.4); animation: execpulse 2.7s ease-in-out infinite; }
+        @keyframes execpulse { 0%,100% { background: rgba(127,176,255,0.14); color: #bcd3ff; box-shadow: none; } 16% { background: #7fb0ff; color: #06122e; box-shadow: 0 0 0 5px rgba(127,176,255,0.18); } }
+      `}</style>
     </SlideShell>
   );
 };
@@ -239,9 +282,9 @@ export const Fitness: React.FC = () => {
   ];
   const [hot, setHot] = useState(0);
   return (
-    <SlideShell bg="network" page="Page 09">
+    <SlideShell bg="network" page="Page 10">
       <div className="mt-[2%]">
-        <Kicker num="09" sec="Fitness" />
+        <Kicker num="10" sec="Fitness" />
         <Title className="mt-[1.4%]">A <span className="text-accent">gradient</span> scorer, so the GA can climb before a break</Title>
       </div>
       <div className="flex gap-[3%] items-center flex-grow">

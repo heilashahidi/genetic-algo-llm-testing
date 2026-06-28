@@ -1,49 +1,52 @@
 /* ==========================================================================
    GA Control Plane — house-style design language
    Calm, technical, light-mode editorial. A tool, not a consumer app.
-   Off-white canvas, white cards, hairline borders, soft depth, ink-on-paper.
-   Color is reserved for meaning (affordance + semantic state), never decoration.
+   Reference: frontend/design/reference.png (Vercel-style, adapted to light mode).
+   Near-white canvas, white cards, hairline borders, flat surfaces (no fill
+   depth), one restrained electric-blue accent. Color is reserved for meaning
+   (affordance + semantic state), never decoration.
    ========================================================================== */
 
 :root {
-  /* Surfaces */
-  --canvas: #f6f7f9;
-  --surface: #f1f2f4;
+  color-scheme: light;
+
+  /* Surfaces — flat, near-neutral; depth comes from hairlines, not fills */
+  --canvas: #fafafa;
+  --surface: #f3f3f4;
   --paper: #ffffff;
   --card: #ffffff;
 
   /* Ink */
-  --ink: #0b0b0d;
-  --ink-2: #33353b;
-  --muted: #6b6e76;
-  --muted-2: #9a9da5;
+  --ink: #0a0a0a;
+  --ink-2: #2b2c30;
+  --muted: #666b72;
+  --muted-2: #92959c;
 
-  /* Lines */
-  --line: #e7e8ea;
-  --line-2: #f0f1f3;
+  /* Lines — hairline */
+  --line: #ededed;
+  --line-2: #f5f5f6;
 
-  /* Accent (neutral blue-gray) + semantics */
-  --accent: #4f5a78;
+  /* Accent: one restrained electric blue, used sparingly + semantics */
+  --accent: #0070f3;
   --red: #e5484d;
   --green: #30a46c;
-  --blue: #3b6ef6;
+  --blue: #0070f3;
   --amber: #e0901a;
   --violet: #8b5cf6;
   --rose: #f43f5e;
   --teal: #0d9488;
 
-  /* Geometry */
-  --radius-card: 14px;
-  --radius-md: 10px;
-  --radius-sm: 8px;
+  /* Geometry — crisper */
+  --radius-card: 12px;
+  --radius-md: 8px;
+  --radius-sm: 6px;
   --radius-pill: 999px;
 
-  /* Depth */
-  --shadow-card: 0 1px 2px 0 rgb(16 17 26 / 0.04);
-  --shadow-card-hover: 0 2px 4px -1px rgb(16 17 26 / 0.06),
-    0 8px 24px -6px rgb(16 17 26 / 0.08);
-  --shadow-pop: 0 18px 44px -14px rgb(10 11 18 / 0.34),
-    0 4px 12px -4px rgb(10 11 18 / 0.16);
+  /* Depth — flat; surfaces are defined by hairlines, lifting only on hover */
+  --shadow-card: 0 1px 2px 0 rgb(16 17 26 / 0.03);
+  --shadow-card-hover: 0 4px 16px -6px rgb(16 17 26 / 0.1);
+  --shadow-pop: 0 16px 48px -16px rgb(10 11 18 / 0.24),
+    0 2px 8px -4px rgb(10 11 18 / 0.12);
   --shadow-ring: 0 0 0 1px rgb(16 17 26 / 0.04);
 
   /* Motion */
@@ -51,6 +54,51 @@
 
   --radius: var(--radius-card);
   --space: 16px;
+}
+
+/* Dark theme — the reference (Vercel) palette: pure-black canvas, near-black
+   hairline-defined panels, one electric-blue accent, brightened semantics.
+   Toggled by the data-theme attribute on <html> (useTheme + the no-flash init
+   in index.html); every token-driven surface flips automatically. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --canvas: #000000;
+  --surface: #1a1a1a;
+  --paper: #0a0a0a;
+  --card: #0a0a0a;
+
+  --ink: #ededed;
+  --ink-2: #b4b7bd;
+  --muted: #8b9097;
+  --muted-2: #6b7077;
+
+  --line: #262626;
+  --line-2: #181818;
+
+  --accent: #3291ff;
+  --red: #ff6166;
+  --green: #3dd68c;
+  --blue: #3291ff;
+  --amber: #f5c451;
+  --violet: #a78bfa;
+  --rose: #fb7185;
+  --teal: #2dd4bf;
+
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-card-hover: 0 4px 20px -6px rgb(0 0 0 / 0.7);
+  --shadow-pop: 0 16px 50px -16px rgb(0 0 0 / 0.8),
+    0 2px 10px -4px rgb(0 0 0 / 0.6);
+  --shadow-ring: 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+/* One-shot crossfade while switching themes (class added for ~320ms by
+   useTheme). The reduced-motion block at the end of the file still wins. */
+:root.theme-transition,
+:root.theme-transition * {
+  transition: background-color 0.28s var(--ease), border-color 0.28s var(--ease),
+    color 0.28s var(--ease), fill 0.28s var(--ease), stroke 0.28s var(--ease),
+    box-shadow 0.28s var(--ease) !important;
 }
 
 * {
@@ -76,7 +124,7 @@ body {
 }
 
 ::selection {
-  background: rgba(79, 90, 120, 0.18);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 code,
@@ -169,10 +217,10 @@ code,
   pointer-events: none;
   background-image: radial-gradient(
     circle,
-    rgba(11, 11, 13, 0.045) 1px,
+    rgba(11, 11, 13, 0.028) 1px,
     transparent 1.4px
   );
-  background-size: 22px 22px;
+  background-size: 24px 24px;
   -webkit-mask-image: radial-gradient(
     125% 90% at 50% 0%,
     #000 30%,
@@ -199,7 +247,7 @@ code,
   justify-content: space-between;
   gap: 16px;
   padding: 12px 24px;
-  background: rgba(246, 247, 249, 0.82);
+  background: rgba(250, 250, 250, 0.82);
   backdrop-filter: saturate(180%) blur(12px);
   -webkit-backdrop-filter: saturate(180%) blur(12px);
   border-bottom: 1px solid var(--line);
@@ -884,18 +932,7 @@ legend {
   border-radius: var(--radius-card);
   padding: 22px;
   margin-bottom: 20px;
-  background:
-    radial-gradient(
-      120% 130% at 6% -12%,
-      color-mix(in srgb, var(--blue) 9%, transparent),
-      transparent 55%
-    ),
-    radial-gradient(
-      120% 120% at 100% 0%,
-      color-mix(in srgb, var(--green) 8%, transparent),
-      transparent 52%
-    ),
-    var(--card);
+  background: var(--card);
   box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
@@ -2147,18 +2184,7 @@ legend {
   border-radius: var(--radius-card);
   padding: 22px;
   margin-bottom: 20px;
-  background:
-    radial-gradient(
-      120% 130% at 6% -12%,
-      color-mix(in srgb, var(--teal) 10%, transparent),
-      transparent 55%
-    ),
-    radial-gradient(
-      120% 120% at 100% 0%,
-      color-mix(in srgb, var(--violet) 9%, transparent),
-      transparent 52%
-    ),
-    var(--card);
+  background: var(--card);
   box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
@@ -2472,18 +2498,7 @@ legend {
   border-radius: var(--radius-card);
   padding: 22px;
   margin-bottom: 20px;
-  background:
-    radial-gradient(
-      120% 130% at 6% -12%,
-      color-mix(in srgb, var(--teal) 9%, transparent),
-      transparent 55%
-    ),
-    radial-gradient(
-      120% 120% at 100% 0%,
-      color-mix(in srgb, var(--violet) 8%, transparent),
-      transparent 52%
-    ),
-    var(--card);
+  background: var(--card);
   box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
@@ -2886,18 +2901,7 @@ legend {
   border-radius: var(--radius-card);
   padding: 22px;
   margin-bottom: 20px;
-  background:
-    radial-gradient(
-      120% 130% at 6% -12%,
-      color-mix(in srgb, var(--blue) 9%, transparent),
-      transparent 55%
-    ),
-    radial-gradient(
-      120% 120% at 100% 0%,
-      color-mix(in srgb, var(--violet) 8%, transparent),
-      transparent 52%
-    ),
-    var(--card);
+  background: var(--card);
   box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
@@ -3475,18 +3479,7 @@ legend {
   border-radius: var(--radius-card);
   padding: 22px;
   margin-bottom: 22px;
-  background:
-    radial-gradient(
-      120% 130% at 6% -12%,
-      color-mix(in srgb, var(--violet) 10%, transparent),
-      transparent 55%
-    ),
-    radial-gradient(
-      120% 120% at 100% 0%,
-      color-mix(in srgb, var(--blue) 9%, transparent),
-      transparent 52%
-    ),
-    var(--card);
+  background: var(--card);
   box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
@@ -3830,7 +3823,7 @@ legend {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--blue), var(--violet));
+  background: var(--accent);
   transition: width 0.6s var(--ease);
 }
 .lb-row__count {
@@ -3910,18 +3903,7 @@ legend {
   border-radius: var(--radius-card);
   padding: 22px;
   margin-bottom: 22px;
-  background:
-    radial-gradient(
-      120% 130% at 6% -12%,
-      color-mix(in srgb, var(--blue) 9%, transparent),
-      transparent 55%
-    ),
-    radial-gradient(
-      120% 120% at 100% 0%,
-      color-mix(in srgb, var(--green) 8%, transparent),
-      transparent 52%
-    ),
-    var(--card);
+  background: var(--card);
   box-shadow: var(--shadow-card);
   animation: riseIn 0.5s var(--ease) both;
 }
@@ -4071,6 +4053,107 @@ legend {
   .lb-slot .lb-pedestal {
     height: 22px !important;
   }
+}
+
+/* ==========================================================================
+   Charts (recharts): neutral grid / axes / ticks follow the theme tokens.
+   Series colors are set per-series in TSX and left untouched. These override
+   the SVG presentation attributes Recharts emits, so they work in both themes.
+   ========================================================================== */
+.recharts-cartesian-grid line {
+  stroke: var(--line);
+}
+.recharts-cartesian-axis-line,
+.recharts-cartesian-axis-tick-line {
+  stroke: var(--line);
+}
+.recharts-cartesian-axis-tick-value,
+.recharts-cartesian-axis-tick text {
+  fill: var(--muted);
+}
+.recharts-label {
+  fill: var(--muted-2);
+}
+
+/* ==========================================================================
+   Theme toggle (top nav)
+   ========================================================================== */
+.app__theme-toggle {
+  color: var(--muted);
+}
+.app__theme-toggle:hover:not(:disabled) {
+  color: var(--ink);
+}
+.app__theme-toggle svg {
+  transition: transform 0.4s var(--ease);
+}
+.app__theme-toggle:hover:not(:disabled) svg {
+  transform: rotate(20deg) scale(1.1);
+}
+
+/* ==========================================================================
+   Dark-mode patches — only for surfaces that hardcode light colors. Everything
+   else is token-driven and flips via the :root[data-theme="dark"] block above.
+   ========================================================================== */
+:root[data-theme="dark"] .app__header {
+  background: rgba(0, 0, 0, 0.72);
+}
+:root[data-theme="dark"] .dot-grid {
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.035) 1px,
+    transparent 1.4px
+  );
+}
+:root[data-theme="dark"] .lineage__scroll::before {
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.045) 1px,
+    transparent 1.4px
+  );
+}
+/* brand mark stays a dark chip (its glyph is white) though --ink inverts */
+:root[data-theme="dark"] .app__brand-mark {
+  background: #1c1c1c;
+  box-shadow: var(--shadow-card), inset 0 1px 0 0 rgb(255 255 255 / 0.08),
+    0 0 0 1px var(--line);
+}
+/* inverted primary button: white on dark, Vercel-style */
+:root[data-theme="dark"] .btn--primary,
+:root[data-theme="dark"] .app__nav a.btn--primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #0a0a0a;
+}
+:root[data-theme="dark"] .btn--primary:hover:not(:disabled),
+:root[data-theme="dark"] .app__nav a.btn--primary:hover {
+  background: #d4d4d4;
+  border-color: #d4d4d4;
+  color: #0a0a0a;
+}
+:root[data-theme="dark"] .btn--primary:focus-visible {
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.22);
+}
+/* glassy popovers flip to dark glass */
+:root[data-theme="dark"] .lineage__tip,
+:root[data-theme="dark"] .lineage__controls,
+:root[data-theme="dark"] .parcats__tip,
+:root[data-theme="dark"] .fitchart-tip,
+:root[data-theme="dark"] .freq-tip {
+  background: rgba(18, 18, 20, 0.9);
+}
+/* selected pills invert to a light chip with dark text (like the CTA) */
+:root[data-theme="dark"] .parcats__chip--on {
+  color: #0a0a0a;
+}
+:root[data-theme="dark"] .freq__gene--on,
+:root[data-theme="dark"] .freq__gene--on:hover {
+  background: linear-gradient(180deg, #ffffff, #d6d6d6);
+  color: #0a0a0a;
+}
+:root[data-theme="dark"] .freq__gene-dot {
+  background: #0a0a0a;
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 0.2);
 }
 
 /* ==========================================================================

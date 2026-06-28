@@ -83,9 +83,6 @@ export function RunsListPage() {
     <section>
       <div className="page-head">
         <h1>Runs</h1>
-        <Link to="/runs/new" className="btn btn--primary">
-          New run
-        </Link>
       </div>
 
       {error && <div className="alert alert--error">{error}</div>}

@@ -3,7 +3,6 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
-  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -29,6 +28,7 @@ import type {
 } from "../alleleStats";
 import { fitnessColor } from "./IndividualDetail";
 import { StatTile } from "./StatTile";
+import { useCountUp } from "../useCountUp";
 
 interface Props {
   individuals: IndividualRecord[];
@@ -494,7 +494,124 @@ function GeneBars({
   );
 }
 
-/* -- View 2: Frequency over generations ----------------------------------- */
+/* -- View 2: Frequency over generations (gamified "allele race") ---------- */
+
+/** Format a 0..1 share as a percent, with one decimal only for small values. */
+function pctLabel(value: number): string {
+  const pct = value * 100;
+  return `${pct.toFixed(pct > 0 && pct < 10 ? 1 : 0)}%`;
+}
+
+interface FreqStanding {
+  allele: string;
+  /** Line/area color, fixed by the allele's index so swatches match the chart. */
+  color: string;
+  /** Share in the latest generation (0..1). */
+  latest: number;
+  /** latest − share in the first generation (percentage-point momentum). */
+  delta: number;
+}
+
+/** Rising/falling/steady badge for an allele's first→last share change. */
+function Momentum({ delta }: { delta: number }) {
+  const pp = delta * 100;
+  if (Math.abs(pp) < 0.5) {
+    return (
+      <span className="freq-mom freq-mom--flat" title="Roughly steady since gen 0">
+        ±0
+      </span>
+    );
+  }
+  const rising = pp > 0;
+  return (
+    <span
+      className={`freq-mom freq-mom--${rising ? "up" : "down"}`}
+      title={`${rising ? "Rising" : "Falling"} ${Math.abs(pp).toFixed(1)}pp since gen 0`}
+    >
+      {rising ? "▲" : "▼"} {Math.abs(pp).toFixed(1)}
+    </span>
+  );
+}
+
+/** One standings row: rank/medal, color-coded share bar, count-up percent. */
+function FreqRow({ standing, rank }: { standing: FreqStanding; rank: number }) {
+  const shown = useCountUp(standing.latest * 100);
+  const medal = rank <= 3 ? ["👑", "🥈", "🥉"][rank - 1] : null;
+  const widthPct = Math.max(2, Math.min(100, standing.latest * 100));
+  return (
+    <li
+      className={`freq-row${rank === 1 ? " freq-row--leader" : ""}`}
+      style={{ animationDelay: `${Math.min(rank, 12) * 40}ms` }}
+    >
+      <span className={`freq-row__rank${medal ? " freq-row__rank--medal" : ""}`}>
+        {medal ?? rank}
+      </span>
+      <div className="freq-row__body">
+        <div className="freq-row__head">
+          <span className="freq-row__name">
+            <span
+              className="freq-row__dot"
+              style={{ background: standing.color }}
+            />
+            {standing.allele}
+          </span>
+          <Momentum delta={standing.delta} />
+        </div>
+        <div className="freq-row__meter">
+          <span
+            className="freq-row__fill"
+            style={{ width: `${widthPct}%`, background: standing.color }}
+          />
+        </div>
+      </div>
+      <span className="freq-row__share">
+        {shown.toFixed(shown > 0 && shown < 10 ? 1 : 0)}%
+      </span>
+    </li>
+  );
+}
+
+interface FreqTooltipProps {
+  active?: boolean;
+  label?: number | string;
+  payload?: Array<{
+    name?: string;
+    value?: number;
+    color?: string;
+    dataKey?: string | number;
+  }>;
+}
+
+/** Custom chart tooltip: a per-generation board of allele shares, ranked. */
+function FreqTooltip({ active, payload, label }: FreqTooltipProps) {
+  if (!active || !payload || payload.length === 0) return null;
+  const rows = payload
+    .filter((p) => typeof p.value === "number")
+    .sort((a, b) => (b.value as number) - (a.value as number));
+  return (
+    <div className="freq-tip">
+      <div className="freq-tip__gen">Generation {label}</div>
+      <ul className="freq-tip__list">
+        {rows.map((r) => (
+          <li key={String(r.dataKey)}>
+            <span className="freq-tip__dot" style={{ background: r.color }} />
+            <span className="freq-tip__name">{r.name}</span>
+            <span className="freq-tip__val">{pctLabel(r.value as number)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+const FREQ_GRID = "#edeef1";
+const FREQ_AXIS_LINE = "#e7e8ea";
+const FREQ_TICK = { fill: "#6b6e76", fontSize: 12, fontWeight: 500 } as const;
+const FREQ_AXIS_LABEL = { fill: "#9a9da5", fontSize: 11 } as const;
+// Fixed 0–100% scale, shared by both chart types and the standings bars: the
+// axis is never zoomed, so a small carrier share can never look like a big one.
+const PCT_TICKS = [0, 0.25, 0.5, 0.75, 1];
+const pctTick = (v: number): string => `${Math.round(v * 100)}%`;
 
 function FrequencyView({
   individuals,
@@ -514,19 +631,61 @@ function FrequencyView({
     [individuals, gene],
   );
 
+  // Current standings: each allele's latest share + first→last momentum. Color
+  // is captured by the allele's index in `alleles` so it matches its chart line
+  // even after we sort by latest share descending.
+  const standings = useMemo<FreqStanding[]>(() => {
+    if (points.length === 0) return [];
+    const first = points[0];
+    const last = points[points.length - 1];
+    return alleles
+      .map((allele, i) => {
+        const latest = last[allele] ?? 0;
+        const firstVal = first[allele] ?? 0;
+        return {
+          allele,
+          color: SERIES_COLORS[i % SERIES_COLORS.length],
+          latest,
+          delta: latest - firstVal,
+        };
+      })
+      .sort((a, b) => b.latest - a.latest);
+  }, [points, alleles]);
+
+  // The allele whose share shifted most across the run (>= 0.5pp to count).
+  const topMover = useMemo(() => {
+    let best: FreqStanding | null = null;
+    for (const s of standings) {
+      if (!best || Math.abs(s.delta) > Math.abs(best.delta)) best = s;
+    }
+    return best && Math.abs(best.delta) >= 0.005 ? best : null;
+  }, [standings]);
+
   if (!gene) return null;
   const isMulti = gene.type === "multi_categorical";
+  const lastGen = points.length ? points[points.length - 1].generation : null;
+  const single = points.length <= 1; // one generation -> show dots, not lines
+  const leaderShare = standings[0]?.latest ?? 0;
 
   return (
-    <div className="card">
-      <div className="alleles__view-head">
-        <h2 className="alleles__title">Allele frequency over generations</h2>
+    <div className="freq">
+      <div className="freq__head">
+        <div className="freq__title">
+          <span className="freq__icon" aria-hidden>
+            📈
+          </span>
+          <div>
+            <h2>Allele frequency over generations</h2>
+            <p className="freq__sub">
+              {isMulti
+                ? "Each allele's carrier share per generation — lines overlap and need not sum to 100%."
+                : "Allele proportions per generation (they sum to 100%) — watch selection pressure crown a winner."}
+            </p>
+          </div>
+        </div>
         <label className="field field--inline">
           <span>Gene</span>
-          <select
-            value={geneName}
-            onChange={(e) => setGeneName(e.target.value)}
-          >
+          <select value={geneName} onChange={(e) => setGeneName(e.target.value)}>
             {genes.map((g) => (
               <option key={g.name} value={g.name}>
                 {g.name} ({g.channel})
@@ -535,63 +694,209 @@ function FrequencyView({
           </select>
         </label>
       </div>
-      <p className="muted alleles__subtitle">
-        {isMulti
-          ? "Carrier fraction per generation for each allele (overlapping; need not sum to 1)."
-          : "Allele proportions per generation (sums to 1) — shows selection pressure."}
-      </p>
 
       {points.length === 0 ? (
-        <p className="muted">No scored individuals to chart.</p>
+        <div className="freq-empty">
+          <span className="freq-empty__icon" aria-hidden>
+            🏁
+          </span>
+          <p className="freq-empty__title">No race yet</p>
+          <p className="muted">
+            Allele shares appear here the moment individuals are scored.
+          </p>
+        </div>
       ) : (
-        <ResponsiveContainer width="100%" height={300}>
-          {isMulti ? (
-            <LineChart
-              data={points}
-              margin={{ top: 8, right: 16, bottom: 8, left: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e7e8ea" />
-              <XAxis dataKey="generation" type="number" allowDecimals={false} />
-              <YAxis domain={[0, 1]} />
-              <Tooltip />
-              <Legend />
-              {alleles.map((allele, i) => (
-                <Line
-                  key={allele}
-                  type="monotone"
-                  dataKey={allele}
-                  name={allele}
-                  stroke={SERIES_COLORS[i % SERIES_COLORS.length]}
-                  dot={false}
-                  connectNulls
-                />
-              ))}
-            </LineChart>
-          ) : (
-            <AreaChart
-              data={points}
-              margin={{ top: 8, right: 16, bottom: 8, left: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e7e8ea" />
-              <XAxis dataKey="generation" type="number" allowDecimals={false} />
-              <YAxis domain={[0, 1]} />
-              <Tooltip />
-              <Legend />
-              {alleles.map((allele, i) => (
-                <Area
-                  key={allele}
-                  type="monotone"
-                  dataKey={allele}
-                  name={allele}
-                  stackId="1"
-                  stroke={SERIES_COLORS[i % SERIES_COLORS.length]}
-                  fill={SERIES_COLORS[i % SERIES_COLORS.length]}
-                  fillOpacity={0.6}
-                />
-              ))}
-            </AreaChart>
-          )}
-        </ResponsiveContainer>
+        <>
+          <div className="freq__kpis">
+            <StatTile value={points.length} label="generations" />
+            <StatTile value={alleles.length} label="alleles tracked" />
+            <StatTile
+              value={leaderShare * 100}
+              label="leader share"
+              format={(v) => `${Math.round(v)}%`}
+            />
+            {topMover ? (
+              <div className="freq__mover">
+                <span className="freq__mover-label">
+                  <span aria-hidden>⚡</span> biggest mover
+                </span>
+                <span className="freq__mover-name">
+                  <span
+                    className="freq-row__dot"
+                    style={{ background: topMover.color }}
+                  />
+                  {topMover.allele}
+                </span>
+                <Momentum delta={topMover.delta} />
+              </div>
+            ) : (
+              <div className="freq__mover freq__mover--flat">
+                <span className="freq__mover-label">
+                  <span aria-hidden>⚡</span> biggest mover
+                </span>
+                <span className="muted">all steady</span>
+              </div>
+            )}
+          </div>
+
+          <div className="freq__grid">
+            <div className="freq__chart">
+              <ResponsiveContainer width="100%" height={324}>
+                {isMulti ? (
+                  <LineChart
+                    data={points}
+                    margin={{ top: 12, right: 22, bottom: 16, left: 0 }}
+                  >
+                    <CartesianGrid
+                      vertical={false}
+                      stroke={FREQ_GRID}
+                      strokeDasharray="4 4"
+                    />
+                    <XAxis
+                      dataKey="generation"
+                      type="number"
+                      allowDecimals={false}
+                      domain={["dataMin", "dataMax"]}
+                      tickLine={false}
+                      axisLine={{ stroke: FREQ_AXIS_LINE }}
+                      tick={FREQ_TICK}
+                      tickMargin={8}
+                      padding={{ left: 14, right: 14 }}
+                      label={{
+                        value: "generation",
+                        position: "insideBottom",
+                        offset: -4,
+                        ...FREQ_AXIS_LABEL,
+                      }}
+                    />
+                    <YAxis
+                      domain={[0, 1]}
+                      ticks={PCT_TICKS}
+                      tickLine={false}
+                      axisLine={false}
+                      tick={FREQ_TICK}
+                      tickFormatter={pctTick}
+                      width={44}
+                    />
+                    <Tooltip
+                      content={<FreqTooltip />}
+                      cursor={{ stroke: "#c7c9cf", strokeDasharray: "4 4" }}
+                    />
+                    {alleles.map((allele, i) => (
+                      <Line
+                        key={allele}
+                        type="monotone"
+                        dataKey={allele}
+                        name={allele}
+                        stroke={SERIES_COLORS[i % SERIES_COLORS.length]}
+                        strokeWidth={2.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        dot={single ? { r: 3, strokeWidth: 0 } : false}
+                        activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }}
+                        connectNulls
+                        isAnimationActive
+                        animationDuration={750}
+                        animationEasing="ease-out"
+                      />
+                    ))}
+                  </LineChart>
+                ) : (
+                  <AreaChart
+                    data={points}
+                    margin={{ top: 12, right: 22, bottom: 16, left: 0 }}
+                  >
+                    <defs>
+                      {alleles.map((allele, i) => {
+                        const c = SERIES_COLORS[i % SERIES_COLORS.length];
+                        return (
+                          <linearGradient
+                            key={allele}
+                            id={`freq-grad-${i}`}
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop offset="0%" stopColor={c} stopOpacity={0.85} />
+                            <stop offset="100%" stopColor={c} stopOpacity={0.4} />
+                          </linearGradient>
+                        );
+                      })}
+                    </defs>
+                    <CartesianGrid
+                      vertical={false}
+                      stroke={FREQ_GRID}
+                      strokeDasharray="4 4"
+                    />
+                    <XAxis
+                      dataKey="generation"
+                      type="number"
+                      allowDecimals={false}
+                      domain={["dataMin", "dataMax"]}
+                      tickLine={false}
+                      axisLine={{ stroke: FREQ_AXIS_LINE }}
+                      tick={FREQ_TICK}
+                      tickMargin={8}
+                      padding={{ left: 14, right: 14 }}
+                      label={{
+                        value: "generation",
+                        position: "insideBottom",
+                        offset: -4,
+                        ...FREQ_AXIS_LABEL,
+                      }}
+                    />
+                    <YAxis
+                      domain={[0, 1]}
+                      ticks={PCT_TICKS}
+                      tickLine={false}
+                      axisLine={false}
+                      tick={FREQ_TICK}
+                      tickFormatter={pctTick}
+                      width={44}
+                    />
+                    <Tooltip
+                      content={<FreqTooltip />}
+                      cursor={{ stroke: "#c7c9cf", strokeDasharray: "4 4" }}
+                    />
+                    {alleles.map((allele, i) => (
+                      <Area
+                        key={allele}
+                        type="monotone"
+                        dataKey={allele}
+                        name={allele}
+                        stackId="1"
+                        stroke={SERIES_COLORS[i % SERIES_COLORS.length]}
+                        strokeWidth={2}
+                        strokeLinejoin="round"
+                        fill={`url(#freq-grad-${i})`}
+                        dot={single ? { r: 3, strokeWidth: 0 } : false}
+                        activeDot={{ r: 4, strokeWidth: 2, stroke: "#fff" }}
+                        isAnimationActive
+                        animationDuration={750}
+                        animationEasing="ease-out"
+                      />
+                    ))}
+                  </AreaChart>
+                )}
+              </ResponsiveContainer>
+            </div>
+
+            <div className="freq__standings">
+              <div className="freq__standings-head">
+                <h3>Standings</h3>
+                {lastGen !== null && (
+                  <span className="freq__standings-gen">generation {lastGen}</span>
+                )}
+              </div>
+              <ol className="freq-list">
+                {standings.map((s, i) => (
+                  <FreqRow key={s.allele} standing={s} rank={i + 1} />
+                ))}
+              </ol>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
@@ -808,14 +1113,15 @@ function Heatmap({
   );
 }
 
-/* -- View 4: Parallel categories (SVG) ------------------------------------ */
+/* -- View 4: Parallel categories — gamified "run flow" -------------------- */
 
-const PARCATS_WIDTH_PER_AXIS = 170;
-const PARCATS_HEIGHT = 460;
-const PARCATS_TOP = 30;
-const PARCATS_BOTTOM = 24;
-const SEGMENT_GAP = 6;
-const SEGMENT_W = 18;
+const PARCATS_WIDTH_PER_AXIS = 196;
+const PARCATS_HEIGHT = 480;
+const PARCATS_TOP = 46;
+const PARCATS_BOTTOM = 30;
+const PARCATS_LEFT = 64;
+const SEGMENT_GAP = 8;
+const SEGMENT_W = 16;
 
 function defaultParcatsGenes(genes: GeneSchema[]): string[] {
   const categorical = genes
@@ -830,10 +1136,86 @@ function defaultParcatsGenes(genes: GeneSchema[]): string[] {
   return chosen.length > 0 ? chosen : genes.slice(0, 4).map((g) => g.name);
 }
 
-interface AxisLayout {
+interface ParcatsSegment {
+  label: string;
+  y: number;
+  height: number;
+  centerY: number;
+  count: number;
+  /** Mean fitness of individuals in this category on this axis (the tint). */
+  avg: number;
+}
+interface ParcatsAxis {
   gene: GeneSchema;
   x: number;
-  segments: Map<string, { y: number; height: number; count: number }>;
+  segments: Map<string, ParcatsSegment>;
+}
+interface ParcatsPoint {
+  x: number;
+  y: number;
+  gene: string;
+  label: string;
+}
+interface ParcatsPath {
+  id: string;
+  fitness: number;
+  pts: ParcatsPoint[];
+  /** Pre-built smooth cubic path so hover re-renders don't recompute it. */
+  d: string;
+}
+
+/** Smooth horizontal cubic spline through the station centers (Sankey-like). */
+function ribbonPath(pts: ParcatsPoint[]): string {
+  if (pts.length === 0) return "";
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 1; i < pts.length; i += 1) {
+    const a = pts[i - 1];
+    const b = pts[i];
+    const cx = (a.x + b.x) / 2;
+    d += ` C ${cx} ${a.y} ${cx} ${b.y} ${b.x} ${b.y}`;
+  }
+  return d;
+}
+
+function pathPassesKey(p: ParcatsPath, key: string): boolean {
+  return p.pts.some((pt) => `${pt.gene}:${pt.label}` === key);
+}
+
+function truncateLabel(label: string, max = 18): string {
+  return label.length > max ? `${label.slice(0, max - 1)}…` : label;
+}
+
+function ParcatsLegend({ hasChampion }: { hasChampion: boolean }) {
+  const gradient = `linear-gradient(90deg, ${fitnessColor(0)}, ${fitnessColor(
+    0.25,
+  )}, ${fitnessColor(0.5)}, ${fitnessColor(0.75)}, ${fitnessColor(1)})`;
+  return (
+    <div className="parcats__legend">
+      <div className="parcats__legend-item">
+        <span className="parcats__legend-title">
+          Fitness — ribbon &amp; station color
+        </span>
+        <div className="parcats__legend-fit">
+          <span className="parcats__legend-bar" style={{ background: gradient }} />
+          <span className="parcats__legend-ticks">
+            <span>0.0</span>
+            <span>0.5</span>
+            <span>1.0</span>
+          </span>
+        </div>
+      </div>
+      {hasChampion && (
+        <div className="parcats__legend-item">
+          <span className="parcats__legend-champ" />
+          <span className="muted">champion run 👑 (highest fitness)</span>
+        </div>
+      )}
+      <div className="parcats__legend-item">
+        <span className="parcats__legend-seg" />
+        <span className="muted">station height = share of runs</span>
+      </div>
+    </div>
+  );
 }
 
 function ParcatsView({
@@ -850,167 +1232,426 @@ function ParcatsView({
   );
   const [hovered, setHovered] = useState<string | null>(null);
 
-  const axisGenes = selected
-    .map((name) => geneMap.get(name))
-    .filter((g): g is GeneSchema => g != null);
+  // Memoize so the heavy layout only recomputes when the axes or data change.
+  const axisGenes = useMemo(
+    () =>
+      selected
+        .map((name) => geneMap.get(name))
+        .filter((g): g is GeneSchema => g != null),
+    [selected, geneMap],
+  );
 
   const layout = useMemo(() => {
     const counted = pop.counted;
+    const total = counted.length || 1;
     const plotHeight = PARCATS_HEIGHT - PARCATS_TOP - PARCATS_BOTTOM;
-    const axes: AxisLayout[] = axisGenes.map((gene, axisIdx) => {
-      const labelCounts = new Map<string, number>();
+
+    const axes: ParcatsAxis[] = axisGenes.map((gene, axisIdx) => {
+      // Per category: how many runs pass through, and their mean fitness.
+      const agg = new Map<string, { count: number; sum: number }>();
       for (const ind of counted) {
         const label = categoryLabel(ind, gene);
-        labelCounts.set(label, (labelCounts.get(label) ?? 0) + 1);
+        const a = agg.get(label) ?? { count: 0, sum: 0 };
+        a.count += 1;
+        a.sum += ind.fitness as number;
+        agg.set(label, a);
       }
-      const labels = Array.from(labelCounts.keys()).sort();
-      const total = counted.length || 1;
+      const labels = Array.from(agg.keys()).sort();
       const totalGap = SEGMENT_GAP * Math.max(0, labels.length - 1);
       const usable = Math.max(10, plotHeight - totalGap);
-      const segments = new Map<
-        string,
-        { y: number; height: number; count: number }
-      >();
+      const segments = new Map<string, ParcatsSegment>();
       let cursor = PARCATS_TOP;
       for (const label of labels) {
-        const count = labelCounts.get(label) ?? 0;
-        const height = Math.max(2, (count / total) * usable);
-        segments.set(label, { y: cursor, height, count });
+        const { count, sum } = agg.get(label)!;
+        const height = Math.max(3, (count / total) * usable);
+        segments.set(label, {
+          label,
+          y: cursor,
+          height,
+          centerY: cursor + height / 2,
+          count,
+          avg: count ? sum / count : 0,
+        });
         cursor += height + SEGMENT_GAP;
       }
       return {
         gene,
-        x: 60 + axisIdx * PARCATS_WIDTH_PER_AXIS,
+        x: PARCATS_LEFT + axisIdx * PARCATS_WIDTH_PER_AXIS,
         segments,
       };
     });
 
-    // Build a polyline per individual through each axis segment center.
-    const paths = counted.map((ind) => {
-      const pts = axes.map((axis) => {
+    const segByKey = new Map<string, { x: number; seg: ParcatsSegment }>();
+    for (const axis of axes) {
+      for (const seg of axis.segments.values()) {
+        segByKey.set(`${axis.gene.name}:${seg.label}`, { x: axis.x, seg });
+      }
+    }
+
+    const paths: ParcatsPath[] = counted.map((ind) => {
+      const pts: ParcatsPoint[] = axes.map((axis) => {
         const label = categoryLabel(ind, axis.gene);
         const seg = axis.segments.get(label);
-        const y = seg ? seg.y + seg.height / 2 : PARCATS_TOP;
-        return { x: axis.x, y, label, gene: axis.gene.name };
+        return {
+          x: axis.x,
+          y: seg ? seg.centerY : PARCATS_TOP,
+          gene: axis.gene.name,
+          label,
+        };
       });
       return {
         id: String(ind.individual_id),
         fitness: ind.fitness as number,
         pts,
+        d: ribbonPath(pts),
       };
     });
 
-    return { axes, paths };
+    // Champion = the single highest-fitness run (must score > 0 to highlight).
+    let champion: ParcatsPath | null = null;
+    for (const p of paths) {
+      if (p.fitness > 0 && (!champion || p.fitness > champion.fitness)) {
+        champion = p;
+      }
+    }
+
+    // Hottest station = highest mean fitness among well-populated categories.
+    // A minimum count keeps a lone lucky run from crowning a category.
+    const minSeg = Math.max(2, Math.ceil(total * 0.03));
+    let hottest: { gene: string; seg: ParcatsSegment } | null = null;
+    for (const axis of axes) {
+      for (const seg of axis.segments.values()) {
+        if (seg.count < minSeg) continue;
+        if (!hottest || seg.avg > hottest.seg.avg) {
+          hottest = { gene: axis.gene.name, seg };
+        }
+      }
+    }
+
+    return { axes, paths, segByKey, champion, hottest, total };
   }, [axisGenes, pop.counted]);
 
-  const svgWidth =
-    60 + Math.max(1, axisGenes.length) * PARCATS_WIDTH_PER_AXIS + 20;
-
-  const toggleGene = (name: string) => {
+  const toggleGene = (name: string) =>
     setSelected((prev) =>
       prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name],
     );
-  };
+
+  const { champion, hottest, total } = layout;
+  const svgWidth =
+    PARCATS_LEFT + Math.max(1, axisGenes.length) * PARCATS_WIDTH_PER_AXIS + 24;
+  const hoveredSeg = hovered ? layout.segByKey.get(hovered) : undefined;
+  const bestFitness = champion?.fitness ?? 0;
+  // The champion run stays emphasized unless a hovered station excludes it.
+  const showChamp =
+    champion != null && (hovered == null || pathPassesKey(champion, hovered));
 
   return (
-    <div className="card">
-      <h2 className="alleles__title">Parallel categories</h2>
-      <p className="muted alleles__subtitle">
-        Each line is one individual, colored by fitness. Where high-fitness
-        lines bundle through the same categories, that combination is a winning
-        path.
-      </p>
-
-      <div className="parcats__axis-picker">
-        {genes.map((gene) => (
-          <label key={gene.name} className="parcats__check">
-            <input
-              type="checkbox"
-              checked={selected.includes(gene.name)}
-              onChange={() => toggleGene(gene.name)}
-            />
-            <code>{gene.name}</code>
-          </label>
-        ))}
+    <div className="parcats">
+      <div className="parcats__head">
+        <div className="parcats__title">
+          <span className="parcats__icon" aria-hidden>
+            🧭
+          </span>
+          <div>
+            <h2>Parallel categories</h2>
+            <p className="parcats__sub">
+              Every individual is a <strong>run</strong> flowing left→right
+              through its genes; ribbon color is its fitness and each station is
+              tinted by the average fitness of the runs through it. Hover a
+              station to trace its runs.
+            </p>
+          </div>
+        </div>
       </div>
 
+      <div className="parcats__kpis">
+        <StatTile value={total} label="runs" />
+        <StatTile value={axisGenes.length} label="checkpoints" />
+        {hottest ? (
+          <div className="parcats__call">
+            <span className="parcats__call-label">
+              <span aria-hidden>🔥</span> hottest station
+            </span>
+            <span className="parcats__call-name">
+              <code>{hottest.gene}</code> = {hottest.seg.label}
+            </span>
+            <span
+              className="fitness-chip fitness-chip--sm"
+              style={{ background: fitnessColor(hottest.seg.avg) }}
+            >
+              {hottest.seg.avg.toFixed(2)}
+            </span>
+          </div>
+        ) : (
+          <div className="parcats__call parcats__call--flat">
+            <span className="parcats__call-label">
+              <span aria-hidden>🔥</span> hottest station
+            </span>
+            <span className="muted">not enough data</span>
+          </div>
+        )}
+        {champion && (
+          <div className="parcats__call parcats__call--champ">
+            <span className="parcats__call-label">
+              <span aria-hidden>👑</span> champion run
+            </span>
+            <span className="parcats__call-name">
+              <code>{champion.id}</code>
+            </span>
+            <span
+              className="fitness-chip fitness-chip--sm"
+              style={{ background: fitnessColor(bestFitness) }}
+            >
+              {bestFitness.toFixed(2)}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div className="parcats__picker">
+        <span className="parcats__picker-label">Axes</span>
+        {genes.map((gene) => {
+          const active = selected.includes(gene.name);
+          return (
+            <button
+              key={gene.name}
+              type="button"
+              className={`parcats__chip${active ? " parcats__chip--on" : ""}`}
+              aria-pressed={active}
+              onClick={() => toggleGene(gene.name)}
+            >
+              {gene.name}
+            </button>
+          );
+        })}
+      </div>
+
+      {champion && axisGenes.length >= 2 && (
+        <div className="parcats__loadout">
+          <span className="parcats__loadout-label">
+            <span aria-hidden>👑</span> winning build
+          </span>
+          <div className="parcats__loadout-chips">
+            {champion.pts.map((pt) => (
+              <span
+                key={pt.gene}
+                className="parcats__loadout-chip"
+                title={`${pt.gene} = ${pt.label}`}
+              >
+                <span className="parcats__loadout-gene">{pt.gene}</span>
+                <span className="parcats__loadout-val">{pt.label}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {axisGenes.length < 2 ? (
-        <p className="muted">Select at least two genes as axes.</p>
+        <div className="parcats__empty">
+          <span className="parcats__empty-icon" aria-hidden>
+            🧭
+          </span>
+          <p className="parcats__empty-title">Pick at least two axes</p>
+          <p className="muted">
+            Toggle genes above to chart how runs flow between their categories.
+          </p>
+        </div>
       ) : (
         <div className="parcats__scroll">
-          <svg
-            width={svgWidth}
-            height={PARCATS_HEIGHT}
-            className="parcats__svg"
-            role="img"
-            aria-label="Parallel categories of genome alleles by fitness"
+          <div
+            className="parcats__canvas"
+            style={{ width: svgWidth, height: PARCATS_HEIGHT }}
           >
-            {/* Polylines (individuals) */}
-            <g>
-              {layout.paths.map((path) => {
-                const isHot =
-                  hovered != null &&
-                  path.pts.some((p) => `${p.gene}:${p.label}` === hovered);
-                const d = path.pts
-                  .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
-                  .join(" ");
-                return (
-                  <path
-                    key={path.id}
-                    d={d}
-                    fill="none"
-                    stroke={fitnessColor(path.fitness)}
-                    strokeWidth={isHot ? 2.4 : 1.2}
-                    strokeOpacity={
-                      hovered == null ? 0.28 : isHot ? 0.95 : 0.06
-                    }
-                  />
-                );
-              })}
-            </g>
-
-            {/* Axis segments + labels */}
-            {layout.axes.map((axis) => (
-              <g key={axis.gene.name}>
-                <text
-                  x={axis.x}
-                  y={16}
-                  textAnchor="middle"
-                  className="parcats__axis-label"
+            <svg
+              className="parcats__svg"
+              width={svgWidth}
+              height={PARCATS_HEIGHT}
+              viewBox={`0 0 ${svgWidth} ${PARCATS_HEIGHT}`}
+              role="img"
+              aria-label="Parallel categories of genome alleles by fitness"
+            >
+              <defs>
+                <filter
+                  id="parcats-glow"
+                  x="-50%"
+                  y="-50%"
+                  width="200%"
+                  height="200%"
                 >
-                  {axis.gene.name}
-                </text>
-                {Array.from(axis.segments.entries()).map(([label, seg]) => {
-                  const key = `${axis.gene.name}:${label}`;
+                  <feGaussianBlur stdDeviation="3.2" result="b" />
+                  <feMerge>
+                    <feMergeNode in="b" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              {/* axis guide rails */}
+              <g className="parcats__rails">
+                {layout.axes.map((axis) => (
+                  <line
+                    key={axis.gene.name}
+                    className="parcats__rail"
+                    x1={axis.x}
+                    x2={axis.x}
+                    y1={PARCATS_TOP - 6}
+                    y2={PARCATS_HEIGHT - PARCATS_BOTTOM + 6}
+                  />
+                ))}
+              </g>
+
+              {/* ribbons (one per run) */}
+              <g className="parcats__ribbons">
+                {layout.paths.map((p) => {
+                  const isHot = hovered != null && pathPassesKey(p, hovered);
                   return (
-                    <g
-                      key={key}
-                      onMouseEnter={() => setHovered(key)}
-                      onMouseLeave={() => setHovered(null)}
-                    >
-                      <rect
-                        x={axis.x - SEGMENT_W / 2}
-                        y={seg.y}
-                        width={SEGMENT_W}
-                        height={seg.height}
-                        className="parcats__segment"
-                      />
-                      <text
-                        x={axis.x + SEGMENT_W / 2 + 4}
-                        y={seg.y + seg.height / 2}
-                        dominantBaseline="central"
-                        className="parcats__segment-label"
-                      >
-                        {label} ({seg.count})
-                      </text>
-                    </g>
+                    <path
+                      key={p.id}
+                      d={p.d}
+                      fill="none"
+                      stroke={fitnessColor(p.fitness)}
+                      strokeWidth={isHot ? 2.4 : 1.1}
+                      strokeOpacity={hovered == null ? 0.24 : isHot ? 0.9 : 0.05}
+                      strokeLinecap="round"
+                    />
                   );
                 })}
               </g>
-            ))}
-          </svg>
+
+              {/* champion run overlay */}
+              {showChamp && champion && (
+                <g
+                  className="parcats__champ"
+                  style={{ color: fitnessColor(bestFitness) }}
+                >
+                  <path
+                    d={champion.d}
+                    fill="none"
+                    className="parcats__champ-glow"
+                    filter="url(#parcats-glow)"
+                  />
+                  <path
+                    d={champion.d}
+                    fill="none"
+                    className="parcats__champ-line"
+                  />
+                  {hovered == null && (
+                    <path
+                      d={champion.d}
+                      fill="none"
+                      className="parcats__champ-flow"
+                    />
+                  )}
+                </g>
+              )}
+
+              {/* stations + checkpoint headers */}
+              {layout.axes.map((axis, axisIdx) => {
+                const pillW = Math.min(
+                  PARCATS_WIDTH_PER_AXIS - 18,
+                  axis.gene.name.length * 7.2 + 22,
+                );
+                return (
+                  <g key={axis.gene.name}>
+                    <g transform={`translate(${axis.x}, 0)`}>
+                      <rect
+                        className="parcats__pill"
+                        x={-pillW / 2}
+                        y={6}
+                        width={pillW}
+                        height={20}
+                        rx={10}
+                      />
+                      <text
+                        className="parcats__pill-text"
+                        x={0}
+                        y={16}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                      >
+                        {axis.gene.name}
+                      </text>
+                      <text
+                        className="parcats__pill-sub"
+                        x={0}
+                        y={37}
+                        textAnchor="middle"
+                      >
+                        {axis.segments.size} categories
+                      </text>
+                    </g>
+                    {Array.from(axis.segments.values()).map((seg) => {
+                      const key = `${axis.gene.name}:${seg.label}`;
+                      const active = hovered === key;
+                      const hitH = Math.max(seg.height, 16);
+                      return (
+                        <g
+                          key={key}
+                          className={`parcats__seg${active ? " parcats__seg--active" : ""}`}
+                          style={{ animationDelay: `${Math.min(axisIdx, 8) * 55}ms` }}
+                          onMouseEnter={() => setHovered(key)}
+                          onMouseLeave={() =>
+                            setHovered((h) => (h === key ? null : h))
+                          }
+                        >
+                          <rect
+                            className="parcats__seg-hit"
+                            x={axis.x - SEGMENT_W / 2 - 2}
+                            y={seg.centerY - hitH / 2}
+                            width={156}
+                            height={hitH}
+                          />
+                          <rect
+                            className="parcats__seg-rect"
+                            x={axis.x - SEGMENT_W / 2}
+                            y={seg.y}
+                            width={SEGMENT_W}
+                            height={seg.height}
+                            rx={Math.min(SEGMENT_W / 2, seg.height / 2)}
+                            fill={fitnessColor(seg.avg)}
+                          />
+                          <text
+                            className="parcats__seg-label"
+                            x={axis.x + SEGMENT_W / 2 + 8}
+                            y={seg.centerY}
+                            dominantBaseline="central"
+                          >
+                            {truncateLabel(seg.label)}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </g>
+                );
+              })}
+            </svg>
+
+            {hoveredSeg && (
+              <div
+                className="parcats__tip"
+                style={{ left: hoveredSeg.x, top: hoveredSeg.seg.centerY }}
+              >
+                <div className="parcats__tip-label">{hoveredSeg.seg.label}</div>
+                <div className="parcats__tip-row">
+                  <span
+                    className="fitness-chip fitness-chip--sm"
+                    style={{ background: fitnessColor(hoveredSeg.seg.avg) }}
+                  >
+                    {hoveredSeg.seg.avg.toFixed(2)}
+                  </span>
+                  <span className="muted">avg fitness</span>
+                </div>
+                <div className="parcats__tip-meta">
+                  {hoveredSeg.seg.count} runs ·{" "}
+                  {Math.round((hoveredSeg.seg.count / total) * 100)}% of axis
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
+
+      <ParcatsLegend hasChampion={champion != null} />
     </div>
   );
 }

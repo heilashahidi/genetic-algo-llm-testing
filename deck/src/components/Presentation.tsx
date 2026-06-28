@@ -79,7 +79,7 @@ export const Presentation: React.FC<PresentationProps> = ({ children }) => {
 
       <div
         style={{ transition: "opacity 300ms ease-in-out" }}
-        className={`absolute inset-0 pointer-events-none z-50 flex flex-col justify-end p-[2.5%] ${controlsVisible ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-x-0 bottom-0 pointer-events-none z-50 flex flex-col justify-end px-[2.4%] pb-[16px] ${controlsVisible ? "opacity-100" : "opacity-0"}`}
       >
         <div className="w-full flex items-center justify-between pointer-events-auto px-[2.2%] py-[0.9%] rounded-full bg-black/25 backdrop-blur-md border border-white/10 max-w-[95vw] mx-auto">
           <div className="text-white/55 mono" style={{ fontSize: "12px", fontVariantNumeric: "tabular-nums" }}>

@@ -18,7 +18,7 @@ interface ShellProps {
 
 // Transparent slide frame — the shared LivingBackground shows through from behind.
 export const SlideShell: React.FC<ShellProps> = ({ page, children, className = "", bare }) => (
-  <div className="relative w-full h-full text-white overflow-hidden flex flex-col px-[5.2%] py-[3.6%]">
+  <div className="relative w-full h-full text-white overflow-hidden flex flex-col px-[5.2%] pt-[3.2%] pb-[clamp(66px,8vh,96px)]">
     {!bare && (
       <header className="relative z-10 w-full flex justify-between items-center">
         <Logo />

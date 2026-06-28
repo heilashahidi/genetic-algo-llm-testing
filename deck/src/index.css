@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background-color: #05070d;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+/* Liquid glass card */
+.liquid-glass {
+  backdrop-filter: blur(22px) saturate(1.35);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
+  background: linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.035) 100%);
+  border: 1px solid rgba(255,255,255,0.12);
+  position: relative;
+}
+.liquid-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.28), transparent 60%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+/* darkening + tint scrim over background video so white text stays legible */
+.scrim {
+  background:
+    radial-gradient(120% 90% at 80% -10%, rgba(47,95,196,0.25), transparent 55%),
+    linear-gradient(180deg, rgba(5,7,13,0.55) 0%, rgba(5,7,13,0.78) 100%);
+}
+
+/* staggered slide-content reveal */
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 0.6s cubic-bezier(0.2,0.7,0.2,1) both; }
+
+@keyframes orbit { to { transform: rotate(360deg); } }
+.orbit { animation: orbit 8s linear infinite; transform-origin: 50% 50%; }
+
+::selection { background: rgba(127,176,255,0.3); }

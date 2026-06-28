@@ -216,8 +216,8 @@ const LineageChart: React.FC = () => {
           );
         })
       )}
-      <text x={x(0)} y={H - 4} textAnchor="middle" fill="rgba(255,255,255,0.4)" style={{ fontSize: 10, fontFamily: "monospace" }}>seed</text>
-      <text x={x(cols - 1)} y={H - 4} textAnchor="middle" fill="rgba(255,255,255,0.4)" style={{ fontSize: 10, fontFamily: "monospace" }}>gen 14</text>
+      <text x={x(0)} y={H - 4} textAnchor="start" fill="rgba(255,255,255,0.4)" style={{ fontSize: 10, fontFamily: "monospace" }}>seed</text>
+      <text x={x(cols - 1)} y={H - 4} textAnchor="end" fill="rgba(255,255,255,0.4)" style={{ fontSize: 10, fontFamily: "monospace" }}>gen 14</text>
     </svg>
   );
 };

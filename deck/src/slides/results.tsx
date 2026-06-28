@@ -1,25 +1,68 @@
 import React from "react";
 import { SlideShell, Kicker, Title, Glass } from "../components/SlideShell";
-import { Arrow, Shot } from "./ui";
+import { Arrow } from "./ui";
+import { MODELS, CLIMB, ORIGIN, STRATEGY, BASE_ASR } from "../runData";
+
+const ClimbChart: React.FC = () => {
+  const W = 460, H = 250, padL = 30, padR = 8, padT = 12, padB = 24;
+  const pw = W - padL - padR, ph = H - padT - padB;
+  const n = CLIMB[0].series.length;
+  const x = (i: number) => padL + (pw * i) / (n - 1);
+  const y = (v: number) => padT + ph * (1 - v / 100);
+  const colorOf = (label: string, headline?: boolean) =>
+    headline ? "#7fb0ff" : label.startsWith("mistral") ? "rgba(255,196,136,0.55)" : "rgba(255,255,255,0.28)";
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ overflow: "visible" }}>
+      {[0, 25, 50, 75, 100].map((g) => (
+        <g key={g}>
+          <line x1={padL} x2={W - padR} y1={y(g)} y2={y(g)} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
+          <text x={padL - 6} y={y(g) + 4} textAnchor="end" fill="rgba(255,255,255,0.4)" style={{ fontSize: 11, fontFamily: "monospace" }}>{g}</text>
+        </g>
+      ))}
+      <text x={x(0)} y={H - 8} textAnchor="middle" fill="rgba(255,255,255,0.4)" style={{ fontSize: 11, fontFamily: "monospace" }}>seed</text>
+      <text x={x(n - 1)} y={H - 8} textAnchor="middle" fill="rgba(255,255,255,0.4)" style={{ fontSize: 11, fontFamily: "monospace" }}>gen {n - 1}</text>
+      {CLIMB.map((m) => {
+        const c = colorOf(m.label, m.headline);
+        const pts = m.series.map((v, i) => `${x(i)},${y(v)}`).join(" ");
+        return (
+          <g key={m.label}>
+            <polyline points={pts} fill="none" stroke={c} strokeWidth={m.headline ? 2.6 : 1.5} strokeLinejoin="round" strokeLinecap="round" />
+            {m.headline && m.series.map((v, i) => <circle key={i} cx={x(i)} cy={y(v)} r={2.4} fill={c} />)}
+            <text x={x(n - 1) + 6} y={y(m.series[n - 1]) + 4} fill={c} style={{ fontSize: 11, fontWeight: m.headline ? 700 : 400, fontFamily: "monospace" }}>{m.label.split(":")[0]}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+};
 
 export const HonestTest: React.FC = () => (
   <SlideShell page="Page 11">
     <div className="mt-[2%]">
       <Kicker num="11" sec="The Honest Test" />
-      <Title className="mt-[1.4%]">GA vs. random at <span className="text-accent">equal budget</span> — and evolution wins</Title>
+      <Title className="mt-[1.4%]">Evolution beats the <span className="text-accent">seed it grew from</span> — on live models</Title>
     </div>
-    <div className="grid grid-cols-2 gap-[2.6%] flex-grow mt-[2.6%] items-center">
+    <div className="grid gap-[2.6%] flex-grow mt-[2.4%] items-center" style={{ gridTemplateColumns: "1fr 1.25fr" }}>
       <div className="rise">
-        <div className="mono text-white/45 tracking-[0.1em] mb-[10px]" style={{ fontSize: 13.8 }}>HEADLINE RESULT · 720 ATTEMPTS EACH</div>
-        <Shot src="verdict.png" alt="Evolution beat random search: genetic 13% jailbreak rate vs random 0%" className="w-full" />
+        <div className="mono text-white/45 tracking-[0.1em] mb-[12px]" style={{ fontSize: 13.8 }}>SUCCESS RATE BY GENOME ORIGIN</div>
+        {ORIGIN.map((o, i) => (
+          <div key={o.label} className="flex items-center gap-[12px] mb-[10px]">
+            <span className="mono text-white/70" style={{ width: 92, fontSize: "clamp(12px,1.3vw,16.8px)" }}>{o.label}</span>
+            <div className="flex-1 h-[14px] rounded-full bg-white/10 overflow-hidden">
+              <div className="h-full rounded-full" style={{ width: `${o.asr}%`, background: o.label === "seed" ? "linear-gradient(90deg,#c75f17,#e09a5a)" : "linear-gradient(90deg,#3a6bd6,#7fb0ff)", transition: "width 1s", transitionDelay: `${i * 0.1}s` }} />
+            </div>
+            <span className="mono font-bold" style={{ width: 52, fontSize: "clamp(12px,1.3vw,16.8px)", color: o.label === "seed" ? "#ffc488" : "#7fb0ff" }}>{o.asr}%</span>
+          </div>
+        ))}
+        <p className="text-white/55 mt-[3%]" style={{ fontSize: "clamp(12px,1.3vw,16.8px)" }}>Real seed attacks leak the secret <span className="text-warm font-semibold">45%</span> of the time; the elites the GA breeds reach <span className="text-accent font-semibold">99.5%</span>.</p>
       </div>
       <div className="rise" style={{ animationDelay: "0.15s" }}>
-        <div className="mono text-white/45 tracking-[0.1em] mb-[10px]" style={{ fontSize: 13.8 }}>JAILBREAK RATE PER GENERATION</div>
-        <Shot src="ga-vs-random.png" alt="Jailbreak rate per generation: the genetic algorithm climbs while random search stays at zero" className="w-full" />
+        <div className="mono text-white/45 tracking-[0.1em] mb-[8px]" style={{ fontSize: 13.8 }}>SUCCESS RATE PER GENERATION · 5 LIVE MODELS</div>
+        <ClimbChart />
       </div>
     </div>
-    <p className="text-white/70 rise mt-[2.2%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.3s" }}>
-      <Arrow>→ </Arrow>Real run on the deterministic synthetic policy (reveal a secret token), <span className="text-white font-semibold">equal budget &amp; seed 42</span>: genetic search broke it <span className="text-accent font-semibold">92×</span> (first at eval 339); random search <span className="text-warm font-semibold">never did</span>.
+    <p className="text-white/70 rise mt-[1.6%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.3s" }}>
+      <Arrow>→ </Arrow>8 GA runs · 2,500 genomes · live Ollama, no synthetic stand-in. On Llama-3.1 the GA climbed from a <span className="text-warm font-semibold">10%</span> seed population to <span className="text-accent font-semibold">95%</span> — the genome is finding attacks the seed library never held.
     </p>
   </SlideShell>
 );
@@ -38,8 +81,21 @@ export const Interpret: React.FC = () => {
       </div>
       <div className="grid grid-cols-2 gap-[4%] flex-grow mt-[2%] items-center">
         <div className="rise">
-          <div className="mono text-white/45 tracking-[0.1em] mb-[12px]" style={{ fontSize: 13.8 }}>ALLELE EXPLORER · TRAIT FREQUENCY AMONG WINNING ATTEMPTS</div>
-          <Shot src="allele-explorer.png" alt="Allele Explorer: format=json 19%, persona=auditor 18%, noise_type=encoding_like 18% — bars past the overall-rate baseline raise success" className="w-full" />
+          <div className="mono text-white/45 tracking-[0.1em] mb-[12px]" style={{ fontSize: 13.8 }}>ALLELE EXPLORER · ATTACK SUCCESS BY STRATEGY GENE</div>
+          {STRATEGY.map((s, i) => {
+            const above = s.asr >= BASE_ASR;
+            return (
+              <div key={s.label} className="flex items-center gap-[10px] mb-[8px]">
+                <span className="mono text-white/70 text-right shrink-0" style={{ width: 176, fontSize: "clamp(10px,1.05vw,14px)" }}>{s.label}</span>
+                <div className="flex-1 relative h-[15px] rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${s.asr}%`, background: above ? "linear-gradient(90deg,#3a6bd6,#7fb0ff)" : "linear-gradient(90deg,#8a4a16,#c75f17)", transition: "width 1s", transitionDelay: `${i * 0.08}s` }} />
+                  <div className="absolute top-0 bottom-0" style={{ left: `${BASE_ASR}%`, width: 1.5, background: "rgba(255,255,255,0.55)" }} />
+                </div>
+                <span className="mono font-bold" style={{ width: 40, fontSize: "clamp(11px,1.15vw,15px)", color: above ? "#7fb0ff" : "#ffc488" }}>{s.asr}%</span>
+              </div>
+            );
+          })}
+          <p className="text-white/50 mt-[3%]" style={{ fontSize: "clamp(11px,1.2vw,15px)" }}>White line = <span className="mono">{BASE_ASR}%</span> base rate across all 2,500 genomes. <span className="text-accent">hypothetical_framing</span> clears it; <span className="text-warm">multi_turn</span> and <span className="text-warm">payload_smuggling</span> drag below.</p>
         </div>
         <div className="rise" style={{ animationDelay: "0.15s" }}>
           <div className="mono text-white/45 tracking-[0.1em] mb-[12px]" style={{ fontSize: 13.8 }}>RESEARCH QUESTIONS</div>
@@ -58,47 +114,39 @@ export const Interpret: React.FC = () => {
   );
 };
 
-export const Models: React.FC = () => {
-  const rows: [string, string, string, string, number, string, string, boolean][] = [
-    ["Mistral-7B-Instruct-v0.2", "7B", "26%", "90%", 90, "weakest", "Soft target — validate the GA loop fast", false],
-    ["Llama-3.1-8B-Instruct", "8B", "4%", "40%", 40, "strong", "Headline GA-vs-random comparator", true],
-    ["Qwen2.5-7B-Instruct", "7B", "10%", "60%", 60, "moderate", "Cross-family transfer target", false],
-    ["Gemma-2-9B-it · stretch", "9B", "4%", "35%", 35, "strong", "Hard-target stress test", false],
-  ];
-  return (
-    <SlideShell page="Page 13">
-      <div className="mt-[2%]">
-        <Kicker num="13" sec="Target Models" />
-        <Title className="mt-[1.4%]">Small, local, aligned — an <span className="text-accent">easy → hard</span> gradient</Title>
+export const Models: React.FC = () => (
+  <SlideShell page="Page 13">
+    <div className="mt-[2%]">
+      <Kicker num="13" sec="Target Models" />
+      <Title className="mt-[1.4%]">Five local models — one <span className="text-accent">measured</span> hard → soft gradient</Title>
+    </div>
+    <Glass className="rise p-[2.3%] mt-[2.5%]">
+      <div className="grid items-center" style={{ gridTemplateColumns: "1.9fr 0.5fr 1.1fr 2.4fr", fontSize: "clamp(13.2px,1.4vw,18px)" }}>
+        {["MODEL", "SIZE", "SUSCEPTIBILITY", "MEASURED ATTACK SUCCESS RATE"].map((h) => (
+          <div key={h} className="mono text-white/40 pb-[10px] tracking-[0.06em]" style={{ fontSize: 13.2, borderBottom: "1px solid rgba(255,255,255,0.12)" }}>{h}</div>
+        ))}
+        {MODELS.map((m, i) => (
+          <React.Fragment key={m.label}>
+            <div className="py-[13px] font-semibold mono" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", borderLeft: m.headline ? "3px solid #7fb0ff" : "3px solid transparent", paddingLeft: 12, fontSize: "clamp(13.2px,1.4vw,18px)" }}>
+              {m.label}{m.headline && <span className="ml-[8px] text-accent" style={{ fontSize: 13.2 }}>· headline</span>}
+            </div>
+            <div className="py-[13px] mono" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>{m.size}</div>
+            <div className="py-[13px] text-white/65" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", fontSize: "clamp(12px,1.3vw,16.8px)" }}>{m.band}</div>
+            <div className="py-[13px] flex items-center gap-[12px]" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+              <span className="mono text-warm font-bold" style={{ minWidth: 46 }}>{m.asr}%</span>
+              <div className="flex-1 h-[9px] rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: `${m.asr}%`, background: "linear-gradient(90deg,#c75f17,#ffc488)", transition: "width 1s", transitionDelay: `${i * 0.1}s` }} />
+              </div>
+            </div>
+          </React.Fragment>
+        ))}
       </div>
-      <Glass className="rise p-[2.3%] mt-[2.5%]">
-        <div className="grid items-center" style={{ gridTemplateColumns: "1.7fr 0.5fr 1.7fr 1.7fr", fontSize: "clamp(13.2px,1.4vw,18px)" }}>
-          {["MODEL", "SIZE", "HARMBENCH ASR · MEDIAN / MAX", "ROLE"].map((h) => (
-            <div key={h} className="mono text-white/40 pb-[10px] tracking-[0.06em]" style={{ fontSize: 13.2, borderBottom: "1px solid rgba(255,255,255,0.12)" }}>{h}</div>
-          ))}
-          {rows.map((r, i) => (
-            <React.Fragment key={r[0]}>
-              <div className="py-[13px] font-semibold" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", borderLeft: r[7] ? "3px solid #7fb0ff" : "3px solid transparent", paddingLeft: 12 }}>
-                {r[0]}{r[7] && <span className="mono ml-[8px] text-accent" style={{ fontSize: 13.2 }}>· headline</span>}
-              </div>
-              <div className="py-[13px] mono" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>{r[1]}</div>
-              <div className="py-[13px] flex items-center gap-[10px]" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                <span className="mono" style={{ minWidth: 84 }}><b className="text-white">{r[2]}</b> / <b className="text-warm">&gt;{r[3]}</b></span>
-                <div className="flex-1 h-[9px] rounded-full bg-white/10 overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: `${r[4]}%`, background: "linear-gradient(90deg,#c75f17,#ffc488)", transition: "width 1s", transitionDelay: `${i * 0.1}s` }} />
-                </div>
-              </div>
-              <div className="py-[13px] text-white/55" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", fontSize: "clamp(12px,1.3vw,16.8px)" }}>{r[5]} · {r[6]}</div>
-            </React.Fragment>
-          ))}
-        </div>
-      </Glass>
-      <p className="text-white/70 rise mt-[2%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.3s" }}>
-        <Arrow>→ </Arrow>Every model has a <span className="text-warm font-semibold">&gt;35% reachable max ASR</span> — real headroom to climb. One experiment is 20k–60k calls: vLLM for batch (≈16× Ollama), Ollama for the live demo.
-      </p>
-    </SlideShell>
-  );
-};
+    </Glass>
+    <p className="text-white/70 rise mt-[2%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.3s" }}>
+      <Arrow>→ </Arrow>Real GA runs against live Ollama — <span className="text-white font-semibold">every</span> model leaked the secret, from Gemma at <span className="text-warm font-semibold">53%</span> to Mistral at <span className="text-warm font-semibold">91%</span>. The ordering is the safety gradient; the numbers are ours, not borrowed benchmarks.
+    </p>
+  </SlideShell>
+);
 
 export const Takeaways: React.FC = () => {
   const pillars: [string, string, string][] = [

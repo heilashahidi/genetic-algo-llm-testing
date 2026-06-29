@@ -1041,6 +1041,163 @@ select {
 }
 
 /* ==========================================================================
+   Cracks — the prompts that broke the model (the run's headline output).
+   Semantic success-green spotlight; one card per distinct winning prompt.
+   ========================================================================== */
+.cracks {
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--green);
+  border-radius: var(--radius-card);
+  padding: 22px;
+  margin-bottom: 20px;
+  background: radial-gradient(
+      120% 90% at 0% 0%,
+      color-mix(in srgb, var(--green) 12%, transparent),
+      transparent 64%
+    ),
+    var(--card);
+  animation: riseIn 0.5s var(--ease) both;
+}
+.cracks__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.cracks__title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.cracks__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: var(--green);
+}
+.cracks__title h2 {
+  margin: 0;
+}
+.cracks__sub {
+  margin: 3px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  max-width: 60ch;
+}
+.cracks__count {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+.cracks__count-num {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--green);
+  line-height: 1.05;
+}
+.cracks__count-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-2);
+}
+.cracks__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.cracks__more {
+  margin: 14px 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+/* one distinct crack */
+.crack {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 14px;
+  background: var(--card);
+  animation: riseIn 0.4s var(--ease) both;
+}
+.crack__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.crack__rank {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-2);
+}
+.crack__tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.crack__id {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.crack__copy {
+  margin-left: auto;
+}
+.crack__prompt {
+  margin: 0;
+}
+.crack__nostore {
+  margin: 0;
+  font-size: 0.85rem;
+}
+.crack__build {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.crack__build-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-2);
+  margin-right: 2px;
+}
+.crack__chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 2px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-2);
+}
+.crack__chip-gene {
+  color: var(--muted-2);
+}
+.crack__resp {
+  margin-top: 12px;
+}
+
+/* ==========================================================================
    Shared KPI tile (StatTile) — flat hairline, mono label
    ========================================================================== */
 .kpi {

@@ -22,6 +22,7 @@ import {
 import { AlleleExplorer } from "../components/AlleleExplorer";
 import { StatTile } from "../components/StatTile";
 import { ModelTag } from "../components/ModelTag";
+import { CracksPanel } from "../components/CracksPanel";
 import { useCountUp } from "../useCountUp";
 
 type ViewTab = "tree" | "table" | "alleles";
@@ -339,6 +340,8 @@ export function RunDetailPage() {
               <strong>Run error:</strong> {run.error}
             </div>
           )}
+
+          <CracksPanel individuals={allIndividuals} />
 
           <FitnessCharts data={generations} />
 

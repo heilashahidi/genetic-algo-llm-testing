@@ -103,7 +103,7 @@ export const GenoPheno: React.FC = () => {
               <span key={i} style={{
                 background: !rendered || p.g == null ? "transparent" : hot == null ? `rgba(${rgb},0.12)` : active ? `rgba(${rgb},0.42)` : `rgba(${rgb},0.05)`,
                 boxShadow: active ? `0 0 0 1.5px rgba(${rgb},0.6)` : "none",
-                borderRadius: 4, padding: p.g != null ? "1px 3px" : 0, fontWeight: p.g != null ? (active ? 700 : 600) : 400,
+                borderRadius: 4, padding: p.g != null ? "1px 3px" : 0, fontWeight: p.g != null ? 600 : 400,
                 color: p.g == null ? "rgba(255,255,255,0.85)" : ch === "per" ? (active ? "#ffe9cf" : "#ffd9a8") : (active ? "#e3edff" : "#bcd3ff"),
               }}>{p.t}</span>
             );})}”

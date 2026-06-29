@@ -205,7 +205,7 @@ export const Takeaways: React.FC = () => {
   const results: [string, string, React.ReactNode][] = [
     ["5 / 5", "Every model leaked", <>From <span className="text-warm font-semibold">53%</span> (Gemma) to <span className="text-warm font-semibold">91%</span> (Mistral) attack success on live Ollama: the whole hard→soft gradient broke.</>],
     ["45% → 99.5%", "Evolution beats its seed", <>Real seed attacks leak <span className="text-warm font-semibold">45%</span> of the time; the elites the GA breeds reach <span className="text-accent font-semibold">99.5%</span>. On Llama-3.1 a 10% seed climbed to a <span className="text-accent font-semibold">95%</span> peak.</>],
-    ["83% vs 45%", "Traits are legible", <><span className="text-accent">hypothetical_framing</span> clears the 76% base rate; <span className="text-warm">multi_turn</span> drags below. Every win traces gene by gene.</>],
+    ["83% vs 45%", "Traits are legible", <>Different strategies, very different odds: <span className="text-accent">hypothetical framing</span> beats the 76% average, while <span className="text-warm">multi-turn</span> falls well short. Every win points back to the genes behind it.</>],
   ];
   return (
     <SlideShell page="Page 18">

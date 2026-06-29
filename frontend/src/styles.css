@@ -652,6 +652,32 @@ legend {
   color: var(--ink);
 }
 
+/* target model — a crosshair-marked mono tag, instantly scannable per row */
+.model-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 3px 11px 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.model-tag__icon {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+.model-tag--unknown {
+  border-style: dashed;
+  color: var(--muted-2);
+}
+
 /* ==========================================================================
    Status badges (semantic pills with a status dot)
    ========================================================================== */
@@ -825,45 +851,55 @@ legend {
   color: var(--ink-2);
 }
 
-.field input[type="text"],
-.field input[type="number"],
-.field select,
-.field textarea {
+/* Form controls — styled globally (not only inside .field) so every text box
+   is cohesive, including ones rendered bare (e.g. the per-allele prompts).
+   Fields read as inset wells: the canvas (deepest) layer + a hairline border,
+   with an accent border + ring on focus. */
+textarea,
+input[type="text"],
+input[type="number"],
+input[type="search"],
+select {
   padding: 9px 11px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   font: inherit;
   font-size: 0.88rem;
-  background: var(--card);
+  background-color: var(--canvas);
   color: var(--ink);
   transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
-.field input::placeholder,
-.field textarea::placeholder {
+textarea::placeholder,
+input::placeholder {
   color: var(--muted-2);
 }
-.field input:hover:not(:focus),
-.field select:hover:not(:focus),
-.field textarea:hover:not(:focus) {
+textarea:hover:not(:focus),
+input[type="text"]:hover:not(:focus),
+input[type="number"]:hover:not(:focus),
+input[type="search"]:hover:not(:focus),
+select:hover:not(:focus) {
   border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
 }
-.field input:focus,
-.field select:focus,
-.field textarea:focus {
+textarea:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+select:focus {
   outline: none;
   border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
-.field textarea {
+textarea {
+  width: 100%;
   font-family: var(--font-mono);
   font-size: 0.82rem;
   line-height: 1.55;
   resize: vertical;
 }
-.field select {
+select {
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b6e76' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   padding-right: 32px;
@@ -973,7 +1009,9 @@ legend {
 .meta-grid > div {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 6px;
+  min-width: 0;
 }
 .meta-label {
   font-family: var(--font-mono);
@@ -1300,15 +1338,15 @@ legend {
 }
 
 .json-block {
-  background: #0e0f15;
-  color: #e6e8ee;
+  background: var(--canvas);
+  color: var(--ink);
   padding: 16px;
   border-radius: var(--radius-md);
   overflow: auto;
   font-size: 0.8rem;
   line-height: 1.55;
   margin: 0;
-  border: 1px solid rgb(255 255 255 / 0.06);
+  border: 1px solid var(--line);
 }
 
 /* ==========================================================================
@@ -1475,8 +1513,8 @@ legend {
 }
 
 .scroll-block {
-  background: #0e0f15;
-  color: #e6e8ee;
+  background: var(--canvas);
+  color: var(--ink);
   padding: 14px;
   border-radius: var(--radius-md);
   overflow: auto;
@@ -1487,7 +1525,7 @@ legend {
   white-space: pre-wrap;
   word-break: break-word;
   margin: 0;
-  border: 1px solid rgb(255 255 255 / 0.06);
+  border: 1px solid var(--line);
 }
 .scroll-block--short {
   max-height: 140px;
@@ -3218,21 +3256,73 @@ legend {
 /* ==========================================================================
    Genome (schema) editor
    ========================================================================== */
+/* overview hero — context note + headline "design space" stat */
+.genome-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 20px 22px;
+  margin-bottom: 26px;
+  background: var(--card);
+  animation: riseIn 0.5s var(--ease) both;
+}
+.genome-hero__sub {
+  margin: 0;
+  max-width: 54ch;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.genome-hero__kpis {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+/* the genome's headline figure — accent spotlight, like the other heroes */
+.kpi--hero {
+  border-left: 2px solid var(--accent);
+  background: radial-gradient(
+      120% 100% at 0% 0%,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      transparent 70%
+    ),
+    var(--card);
+}
+.kpi--hero .kpi__num {
+  color: var(--accent);
+}
+
 .gene-group {
   margin-bottom: 32px;
 }
+.gene-group__head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
 .gene-group__title {
   font-size: 1.02rem;
-  margin: 0 0 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--line);
+  margin: 0;
+}
+.gene-group__count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-2);
 }
 .gene-card {
   margin-bottom: 16px;
-  transition: box-shadow 0.15s var(--ease), border-color 0.15s var(--ease);
+  transition: border-color 0.15s var(--ease);
 }
 .gene-card:hover {
-  box-shadow: var(--shadow-card-hover);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
 }
 .gene-card__head {
   display: flex;
@@ -3252,13 +3342,38 @@ legend {
   font-size: 0.95rem;
   font-weight: 700;
 }
+/* sequence badge — the gene's slot in the render pipeline */
+.gene-card__ord {
+  display: grid;
+  place-items: center;
+  height: 26px;
+  min-width: 26px;
+  padding: 0 7px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+  background: color-mix(in srgb, var(--accent) 10%, var(--card));
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
 .gene-card__type {
-  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--muted);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
-  padding: 2px 10px;
+  padding: 3px 10px;
+}
+.gene-card__count {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-2);
 }
 .gene-card__actions {
   display: flex;
@@ -3299,6 +3414,12 @@ legend {
   border-radius: var(--radius-md);
   padding: 11px 13px;
 }
+/* the active default allele — accent-marked so the choice is obvious */
+.allele-row--default {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-left: 2px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
 .allele-row__head {
   display: flex;
   justify-content: space-between;
@@ -3309,9 +3430,20 @@ legend {
 .allele-row__head .field--checkbox {
   margin: 0;
 }
-.allele-row textarea {
-  width: 100%;
-  box-sizing: border-box;
+.allele-row__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.allele-row__default {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
 }
 .allele-add {
   background: var(--surface);
@@ -3322,11 +3454,6 @@ legend {
 .allele-add .field {
   margin-bottom: 10px;
 }
-.allele-add textarea,
-.allele-add input[type="text"] {
-  width: 100%;
-  box-sizing: border-box;
-}
 .gene-card__advanced {
   margin-top: 12px;
   font-size: 0.85rem;
@@ -3334,10 +3461,6 @@ legend {
 .gene-card__advanced summary {
   cursor: pointer;
   color: var(--muted);
-}
-.gene-card textarea {
-  width: 100%;
-  box-sizing: border-box;
 }
 .add-gene__fields {
   display: flex;

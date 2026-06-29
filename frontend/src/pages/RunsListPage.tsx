@@ -6,6 +6,7 @@ import { usePolling } from "../usePolling";
 import { StatusBadge } from "../components/StatusBadge";
 import { RunControls } from "../components/RunControls";
 import { TraitLeaderboard } from "../components/TraitLeaderboard";
+import { ModelTag } from "../components/ModelTag";
 
 function formatTime(value: string | null): string {
   if (!value) return "—";
@@ -140,6 +141,7 @@ export function RunsListPage() {
           <thead>
             <tr>
               <th>Run</th>
+              <th>Target model</th>
               <th>Status</th>
               <th>Generation</th>
               <th>Created</th>
@@ -157,6 +159,9 @@ export function RunsListPage() {
               >
                 <td>
                   <code title={run.id}>{shortId(run.id)}</code>
+                </td>
+                <td>
+                  <ModelTag model={run.model} />
                 </td>
                 <td>
                   <StatusBadge status={run.status} />

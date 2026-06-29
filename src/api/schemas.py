@@ -48,6 +48,9 @@ class RunControlResponse(BaseModel):
 class RunRecord(BaseModel):
     id: str
     experiment_id: str
+    # Target model this run attacks (from the experiment's harness config), so
+    # the runs list can show it without a per-row experiment lookup.
+    model: Optional[str] = None
     status: str
     control: str
     current_generation: Optional[int] = None

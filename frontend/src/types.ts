@@ -11,6 +11,8 @@ export type RunControl = "none" | "pause" | "stop";
 export interface RunRecord {
   id: string;
   experiment_id: string;
+  /** Target model this run attacks (from the experiment's harness config). */
+  model: string | null;
   status: RunStatus;
   control: RunControl;
   current_generation: number | null;

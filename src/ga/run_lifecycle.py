@@ -65,13 +65,19 @@ _HEARTBEAT = (
 _FINALIZE_RUN = (
     "UPDATE runs SET status = %(status)s, error = %(error)s WHERE id = %(run_id)s"
 )
+# list/get also carry the experiment config (last column) so the target model
+# can be surfaced on the run record without a second round-trip.
 _GET_RUN = (
-    "SELECT id, experiment_id, status, control, current_generation, "
-    "heartbeat_at, error, created_at FROM runs WHERE id = %(run_id)s"
+    "SELECT r.id, r.experiment_id, r.status, r.control, r.current_generation, "
+    "r.heartbeat_at, r.error, r.created_at, e.config "
+    "FROM runs r LEFT JOIN experiments e ON e.id = r.experiment_id "
+    "WHERE r.id = %(run_id)s"
 )
 _LIST_RUNS = (
-    "SELECT id, experiment_id, status, control, current_generation, "
-    "heartbeat_at, error, created_at FROM runs ORDER BY created_at DESC"
+    "SELECT r.id, r.experiment_id, r.status, r.control, r.current_generation, "
+    "r.heartbeat_at, r.error, r.created_at, e.config "
+    "FROM runs r LEFT JOIN experiments e ON e.id = r.experiment_id "
+    "ORDER BY r.created_at DESC"
 )
 _LIST_GENERATIONS = (
     "SELECT generation, best_fitness, avg_fitness, success_rate "
@@ -283,14 +289,14 @@ def get_run(conn, run_id: str) -> dict[str, Any] | None:
     with conn.cursor() as cur:
         cur.execute(_GET_RUN, {"run_id": run_id})
         row = cur.fetchone()
-    return _run_record(row) if row else None
+    return {**_run_record(row), "model": _model_of(row[8])} if row else None
 
 
 def list_runs(conn) -> list[dict[str, Any]]:
     with conn.cursor() as cur:
         cur.execute(_LIST_RUNS)
         rows = cur.fetchall()
-    return [_run_record(row) for row in rows]
+    return [{**_run_record(row), "model": _model_of(row[8])} for row in rows]
 
 
 def delete_run(conn, run_id: str) -> bool:

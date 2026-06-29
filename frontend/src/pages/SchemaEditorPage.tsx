@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { api, ApiError } from "../api";
 import type { GeneChannel, GeneSchema, GeneType, GenomeSchema } from "../types";
 import { GeneEditor } from "../components/GeneEditor";
+import { StatTile } from "../components/StatTile";
+import { useCountUp } from "../useCountUp";
 
 const CHANNELS: { key: GeneChannel; label: string }[] = [
   { key: "semantic", label: "Semantic" },
@@ -13,6 +15,42 @@ const NEW_GENE_TYPES: { value: GeneType; label: string }[] = [
   { value: "multi_categorical", label: "Multiple choice" },
   { value: "boolean", label: "On / off" },
 ];
+
+const SPACE_FMT = new Intl.NumberFormat("en", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+/** Distinct prompts this genome can express — the headline "design space". */
+function genomeSpace(genes: GeneSchema[]): number {
+  let space = 1;
+  for (const g of genes) {
+    const k = g.alleles?.length ?? 0;
+    if (g.type === "boolean") space *= 2;
+    else if (g.type === "multi_categorical") space *= 2 ** k;
+    else space *= Math.max(1, k);
+  }
+  return space;
+}
+
+function formatSpace(n: number): string {
+  if (!Number.isFinite(n)) return "∞";
+  if (n < 1000) return Math.round(n).toLocaleString();
+  if (n < 1e15) return SPACE_FMT.format(n);
+  const exp = Math.floor(Math.log10(n));
+  return `${(n / 10 ** exp).toFixed(1)}e${exp}`;
+}
+
+/** Count-up "genome space" tile — the genome's accent-spotlit headline stat. */
+function SpaceTile({ value }: { value: number }) {
+  const shown = useCountUp(value);
+  return (
+    <div className="kpi kpi--hero">
+      <span className="kpi__num">{formatSpace(shown)}</span>
+      <span className="kpi__label">genome space</span>
+    </div>
+  );
+}
 
 /** Build an empty gene with sensible defaults for its type. */
 function makeGene(name: string, channel: GeneChannel, type: GeneType): GeneSchema {
@@ -239,10 +277,24 @@ export function SchemaEditorPage() {
         </button>
       </div>
 
-      <div className="alert alert--info">
-        Editing the draft genome schema. Changes apply to <strong>new runs</strong>{" "}
-        you start after saving; existing runs keep their own snapshot.
-      </div>
+      <section className="genome-hero">
+        <p className="genome-hero__sub">
+          The gene blueprint every new run is built from. Edits apply to{" "}
+          <strong>new runs</strong> you start after saving; existing runs keep
+          their own snapshot.
+        </p>
+        <div className="genome-hero__kpis">
+          <SpaceTile value={genomeSpace(schema.genes)} />
+          <StatTile value={schema.genes.length} label="genes" />
+          <StatTile
+            value={schema.genes.reduce(
+              (sum, g) => sum + (g.alleles?.length ?? 0),
+              0,
+            )}
+            label="alleles"
+          />
+        </div>
+      </section>
 
       {saveError && <div className="alert alert--error">{saveError}</div>}
       {saved && (
@@ -253,7 +305,13 @@ export function SchemaEditorPage() {
         const channelGenes = ordered.filter((g) => g.channel === channel.key);
         return (
           <div key={channel.key} className="gene-group">
-            <h2 className="gene-group__title">{channel.label} genes</h2>
+            <div className="gene-group__head">
+              <h2 className="gene-group__title">{channel.label}</h2>
+              <span className="gene-group__count">
+                {channelGenes.length}{" "}
+                {channelGenes.length === 1 ? "gene" : "genes"}
+              </span>
+            </div>
             {channelGenes.length === 0 ? (
               <p className="muted">No {channel.label.toLowerCase()} genes.</p>
             ) : (
@@ -263,6 +321,7 @@ export function SchemaEditorPage() {
                   <GeneEditor
                     key={gene.name}
                     gene={gene}
+                    position={idx + 1}
                     isFirst={idx === 0}
                     isLast={idx === schema.render_order.length - 1}
                     onChange={(next) => replaceGene(gene.name, next)}

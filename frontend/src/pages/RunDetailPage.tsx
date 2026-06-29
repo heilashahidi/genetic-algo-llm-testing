@@ -21,6 +21,7 @@ import {
 } from "../components/IndividualDetail";
 import { AlleleExplorer } from "../components/AlleleExplorer";
 import { StatTile } from "../components/StatTile";
+import { ModelTag } from "../components/ModelTag";
 import { useCountUp } from "../useCountUp";
 
 type ViewTab = "tree" | "table" | "alleles";
@@ -314,6 +315,10 @@ export function RunDetailPage() {
             <div>
               <span className="meta-label">Status</span>
               <StatusBadge status={run.status} />
+            </div>
+            <div>
+              <span className="meta-label">Target model</span>
+              <ModelTag model={run.model} />
             </div>
             <div>
               <span className="meta-label">Generation</span>

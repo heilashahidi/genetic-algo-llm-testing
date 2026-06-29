@@ -3,6 +3,8 @@ import type { GeneSchema } from "../types";
 
 interface GeneEditorProps {
   gene: GeneSchema;
+  /** 1-based slot in the render order — shown as the gene's sequence badge. */
+  position: number;
   /** Position among all genes in render_order; drives up/down availability. */
   isFirst: boolean;
   isLast: boolean;
@@ -27,6 +29,7 @@ const TYPE_LABELS: Record<GeneSchema["type"], string> = {
  */
 export function GeneEditor({
   gene,
+  position,
   isFirst,
   isLast,
   onChange,
@@ -111,8 +114,16 @@ export function GeneEditor({
     <div className="gene-card card">
       <div className="gene-card__head">
         <div className="gene-card__title">
+          <span className="gene-card__ord" aria-hidden>
+            {String(position).padStart(2, "0")}
+          </span>
           <code>{gene.name}</code>
           <span className="gene-card__type">{TYPE_LABELS[gene.type]}</span>
+          {isCategorical && (
+            <span className="gene-card__count">
+              {alleles.length} {alleles.length === 1 ? "allele" : "alleles"}
+            </span>
+          )}
         </div>
         <div className="gene-card__actions">
           <button
@@ -206,8 +217,14 @@ export function GeneEditor({
             </p>
           ) : (
             <ul className="allele-list">
-              {alleles.map((allele) => (
-                <li key={allele} className="allele-row">
+              {alleles.map((allele) => {
+                const isDefault =
+                  gene.type === "categorical" && gene.default === allele;
+                return (
+                <li
+                  key={allele}
+                  className={`allele-row${isDefault ? " allele-row--default" : ""}`}
+                >
                   <div className="allele-row__head">
                     {gene.type === "multi_categorical" ? (
                       <label className="field field--checkbox">
@@ -226,7 +243,12 @@ export function GeneEditor({
                         </span>
                       </label>
                     ) : (
-                      <code>{allele}</code>
+                      <span className="allele-row__name">
+                        <code>{allele}</code>
+                        {isDefault && (
+                          <span className="allele-row__default">default</span>
+                        )}
+                      </span>
                     )}
                     <button
                       type="button"
@@ -244,7 +266,8 @@ export function GeneEditor({
                     aria-label={`Prompt text for ${allele}`}
                   />
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
 

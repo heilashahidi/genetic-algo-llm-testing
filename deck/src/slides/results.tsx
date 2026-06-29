@@ -37,9 +37,9 @@ const ClimbChart: React.FC = () => {
 };
 
 export const HonestTest: React.FC = () => (
-  <SlideShell page="Page 13">
+  <SlideShell page="Page 14">
     <div className="mt-[2%]">
-      <Kicker num="13" sec="The Honest Test" />
+      <Kicker num="14" sec="The Honest Test" />
       <Title className="mt-[1.4%]">Evolution beats the <span className="text-accent">seed it grew from</span>, on live models</Title>
     </div>
     <div className="grid gap-[2.6%] flex-grow mt-[2.4%] items-center" style={{ gridTemplateColumns: "1fr 1.25fr" }}>
@@ -74,9 +74,9 @@ export const Interpret: React.FC = () => {
     "Are wins driven by semantic structure, surface perturbation, or their interaction?",
   ];
   return (
-    <SlideShell page="Page 14">
+    <SlideShell page="Page 15">
       <div className="mt-[2%]">
-        <Kicker num="14" sec="Interpretability" />
+        <Kicker num="15" sec="Interpretability" />
         <Title className="mt-[1.4%]">Which <span className="text-accent">traits</span> drive successful attacks</Title>
       </div>
       <div className="grid grid-cols-2 gap-[4%] flex-grow mt-[2%] items-center">
@@ -115,9 +115,9 @@ export const Interpret: React.FC = () => {
 };
 
 export const Models: React.FC = () => (
-  <SlideShell page="Page 15">
+  <SlideShell page="Page 16">
     <div className="mt-[2%]">
-      <Kicker num="15" sec="Target Models" />
+      <Kicker num="16" sec="Target Models" />
       <Title className="mt-[1.4%]">Five local models, one <span className="text-accent">measured</span> hard → soft gradient</Title>
     </div>
     <Glass className="rise p-[2.3%] mt-[2.5%]">
@@ -162,9 +162,9 @@ export const Verify: React.FC = () => {
     "All 5 target models are real Ollama SKUs at the sizes we cite",
   ];
   return (
-    <SlideShell page="Page 16">
+    <SlideShell page="Page 17">
       <div className="mt-[2%]">
-        <Kicker num="16" sec="Verification" />
+        <Kicker num="17" sec="Verification" />
         <Title className="mt-[1.4%]">Every claim <span className="text-accent">adversarially fact-checked</span> before it shipped</Title>
       </div>
       <p className="text-white/65 rise mt-[1.2%]" style={{ fontSize: "clamp(13.2px,1.4vw,22px)", lineHeight: 1.4, animationDelay: "0.08s" }}>
@@ -208,9 +208,9 @@ export const Takeaways: React.FC = () => {
     ["83% vs 45%", "Traits are legible", <><span className="text-accent">hypothetical_framing</span> clears the 76% base rate; <span className="text-warm">multi_turn</span> drags below. Every win traces gene by gene.</>],
   ];
   return (
-    <SlideShell page="Page 17">
+    <SlideShell page="Page 18">
       <div className="mt-[2%]">
-        <Kicker num="17" sec="Results" />
+        <Kicker num="18" sec="Results" />
         <Title className="mt-[1.4%]">Every model broke, and the genome can <span className="text-accent">explain why</span></Title>
       </div>
       <div className="grid grid-cols-3 gap-[2.4%] mt-[2.6%]">

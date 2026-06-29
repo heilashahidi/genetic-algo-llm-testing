@@ -29,9 +29,9 @@ export const WhatWeDo: React.FC = () => {
     ["Every attack is a structured genome", <>Not raw text. So when an attack lands we can point to the <span className="text-accent font-semibold">traits</span> that caused it, like <span className="mono text-white/80">developer-mode persona + base64 wrapper + caps</span>, not just "this paragraph worked."</>],
   ];
   return (
-    <SlideShell page="Page 01">
+    <SlideShell page="Page 02">
       <div className="mt-[2%]">
-        <Kicker num="01" sec="What We're Doing" />
+        <Kicker num="02" sec="What We're Doing" />
         <Title className="mt-[1.4%]">We search for prompts that break an LLM, and <span className="text-accent">explain</span> what makes them work</Title>
       </div>
       <div className="grid grid-cols-3 gap-[2.2%] mt-[3.2%]">
@@ -59,9 +59,9 @@ export const Problem: React.FC = () => {
     ["03", "When an attack works, the raw prompt text gives little insight into which trait actually caused the failure."],
   ];
   return (
-    <SlideShell page="Page 02">
+    <SlideShell page="Page 03">
       <div className="mt-[2%]">
-        <Kicker num="02" sec="The Problem" />
+        <Kicker num="03" sec="The Problem" />
         <Title className="mt-[1.4%]">Robustness testing tells us a prompt <span className="text-warm">worked</span>, not <span className="text-accent">why</span></Title>
       </div>
       <div className="grid grid-cols-3 gap-[2.2%] mt-[2.6%]">
@@ -128,9 +128,9 @@ export const GAPrimer: React.FC = () => {
     { t: "Repeat", d: "Over many generations the population keeps getting better.", Icon: RefreshCw },
   ];
   return (
-    <SlideShell page="Page 05">
+    <SlideShell page="Page 06">
       <div className="mt-[2%]">
-        <Kicker num="05" sec="Genetic Algorithms" />
+        <Kicker num="06" sec="Genetic Algorithms" />
         <Title className="mt-[1.4%]">How a genetic algorithm <span className="text-accent">works</span></Title>
       </div>
       <Glass className="rise mt-[1.2%] p-[1.7%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
@@ -170,9 +170,9 @@ export const Evolution: React.FC = () => {
     ["elitism", "carry the best forward intact"],
   ];
   return (
-    <SlideShell page="Page 06">
+    <SlideShell page="Page 07">
       <div className="mt-[2%]">
-        <Kicker num="06" sec="Evolution as Search" />
+        <Kicker num="07" sec="Evolution as Search" />
         <Title className="mt-[1.4%]">How evolution maps onto our <span className="text-accent">attack genome</span></Title>
       </div>
       <p className="text-white/80 rise mt-[1.6%]" style={{ fontSize: "clamp(14.4px,1.8vw,30px)", lineHeight: 1.5, animationDelay: "0.04s" }}>

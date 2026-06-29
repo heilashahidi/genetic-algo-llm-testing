@@ -38,13 +38,13 @@ export const WhatWeDo: React.FC = () => {
         {cards.map(([t, d, extra], i) => (
           <Glass key={t} className="rise p-[3.4%]" style={{ animationDelay: `${i * 0.1}s`, borderTop: "3px solid #7fb0ff" }}>
             <div className="mono text-white/45" style={{ fontSize: 13.2 }}>0{i + 1}</div>
-            <h3 className="font-bold mt-[4px] mb-[8px]" style={{ fontSize: "clamp(16.8px,1.9vw,25.2px)" }}>{t}</h3>
-            <p className="text-white/75 leading-snug" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)" }}>{extra ?? d}</p>
+            <h3 className="font-bold mt-[4px] mb-[8px]" style={{ fontSize: "clamp(16.8px,1.9vw,28.8px)" }}>{t}</h3>
+            <p className="text-white/75 leading-snug" style={{ fontSize: "clamp(13.2px,1.4vw,23.4px)" }}>{extra ?? d}</p>
           </Glass>
         ))}
       </div>
       <Glass className="rise mt-[2.4%] p-[2.6%]" style={{ animationDelay: "0.34s", background: "linear-gradient(100deg, rgba(19,32,58,0.6), rgba(33,64,127,0.5))" }}>
-        <p style={{ fontSize: "clamp(16.8px,2vw,27.6px)", lineHeight: 1.45 }}>
+        <p style={{ fontSize: "clamp(16.8px,2vw,32.4px)", lineHeight: 1.45 }}>
           Two outputs: <span className="text-warm font-semibold">effective attacks</span>, and a <span className="text-accent font-semibold">trait-level explanation</span> of what's effective. Robustness testing plus interpretability.
         </p>
       </Glass>
@@ -68,16 +68,16 @@ export const Problem: React.FC = () => {
         {items.map(([n, t], i) => (
           <Glass key={n} className="rise p-[3.2%]" style={{ animationDelay: `${i * 0.1}s` }}>
             <div className="mono text-[#06122e] bg-accent inline-flex items-center justify-center font-bold rounded-[8px] mb-[10px]" style={{ width: 30, height: 30, fontSize: 16.8 }}>{n}</div>
-            <p className="text-white/85 leading-snug" style={{ fontSize: "clamp(14.4px,1.5vw,21.6px)" }}>{t}</p>
+            <p className="text-white/85 leading-snug" style={{ fontSize: "clamp(14.4px,1.5vw,26.4px)" }}>{t}</p>
           </Glass>
         ))}
       </div>
       <Glass className="rise mt-[1.8%] p-[2.2%]" style={{ animationDelay: "0.34s" }}>
         <div className="mono text-accent tracking-[0.18em] mb-[6px]" style={{ fontSize: 14.4 }}>THE QUESTION</div>
-        <p className="text-white/90" style={{ fontSize: "clamp(16.8px,1.9vw,24px)", lineHeight: 1.4 }}>
+        <p className="text-white/90" style={{ fontSize: "clamp(16.8px,1.9vw,28.8px)", lineHeight: 1.4 }}>
           Can we <span className="text-accent font-semibold">automatically search</span> for the prompt patterns that bypass safety alignment, and explain <span className="text-warm font-semibold">why</span> they work?
         </p>
-        <p className="text-white/60 mt-[8px]" style={{ fontSize: "clamp(13.2px,1.4vw,18px)", lineHeight: 1.4 }}>
+        <p className="text-white/60 mt-[8px]" style={{ fontSize: "clamp(13.2px,1.4vw,22px)", lineHeight: 1.4 }}>
           Both sides need it: offense needs coverage, defense can't patch a weakness it can't characterize. The goal is <span className="text-white/80 font-semibold">transferable knowledge</span> ("authority framing + obfuscation beats this model"), not a one-off string that breaks on the next version.
         </p>
       </Glass>
@@ -134,7 +134,7 @@ export const GAPrimer: React.FC = () => {
         <Title className="mt-[1.4%]">How a genetic algorithm <span className="text-accent">works</span></Title>
       </div>
       <Glass className="rise mt-[1.2%] p-[1.7%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
-        <p className="text-white/90 flex-1" style={{ fontSize: "clamp(14.4px,1.7vw,24px)", lineHeight: 1.4 }}>
+        <p className="text-white/90 flex-1" style={{ fontSize: "clamp(14.4px,1.7vw,28.8px)", lineHeight: 1.4 }}>
           Think <span className="text-accent font-semibold">natural selection</span>: keep the fittest, recombine them, add a little random variation, then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of organisms, and you have a <span className="font-semibold">genetic algorithm</span>.
         </p>
         <EvolveGraphic />
@@ -145,14 +145,14 @@ export const GAPrimer: React.FC = () => {
             <Glass className="flex-1 rise p-[2%] text-center" style={{ animationDelay: `${0.12 + i * 0.1}s` }}>
               <s.Icon strokeWidth={1.5} className="mx-auto mb-[7px] text-accent" style={{ width: "clamp(20px,2.2vw,28px)", height: "clamp(20px,2.2vw,28px)" }} />
               <div className="mono text-white/45" style={{ fontSize: 13.2 }}>0{i + 1}</div>
-              <h3 className="font-bold mt-[2px]" style={{ fontSize: "clamp(14.4px,1.6vw,22.8px)" }}>{s.t}</h3>
-              <p className="text-white/70 mt-[3px] leading-snug" style={{ fontSize: "clamp(12px,1.2vw,16.8px)" }}>{s.d}</p>
+              <h3 className="font-bold mt-[2px]" style={{ fontSize: "clamp(14.4px,1.6vw,26.4px)" }}>{s.t}</h3>
+              <p className="text-white/70 mt-[3px] leading-snug" style={{ fontSize: "clamp(12px,1.2vw,20.4px)" }}>{s.d}</p>
             </Glass>
             {i < 4 && <Arrow className="self-center">{i === 3 ? "↻" : "→"}</Arrow>}
           </React.Fragment>
         ))}
       </div>
-      <p className="text-white/75 rise mt-[1.1%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.7s", lineHeight: 1.45 }}>
+      <p className="text-white/75 rise mt-[1.1%]" style={{ fontSize: "clamp(13.2px,1.4vw,23.4px)", animationDelay: "0.7s", lineHeight: 1.45 }}>
         <Arrow>→ </Arrow>Why it fits here: we can easily <span className="text-accent font-semibold">score</span> whether a prompt broke the model, but we can't <span className="text-warm font-semibold">calculate</span> the perfect attack. GAs shine exactly there: a measurable goal, a huge search space, and no gradient to follow.
       </p>
     </SlideShell>
@@ -175,7 +175,7 @@ export const Evolution: React.FC = () => {
         <Kicker num="06" sec="Evolution as Search" />
         <Title className="mt-[1.4%]">How evolution maps onto our <span className="text-accent">attack genome</span></Title>
       </div>
-      <p className="text-white/80 rise mt-[1.6%]" style={{ fontSize: "clamp(14.4px,1.6vw,22.8px)", lineHeight: 1.5, animationDelay: "0.04s" }}>
+      <p className="text-white/80 rise mt-[1.6%]" style={{ fontSize: "clamp(14.4px,1.8vw,30px)", lineHeight: 1.5, animationDelay: "0.04s" }}>
         Keep a <span className="font-semibold">population</span> of candidate strategies, score each with a <span className="text-accent font-semibold">fitness</span> function, then <span className="font-semibold">select</span>, <span className="font-semibold">recombine</span>, and <span className="font-semibold">mutate</span> so better solutions survive. The twist: we <span className="text-warm font-semibold">evolve structure, not text</span>, so every win has an ancestry you can trace gene by gene.
       </p>
       <div className="grid grid-cols-2 gap-[3%] items-center flex-grow mt-[1.5%]">
@@ -184,8 +184,8 @@ export const Evolution: React.FC = () => {
           <div className="grid grid-cols-2 gap-x-[22px] gap-y-[11px]">
             {terms.map(([k, v]) => (
               <div key={k}>
-                <div className="mono font-bold text-accent" style={{ fontSize: "clamp(14.4px,1.4vw,18px)" }}>{k}</div>
-                <div className="text-white/65 leading-tight" style={{ fontSize: "clamp(12px,1.3vw,16.8px)" }}>{v}</div>
+                <div className="mono font-bold text-accent" style={{ fontSize: "clamp(14.4px,1.5vw,22.8px)" }}>{k}</div>
+                <div className="text-white/65 leading-tight" style={{ fontSize: "clamp(12px,1.3vw,20.4px)" }}>{v}</div>
               </div>
             ))}
           </div>

@@ -1,7 +1,7 @@
 import { Presentation } from "./components/Presentation";
 import { Cover, WhatWeDo, Problem, GAPrimer, Evolution } from "./slides/intro";
 import { TwoProblems, GenoPheno, Schema, Seed, Target, Pipeline, ExecLoop, Fitness } from "./slides/method";
-import { ReviewTable, HonestTest, Interpret, Models, Verify, Takeaways } from "./slides/results";
+import { HonestTest, Interpret, Models, Verify, Takeaways } from "./slides/results";
 
 export default function App() {
   return (
@@ -19,7 +19,6 @@ export default function App() {
       <Seed />
       <Fitness />
       <ExecLoop />
-      <ReviewTable />
       <HonestTest />
       <Interpret />
       <Models />

@@ -36,49 +36,10 @@ const ClimbChart: React.FC = () => {
   );
 };
 
-export const ReviewTable: React.FC = () => {
-  const rows: [string, React.ReactNode][] = [
-    ["Genome / chromosome", <>16-gene attack spec → 39-slot vector (semantic + perturbation)</>],
-    ["Phenotype", "the rendered prompt text sent to the model"],
-    ["Population", <><span className="text-white font-semibold">20</span> candidate attacks per generation</>],
-    ["Initial population", "seeded from 121 real collected jailbreaks, not random"],
-    ["Fitness", "did the target LLM leak the protected secret, or refuse"],
-    ["Selection", "tournament + elitism (top 5 carried forward)"],
-    ["Crossover", "swap gene blocks between two parents (85%, channel-aware option)"],
-    ["Mutation", "flip bits / resample genes (15%) for diversity"],
-    ["Generation loop", <>evaluate → store → evolve; <span className="text-white font-semibold">15</span> generations, full schedule</>],
-    ["Baseline", "seed-only population; a random-search harness for controlled validation"],
-  ];
-  return (
-    <SlideShell page="Page 13">
-      <div className="mt-[1.4%]">
-        <Kicker num="13" sec="Review" />
-        <Title className="mt-[1.2%]">Every GA concept, mapped to <span className="text-accent">what we built</span></Title>
-      </div>
-      <Glass className="rise p-[1.2%] mt-[1.2%]">
-        <div className="grid items-center" style={{ gridTemplateColumns: "0.85fr 2.15fr" }}>
-          {["GA CONCEPT", "IN OUR PROJECT"].map((h) => (
-            <div key={h} className="mono text-white/40 pb-[6px] tracking-[0.06em]" style={{ fontSize: 12.6, borderBottom: "1px solid rgba(255,255,255,0.12)" }}>{h}</div>
-          ))}
-          {rows.map(([c, v], i) => (
-            <React.Fragment key={c}>
-              <div className="py-[4px] mono font-semibold text-accent" style={{ borderBottom: i < rows.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none", fontSize: "clamp(12px,1.3vw,16.8px)", paddingLeft: 8 }}>{c}</div>
-              <div className="py-[4px] text-white/80" style={{ borderBottom: i < rows.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none", fontSize: "clamp(12px,1.3vw,16.8px)" }}>{v}</div>
-            </React.Fragment>
-          ))}
-        </div>
-      </Glass>
-      <p className="text-white/70 rise mt-[1.2%]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)", animationDelay: "0.3s" }}>
-        <Arrow>→ </Arrow>We turned "is this LLM robust?" into an evolutionary search, and made the answer <span className="text-accent font-semibold">explainable</span> by evolving structured genes instead of raw text.
-      </p>
-    </SlideShell>
-  );
-};
-
 export const HonestTest: React.FC = () => (
-  <SlideShell page="Page 14">
+  <SlideShell page="Page 13">
     <div className="mt-[2%]">
-      <Kicker num="14" sec="The Honest Test" />
+      <Kicker num="13" sec="The Honest Test" />
       <Title className="mt-[1.4%]">Evolution beats the <span className="text-accent">seed it grew from</span>, on live models</Title>
     </div>
     <div className="grid gap-[2.6%] flex-grow mt-[2.4%] items-center" style={{ gridTemplateColumns: "1fr 1.25fr" }}>
@@ -113,9 +74,9 @@ export const Interpret: React.FC = () => {
     "Are wins driven by semantic structure, surface perturbation, or their interaction?",
   ];
   return (
-    <SlideShell page="Page 15">
+    <SlideShell page="Page 14">
       <div className="mt-[2%]">
-        <Kicker num="15" sec="Interpretability" />
+        <Kicker num="14" sec="Interpretability" />
         <Title className="mt-[1.4%]">Which <span className="text-accent">traits</span> drive successful attacks</Title>
       </div>
       <div className="grid grid-cols-2 gap-[4%] flex-grow mt-[2%] items-center">
@@ -154,9 +115,9 @@ export const Interpret: React.FC = () => {
 };
 
 export const Models: React.FC = () => (
-  <SlideShell page="Page 16">
+  <SlideShell page="Page 15">
     <div className="mt-[2%]">
-      <Kicker num="16" sec="Target Models" />
+      <Kicker num="15" sec="Target Models" />
       <Title className="mt-[1.4%]">Five local models, one <span className="text-accent">measured</span> hard → soft gradient</Title>
     </div>
     <Glass className="rise p-[2.3%] mt-[2.5%]">
@@ -201,12 +162,15 @@ export const Verify: React.FC = () => {
     "All 5 target models are real Ollama SKUs at the sizes we cite",
   ];
   return (
-    <SlideShell page="Page 17">
+    <SlideShell page="Page 16">
       <div className="mt-[2%]">
-        <Kicker num="17" sec="Verification" />
+        <Kicker num="16" sec="Verification" />
         <Title className="mt-[1.4%]">Every claim <span className="text-accent">adversarially fact-checked</span> before it shipped</Title>
       </div>
-      <div className="grid grid-cols-4 gap-[2%] mt-[2.6%]">
+      <p className="text-white/65 rise mt-[1.2%]" style={{ fontSize: "clamp(13.2px,1.4vw,18px)", lineHeight: 1.4, animationDelay: "0.08s" }}>
+        Before this deck shipped, every factual claim behind it was traced to a source and challenged by independent skeptics across <span className="text-white font-semibold">6 search angles</span>. A claim survived only if <span className="text-accent font-semibold">≤1 of 3</span> skeptics could refute it. Below is the scoreboard.
+      </p>
+      <div className="grid grid-cols-4 gap-[2%] mt-[1.8%]">
         {stats.map(([n, l], i) => (
           <Glass key={l} className="rise p-[2.6%] text-center" style={{ animationDelay: `${i * 0.1}s`, borderBottom: "3px solid #7fb0ff" }}>
             <div className="font-bold text-accent" style={{ fontSize: "clamp(28px,3.6vw,52px)", lineHeight: 1 }}>{n}</div>
@@ -214,7 +178,7 @@ export const Verify: React.FC = () => {
           </Glass>
         ))}
       </div>
-      <div className="grid gap-[2.4%] flex-grow mt-[2.6%] items-stretch" style={{ gridTemplateColumns: "1.25fr 1fr" }}>
+      <div className="grid gap-[2.4%] flex-grow mt-[2%] items-stretch" style={{ gridTemplateColumns: "1.25fr 1fr" }}>
         <Glass className="rise p-[2.6%]" style={{ animationDelay: "0.2s", borderTop: "3px solid #2fb46a" }}>
           <div className="mono font-bold tracking-[0.1em] mb-[12px]" style={{ fontSize: 14.4, color: "#5fd99a" }}>✓ HELD · 3-0</div>
           {held.map((h) => (
@@ -233,38 +197,34 @@ export const Verify: React.FC = () => {
           </p>
         </Glass>
       </div>
-      <p className="text-white/60 rise mt-[2%]" style={{ fontSize: "clamp(12px,1.3vw,17px)", animationDelay: "0.4s" }}>
-        <Arrow>→ </Arrow>6 search angles · a claim counts as <span className="text-white font-semibold">confirmed</span> only if <span className="text-accent font-semibold">≤1 of 3</span> independent skeptics could refute it.
-      </p>
     </SlideShell>
   );
 };
 
 export const Takeaways: React.FC = () => {
-  const pillars: [string, string, string][] = [
-    ["Structured & interpretable", "A 16-gene genome (~20-trillion search space) seeded from 121 real attacks, every win traceable gene-by-gene and across its lineage.", "🧬"],
-    ["Honest methodology", "GA measured against the seed-only baseline across a real hard→soft model gradient, then every surrounding claim adversarially fact-checked.", "⚖️"],
-    ["Real, controllable system", "Postgres control plane, HTTP API, parallel LLM evaluation, live dashboard, reproducible and offline-testable, not a one-shot script.", "⚙️"],
+  const results: [string, string, React.ReactNode][] = [
+    ["5 / 5", "Every model leaked", <>From <span className="text-warm font-semibold">53%</span> (Gemma) to <span className="text-warm font-semibold">91%</span> (Mistral) attack success on live Ollama: the whole hard→soft gradient broke.</>],
+    ["45% → 99.5%", "Evolution beats its seed", <>Real seed attacks leak <span className="text-warm font-semibold">45%</span> of the time; the elites the GA breeds reach <span className="text-accent font-semibold">99.5%</span>. On Llama-3.1 a 10% seed climbed to a <span className="text-accent font-semibold">95%</span> peak.</>],
+    ["83% vs 45%", "Traits are legible", <><span className="text-accent">hypothetical_framing</span> clears the 76% base rate; <span className="text-warm">multi_turn</span> drags below. Every win traces gene by gene.</>],
   ];
   return (
-    <SlideShell page="Page 18">
+    <SlideShell page="Page 17">
       <div className="mt-[2%]">
-        <Kicker num="18" sec="Takeaways" />
-        <Title className="mt-[1.4%]">Which traits broke it: <span className="text-accent">seeded real, evolved beyond</span></Title>
+        <Kicker num="17" sec="Results" />
+        <Title className="mt-[1.4%]">Every model broke, and the genome can <span className="text-accent">explain why</span></Title>
       </div>
-      <div className="grid grid-cols-3 gap-[2.4%] mt-[3%]">
-        {pillars.map(([t, d, e], i) => (
-          <Glass key={t} className="rise p-[3.9%]" style={{ animationDelay: `${i * 0.12}s`, borderTop: "3px solid #7fb0ff" }}>
-            <div style={{ fontSize: "clamp(23.3px,2.8vw,33.9px)" }} className="mb-[10px]">{e}</div>
-            <div className="mono text-white/45" style={{ fontSize: 14.4 }}>0{i + 1}</div>
-            <h3 className="font-bold mt-[4px]" style={{ fontSize: "clamp(16.8px,1.9vw,24px)" }}>{t}</h3>
-            <p className="text-white/70 mt-[6px]" style={{ fontSize: "clamp(13.2px,1.4vw,19.2px)" }}>{d}</p>
+      <div className="grid grid-cols-3 gap-[2.4%] mt-[2.6%]">
+        {results.map(([n, t, d], i) => (
+          <Glass key={t} className="rise p-[3.1%]" style={{ animationDelay: `${i * 0.12}s`, borderTop: "3px solid #7fb0ff" }}>
+            <div className="font-bold text-accent" style={{ fontSize: "clamp(24px,2.9vw,42px)", lineHeight: 1 }}>{n}</div>
+            <h3 className="font-bold mt-[10px]" style={{ fontSize: "clamp(15.6px,1.7vw,22.8px)" }}>{t}</h3>
+            <p className="text-white/70 mt-[6px] leading-snug" style={{ fontSize: "clamp(13.2px,1.4vw,18px)" }}>{d}</p>
           </Glass>
         ))}
       </div>
       <Glass className="rise mt-[2.4%] p-[2.3%] text-center" style={{ animationDelay: "0.4s", background: "linear-gradient(100deg, rgba(19,32,58,0.6), rgba(33,64,127,0.5))" }}>
-        <p style={{ fontSize: "clamp(18px,2.2vw,28.8px)", lineHeight: 1.45 }}>
-          A <span className="text-accent font-semibold">safe, interpretable microscope</span> for adversarial prompting: measure <span className="text-warm font-semibold">which</span> prompt traits cause failures, not just <span className="text-warm font-semibold">that</span> they do.
+        <p style={{ fontSize: "clamp(17px,2.1vw,27px)", lineHeight: 1.45 }}>
+          A <span className="text-accent font-semibold">safe, interpretable microscope</span> for adversarial prompting: it measures <span className="text-warm font-semibold">which</span> traits cause failures, not just <span className="text-warm font-semibold">that</span> they do. <span className="text-white font-semibold">Now, let's watch it run live.</span>
         </p>
       </Glass>
     </SlideShell>

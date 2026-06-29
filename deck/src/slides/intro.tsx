@@ -85,26 +85,36 @@ export const Problem: React.FC = () => {
   );
 };
 
+// A whole population of candidates climbing in fitness, generation over generation:
+// the canonical picture of a GA at work.
 const EvolveGraphic: React.FC = () => {
-  const gens = [
-    [70, 82, 90, 98, 105],
-    [55, 68, 78, 88, 96],
-    [38, 50, 62, 72, 82],
-    [20, 30, 42, 54, 66],
+  const pop = [
+    [0.16, 0.24, 0.31, 0.19, 0.27],
+    [0.26, 0.36, 0.46, 0.31, 0.40],
+    [0.41, 0.53, 0.61, 0.48, 0.56],
+    [0.56, 0.68, 0.76, 0.63, 0.71],
+    [0.70, 0.82, 0.89, 0.78, 0.85],
+    [0.86, 0.92, 0.97, 0.90, 0.95],
   ];
-  const xs = [34, 108, 182, 256];
-  const col = (y: number) => {
-    const f = (110 - y) / 90;
-    return f > 0.6 ? "#7fb0ff" : f > 0.4 ? "rgba(127,176,255,0.55)" : "rgba(255,255,255,0.3)";
-  };
+  const W = 320, H = 152, padL = 30, padR = 16, padT = 14, padB = 22;
+  const pw = W - padL - padR, ph = H - padT - padB;
+  const x = (g: number) => padL + (pw * g) / (pop.length - 1);
+  const y = (f: number) => padT + ph * (1 - f);
+  const col = (f: number) => (f > 0.66 ? "#7fb0ff" : f > 0.4 ? "rgba(127,176,255,0.5)" : "rgba(255,255,255,0.28)");
+  const best = pop.map((g) => Math.max(...g));
   return (
-    <svg viewBox="0 0 300 132" style={{ width: "clamp(170px,17vw,290px)", flex: "none" }} aria-label="population fitness rising over generations">
-      <path d={`M${xs[0]},${gens[0][0]} L${xs[1]},${gens[1][0]} L${xs[2]},${gens[2][0]} L${xs[3]},${gens[3][0]}`} stroke="#7fb0ff" strokeWidth="1.5" strokeDasharray="3 3" fill="none" opacity="0.7" />
-      {gens.map((ys, g) => ys.map((y, i) => (
-        <circle key={`${g}-${i}`} cx={xs[g]} cy={y} r={g === 3 && i === 0 ? 5 : 4} fill={col(y)} stroke={g === 3 && i === 0 ? "#fff" : "none"} strokeWidth="1" />
-      )))}
-      <text x="34" y="126" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="9" className="mono">gen 0</text>
-      <text x="256" y="126" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="9" className="mono">later</text>
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "clamp(190px,20vw,322px)", flex: "none" }} aria-label="population fitness climbing over generations">
+      <line x1={padL} y1={padT} x2={padL} y2={padT + ph} stroke="rgba(255,255,255,0.18)" strokeWidth={1} />
+      <line x1={padL} y1={padT + ph} x2={W - padR} y2={padT + ph} stroke="rgba(255,255,255,0.18)" strokeWidth={1} />
+      <polyline points={best.map((f, g) => `${x(g)},${y(f)}`).join(" ")} fill="none" stroke="#7fb0ff" strokeWidth={1.6} strokeDasharray="3 3" opacity={0.85} />
+      {pop.map((g, gi) => g.map((f, i) => {
+        const champ = gi === pop.length - 1 && f === best[gi];
+        return <circle key={`${gi}-${i}`} cx={x(gi)} cy={y(f)} r={champ ? 4.8 : 3.4} fill={col(f)} stroke={champ ? "#fff" : "none"} strokeWidth={1} />;
+      }))}
+      <text x={padL - 5} y={padT + 4} textAnchor="end" fill="rgba(255,255,255,0.5)" style={{ fontSize: 9, fontFamily: "monospace" }}>fit</text>
+      <text x={x(0)} y={H - 5} textAnchor="middle" fill="rgba(255,255,255,0.5)" style={{ fontSize: 9, fontFamily: "monospace" }}>gen 0</text>
+      <text x={x(pop.length - 1)} y={H - 5} textAnchor="middle" fill="rgba(255,255,255,0.5)" style={{ fontSize: 9, fontFamily: "monospace" }}>gen N</text>
+      <text x={x(pop.length - 1) + 1} y={y(best[best.length - 1]) - 7} textAnchor="end" fill="#7fb0ff" style={{ fontSize: 8.5, fontFamily: "monospace" }}>fittest</text>
     </svg>
   );
 };

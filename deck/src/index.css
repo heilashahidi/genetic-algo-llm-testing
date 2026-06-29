@@ -10,17 +10,18 @@ html, body, #root {
 }
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  background-color: #05070d;
-  color: #ffffff;
+  background-color: #eef1f7;
+  color: #0f172a;
   overflow: hidden;
 }
 
 /* Liquid glass card */
 .liquid-glass {
-  backdrop-filter: blur(22px) saturate(1.35);
-  -webkit-backdrop-filter: blur(22px) saturate(1.35);
-  background: linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.035) 100%);
-  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  background: rgba(255,255,255,0.74);
+  border: 1px solid rgba(15,23,42,0.08);
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 12px 30px rgba(15,23,42,0.07);
   position: relative;
 }
 .liquid-glass::before {
@@ -29,7 +30,7 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: radial-gradient(circle at top left, rgba(255,255,255,0.28), transparent 60%);
+  background: linear-gradient(150deg, rgba(255,255,255,0.9), transparent 55%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -43,8 +44,8 @@ body {
   position: absolute;
   border-radius: 50%;
   filter: blur(95px);
-  opacity: 0.5;
-  mix-blend-mode: screen;
+  opacity: 0.55;
+  mix-blend-mode: multiply;
   will-change: transform;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
@@ -57,4 +58,4 @@ body {
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 .rise { animation: rise 0.6s cubic-bezier(0.2,0.7,0.2,1) both; }
 
-::selection { background: rgba(127,176,255,0.3); }
+::selection { background: rgba(37,99,235,0.18); }

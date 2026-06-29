@@ -9,12 +9,12 @@ export const Cover: React.FC = () => (
       <h1 className="font-extrabold tracking-tight rise" style={{ fontSize: "clamp(33.9px,5.9vw,82.7px)", lineHeight: 1.04, animationDelay: "0.06s" }}>
         Evolving<br /><span className="text-accent">Adversarial Prompts</span>
       </h1>
-      <p className="text-white/75 rise mt-[2.4%]" style={{ fontSize: "clamp(18px,2vw,31.2px)", animationDelay: "0.16s", maxWidth: "52ch" }}>
-        A <span className="text-white font-semibold">Genetic-Algorithm Framework</span> that finds adversarial prompts, and <span className="text-accent font-semibold">explains</span> what makes them work
+      <p className="text-slate-900/75 rise mt-[2.4%]" style={{ fontSize: "clamp(18px,2vw,31.2px)", animationDelay: "0.16s", maxWidth: "52ch" }}>
+        A <span className="text-slate-900 font-semibold">Genetic-Algorithm Framework</span> that finds adversarial prompts, and <span className="text-accent font-semibold">explains</span> what makes them work
       </p>
       <div className="rise mt-[3.6%]" style={{ animationDelay: "0.26s" }}>
-        <div className="h-px w-[44px] bg-white/25 mb-[14px]" />
-        <div className="text-white/85 font-medium" style={{ fontSize: "clamp(15.6px,1.8vw,25.2px)" }}>
+        <div className="h-px w-[44px] bg-slate-900/25 mb-[14px]" />
+        <div className="text-slate-900/85 font-medium" style={{ fontSize: "clamp(15.6px,1.8vw,25.2px)" }}>
           Matthew Johnson · Heila Shahidi · James Hamil · Austin Wade
         </div>
       </div>
@@ -26,7 +26,7 @@ export const WhatWeDo: React.FC = () => {
   const cards: [string, string, React.ReactNode][] = [
     ["Automated search, not hand red-teaming", "A system searches for prompts that break an LLM's safety rules, instead of writing adversarial prompts by hand one at a time.", null],
     ["A genetic algorithm breeds prompts", "Keep the prompts that work, combine them, mutate them, across many generations, so the population gets stronger over time.", null],
-    ["Every attack is a structured genome", <>Not raw text. So when an attack lands we can point to the <span className="text-accent font-semibold">traits</span> that caused it, like <span className="mono text-white/80">developer-mode persona + base64 wrapper + caps</span>, not just "this paragraph worked."</>],
+    ["Every attack is a structured genome", <>Not raw text. So when an attack lands we can point to the <span className="text-accent font-semibold">traits</span> that caused it, like <span className="mono text-slate-900/80">developer-mode persona + base64 wrapper + caps</span>, not just "this paragraph worked."</>],
   ];
   return (
     <SlideShell page="Page 03">
@@ -36,14 +36,14 @@ export const WhatWeDo: React.FC = () => {
       </div>
       <div className="grid grid-cols-3 gap-[2.2%] mt-[3.2%]">
         {cards.map(([t, d, extra], i) => (
-          <Glass key={t} className="rise p-[3.4%]" style={{ animationDelay: `${i * 0.1}s`, borderTop: "3px solid #7fb0ff" }}>
-            <div className="mono text-white/45" style={{ fontSize: 13.2 }}>0{i + 1}</div>
+          <Glass key={t} className="rise p-[3.4%]" style={{ animationDelay: `${i * 0.1}s`, borderTop: "3px solid #2563eb" }}>
+            <div className="mono text-slate-900/45" style={{ fontSize: 13.2 }}>0{i + 1}</div>
             <h3 className="font-bold mt-[4px] mb-[8px]" style={{ fontSize: "clamp(16.8px,1.9vw,28.8px)" }}>{t}</h3>
-            <p className="text-white/75 leading-snug" style={{ fontSize: "clamp(13.2px,1.4vw,23.4px)" }}>{extra ?? d}</p>
+            <p className="text-slate-900/75 leading-snug" style={{ fontSize: "clamp(13.2px,1.4vw,23.4px)" }}>{extra ?? d}</p>
           </Glass>
         ))}
       </div>
-      <Glass className="rise mt-[2.4%] p-[2.6%]" style={{ animationDelay: "0.34s", background: "linear-gradient(100deg, rgba(19,32,58,0.6), rgba(33,64,127,0.5))" }}>
+      <Glass className="rise mt-[2.4%] p-[2.6%]" style={{ animationDelay: "0.34s", background: "linear-gradient(100deg, rgba(37,99,235,0.10), rgba(37,99,235,0.05))" }}>
         <p style={{ fontSize: "clamp(16.8px,2vw,32.4px)", lineHeight: 1.45 }}>
           Two outputs: <span className="text-warm font-semibold">effective attacks</span>, and a <span className="text-accent font-semibold">trait-level explanation</span> of what's effective. Robustness testing plus interpretability.
         </p>
@@ -67,18 +67,18 @@ export const Problem: React.FC = () => {
       <div className="grid grid-cols-3 gap-[2.2%] mt-[2.6%]">
         {items.map(([n, t], i) => (
           <Glass key={n} className="rise p-[3.2%]" style={{ animationDelay: `${i * 0.1}s` }}>
-            <div className="mono text-[#06122e] bg-accent inline-flex items-center justify-center font-bold rounded-[8px] mb-[10px]" style={{ width: 30, height: 30, fontSize: 16.8 }}>{n}</div>
-            <p className="text-white/85 leading-snug" style={{ fontSize: "clamp(14.4px,1.5vw,26.4px)" }}>{t}</p>
+            <div className="mono text-[#ffffff] bg-accent inline-flex items-center justify-center font-bold rounded-[8px] mb-[10px]" style={{ width: 30, height: 30, fontSize: 16.8 }}>{n}</div>
+            <p className="text-slate-900/85 leading-snug" style={{ fontSize: "clamp(14.4px,1.5vw,26.4px)" }}>{t}</p>
           </Glass>
         ))}
       </div>
       <Glass className="rise mt-[1.8%] p-[2.2%]" style={{ animationDelay: "0.34s" }}>
         <div className="mono text-accent tracking-[0.18em] mb-[6px]" style={{ fontSize: 14.4 }}>THE QUESTION</div>
-        <p className="text-white/90" style={{ fontSize: "clamp(16.8px,1.9vw,28.8px)", lineHeight: 1.4 }}>
+        <p className="text-slate-900/90" style={{ fontSize: "clamp(16.8px,1.9vw,28.8px)", lineHeight: 1.4 }}>
           Can we <span className="text-accent font-semibold">automatically search</span> for the prompt patterns that bypass safety alignment, and explain <span className="text-warm font-semibold">why</span> they work?
         </p>
-        <p className="text-white/60 mt-[8px]" style={{ fontSize: "clamp(13.2px,1.4vw,22px)", lineHeight: 1.4 }}>
-          Both sides need it: offense needs coverage, defense can't patch a weakness it can't characterize. The goal is <span className="text-white/80 font-semibold">transferable knowledge</span> ("authority framing + obfuscation beats this model"), not a one-off string that breaks on the next version.
+        <p className="text-slate-900/60 mt-[8px]" style={{ fontSize: "clamp(13.2px,1.4vw,22px)", lineHeight: 1.4 }}>
+          Both sides need it: offense needs coverage, defense can't patch a weakness it can't characterize. The goal is <span className="text-slate-900/80 font-semibold">transferable knowledge</span> ("authority framing + obfuscation beats this model"), not a one-off string that breaks on the next version.
         </p>
       </Glass>
     </SlideShell>
@@ -100,21 +100,21 @@ const EvolveGraphic: React.FC = () => {
   const pw = W - padL - padR, ph = H - padT - padB;
   const x = (g: number) => padL + (pw * g) / (pop.length - 1);
   const y = (f: number) => padT + ph * (1 - f);
-  const col = (f: number) => (f > 0.66 ? "#7fb0ff" : f > 0.4 ? "rgba(127,176,255,0.5)" : "rgba(255,255,255,0.28)");
+  const col = (f: number) => (f > 0.66 ? "#2563eb" : f > 0.4 ? "rgba(37,99,235,0.5)" : "rgba(15,23,42,0.28)");
   const best = pop.map((g) => Math.max(...g));
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "clamp(190px,20vw,322px)", flex: "none" }} aria-label="population fitness climbing over generations">
-      <line x1={padL} y1={padT} x2={padL} y2={padT + ph} stroke="rgba(255,255,255,0.18)" strokeWidth={1} />
-      <line x1={padL} y1={padT + ph} x2={W - padR} y2={padT + ph} stroke="rgba(255,255,255,0.18)" strokeWidth={1} />
-      <polyline points={best.map((f, g) => `${x(g)},${y(f)}`).join(" ")} fill="none" stroke="#7fb0ff" strokeWidth={1.6} strokeDasharray="3 3" opacity={0.85} />
+      <line x1={padL} y1={padT} x2={padL} y2={padT + ph} stroke="rgba(15,23,42,0.18)" strokeWidth={1} />
+      <line x1={padL} y1={padT + ph} x2={W - padR} y2={padT + ph} stroke="rgba(15,23,42,0.18)" strokeWidth={1} />
+      <polyline points={best.map((f, g) => `${x(g)},${y(f)}`).join(" ")} fill="none" stroke="#2563eb" strokeWidth={1.6} strokeDasharray="3 3" opacity={0.85} />
       {pop.map((g, gi) => g.map((f, i) => {
         const champ = gi === pop.length - 1 && f === best[gi];
         return <circle key={`${gi}-${i}`} cx={x(gi)} cy={y(f)} r={champ ? 4.8 : 3.4} fill={col(f)} stroke={champ ? "#fff" : "none"} strokeWidth={1} />;
       }))}
-      <text x={padL - 5} y={padT + 4} textAnchor="end" fill="rgba(255,255,255,0.5)" style={{ fontSize: 9, fontFamily: "monospace" }}>fit</text>
-      <text x={x(0)} y={H - 5} textAnchor="middle" fill="rgba(255,255,255,0.5)" style={{ fontSize: 9, fontFamily: "monospace" }}>gen 0</text>
-      <text x={x(pop.length - 1)} y={H - 5} textAnchor="middle" fill="rgba(255,255,255,0.5)" style={{ fontSize: 9, fontFamily: "monospace" }}>gen N</text>
-      <text x={x(pop.length - 1) + 1} y={y(best[best.length - 1]) - 7} textAnchor="end" fill="#7fb0ff" style={{ fontSize: 8.5, fontFamily: "monospace" }}>fittest</text>
+      <text x={padL - 5} y={padT + 4} textAnchor="end" fill="rgba(15,23,42,0.5)" style={{ fontSize: 9, fontFamily: "monospace" }}>fit</text>
+      <text x={x(0)} y={H - 5} textAnchor="middle" fill="rgba(15,23,42,0.5)" style={{ fontSize: 9, fontFamily: "monospace" }}>gen 0</text>
+      <text x={x(pop.length - 1)} y={H - 5} textAnchor="middle" fill="rgba(15,23,42,0.5)" style={{ fontSize: 9, fontFamily: "monospace" }}>gen N</text>
+      <text x={x(pop.length - 1) + 1} y={y(best[best.length - 1]) - 7} textAnchor="end" fill="#2563eb" style={{ fontSize: 8.5, fontFamily: "monospace" }}>fittest</text>
     </svg>
   );
 };
@@ -134,7 +134,7 @@ export const GAPrimer: React.FC = () => {
         <Title className="mt-[1.4%]">How a genetic algorithm <span className="text-accent">works</span></Title>
       </div>
       <Glass className="rise mt-[1.2%] p-[1.7%] flex items-center gap-[4%]" style={{ animationDelay: "0.05s" }}>
-        <p className="text-white/90 flex-1" style={{ fontSize: "clamp(14.4px,1.7vw,28.8px)", lineHeight: 1.4 }}>
+        <p className="text-slate-900/90 flex-1" style={{ fontSize: "clamp(14.4px,1.7vw,28.8px)", lineHeight: 1.4 }}>
           Think <span className="text-accent font-semibold">natural selection</span>: keep the fittest, recombine them, add a little random variation, then repeat. Do that to candidate <span className="text-warm font-semibold">answers</span> instead of organisms, and you have a <span className="font-semibold">genetic algorithm</span>.
         </p>
         <EvolveGraphic />
@@ -144,15 +144,15 @@ export const GAPrimer: React.FC = () => {
           <React.Fragment key={s.t}>
             <Glass className="flex-1 rise p-[2%] text-center" style={{ animationDelay: `${0.12 + i * 0.1}s` }}>
               <s.Icon strokeWidth={1.5} className="mx-auto mb-[7px] text-accent" style={{ width: "clamp(20px,2.2vw,28px)", height: "clamp(20px,2.2vw,28px)" }} />
-              <div className="mono text-white/45" style={{ fontSize: 13.2 }}>0{i + 1}</div>
+              <div className="mono text-slate-900/45" style={{ fontSize: 13.2 }}>0{i + 1}</div>
               <h3 className="font-bold mt-[2px]" style={{ fontSize: "clamp(14.4px,1.6vw,26.4px)" }}>{s.t}</h3>
-              <p className="text-white/70 mt-[3px] leading-snug" style={{ fontSize: "clamp(12px,1.2vw,20.4px)" }}>{s.d}</p>
+              <p className="text-slate-900/70 mt-[3px] leading-snug" style={{ fontSize: "clamp(12px,1.2vw,20.4px)" }}>{s.d}</p>
             </Glass>
             {i < 4 && <Arrow className="self-center">{i === 3 ? "↻" : "→"}</Arrow>}
           </React.Fragment>
         ))}
       </div>
-      <p className="text-white/75 rise mt-[1.1%]" style={{ fontSize: "clamp(13.2px,1.4vw,23.4px)", animationDelay: "0.7s", lineHeight: 1.45 }}>
+      <p className="text-slate-900/75 rise mt-[1.1%]" style={{ fontSize: "clamp(13.2px,1.4vw,23.4px)", animationDelay: "0.7s", lineHeight: 1.45 }}>
         <Arrow>→ </Arrow>Why it fits here: we can easily <span className="text-accent font-semibold">score</span> whether a prompt broke the model, but we can't <span className="text-warm font-semibold">calculate</span> the perfect attack. GAs shine exactly there: a measurable goal, a huge search space, and no gradient to follow.
       </p>
     </SlideShell>
@@ -175,17 +175,17 @@ export const Evolution: React.FC = () => {
         <Kicker num="07" sec="Evolution as Search" />
         <Title className="mt-[1.4%]">How evolution maps onto our <span className="text-accent">attack genome</span></Title>
       </div>
-      <p className="text-white/80 rise mt-[1.6%]" style={{ fontSize: "clamp(14.4px,1.8vw,30px)", lineHeight: 1.5, animationDelay: "0.04s" }}>
+      <p className="text-slate-900/80 rise mt-[1.6%]" style={{ fontSize: "clamp(14.4px,1.8vw,30px)", lineHeight: 1.5, animationDelay: "0.04s" }}>
         Keep a <span className="font-semibold">population</span> of candidate strategies, score each with a <span className="text-accent font-semibold">fitness</span> function, then <span className="font-semibold">select</span>, <span className="font-semibold">recombine</span>, and <span className="font-semibold">mutate</span> so better solutions survive. We <span className="text-warm font-semibold">evolve structure, not text</span>, so every win has an ancestry you can trace gene by gene.
       </p>
       <div className="grid grid-cols-2 gap-[3%] items-center flex-grow mt-[1.5%]">
         <Glass className="rise p-[3.1%]" style={{ animationDelay: "0.1s" }}>
-          <div className="mono text-white/45 tracking-[0.1em] mb-[12px]" style={{ fontSize: 13.2 }}>THE VOCABULARY · MAPPED TO THIS SYSTEM</div>
+          <div className="mono text-slate-900/45 tracking-[0.1em] mb-[12px]" style={{ fontSize: 13.2 }}>THE VOCABULARY · MAPPED TO THIS SYSTEM</div>
           <div className="grid grid-cols-2 gap-x-[22px] gap-y-[11px]">
             {terms.map(([k, v]) => (
               <div key={k}>
                 <div className="mono font-bold text-accent" style={{ fontSize: "clamp(14.4px,1.5vw,22.8px)" }}>{k}</div>
-                <div className="text-white/65 leading-tight" style={{ fontSize: "clamp(12px,1.3vw,20.4px)" }}>{v}</div>
+                <div className="text-slate-900/65 leading-tight" style={{ fontSize: "clamp(12px,1.3vw,20.4px)" }}>{v}</div>
               </div>
             ))}
           </div>

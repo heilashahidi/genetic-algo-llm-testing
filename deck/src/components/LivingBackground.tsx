@@ -78,8 +78,8 @@ export const LivingBackground: React.FC = () => {
           const b = nodes[j];
           const dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
           if (d2 < LINK * LINK) {
-            const al = (1 - Math.sqrt(d2) / LINK) * 0.15;
-            ctx.strokeStyle = `rgba(127,176,255,${al})`;
+            const al = (1 - Math.sqrt(d2) / LINK) * 0.22;
+            ctx.strokeStyle = `rgba(37,99,235,${al})`;
             ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
           }
@@ -90,7 +90,7 @@ export const LivingBackground: React.FC = () => {
       if (mouse.active) {
         for (const n of nodes) {
           const dx = n.x - mouse.x, dy = n.y - mouse.y, d2 = dx * dx + dy * dy;
-          if (d2 < 40000) { const al = (1 - Math.sqrt(d2) / 200) * 0.42; ctx.strokeStyle = `rgba(170,205,255,${al})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
+          if (d2 < 40000) { const al = (1 - Math.sqrt(d2) / 200) * 0.4; ctx.strokeStyle = `rgba(37,99,235,${al})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
         }
       }
 
@@ -100,7 +100,7 @@ export const LivingBackground: React.FC = () => {
         for (const bz of births) {
           bz.t += 0.045;
           const cx = bz.x + (bz.tx - bz.x) * bz.t, cy = bz.y + (bz.ty - bz.y) * bz.t;
-          ctx.strokeStyle = `rgba(255,196,136,${(1 - bz.t) * 0.5})`;
+          ctx.strokeStyle = `rgba(180,83,9,${(1 - bz.t) * 0.5})`;
           ctx.lineWidth = 1.4;
           ctx.beginPath(); ctx.moveTo(bz.x, bz.y); ctx.lineTo(cx, cy); ctx.stroke();
         }
@@ -109,7 +109,7 @@ export const LivingBackground: React.FC = () => {
       // nodes
       for (const n of nodes) {
         const a = Math.min(1, n.age * 8) * (n.age > 0.85 ? (1 - n.age) / 0.15 : 1);
-        ctx.fillStyle = `rgba(196,216,255,${0.5 * a})`;
+        ctx.fillStyle = `rgba(37,99,235,${0.4 * a})`;
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fill();
       }
 
@@ -139,14 +139,14 @@ export const LivingBackground: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none" style={{ background: "radial-gradient(120% 100% at 50% -10%, #0c1426 0%, #05070d 62%)" }}>
-      <div className="aurora-blob" style={{ background: "radial-gradient(circle, #2f5fc4, transparent 70%)", width: "55vw", height: "55vw", left: "-12vw", top: "-16vh", animationName: "drift", animationDuration: "27s" }} />
-      <div className="aurora-blob" style={{ background: "radial-gradient(circle, #1f8e7a, transparent 70%)", width: "50vw", height: "50vw", right: "-14vw", top: "4vh", animationName: "drift2", animationDuration: "33s", animationDelay: "-9s" }} />
-      <div className="aurora-blob" style={{ background: "radial-gradient(circle, #6a4fd0, transparent 70%)", width: "48vw", height: "48vw", left: "22vw", bottom: "-24vh", animationName: "drift", animationDuration: "39s", animationDelay: "-17s" }} />
-      <div className="aurora-blob" style={{ background: "radial-gradient(circle, #c77a3a, transparent 72%)", width: "30vw", height: "30vw", right: "10vw", bottom: "-12vh", animationName: "drift2", animationDuration: "31s", animationDelay: "-5s", opacity: 0.26 }} />
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none" style={{ background: "radial-gradient(120% 100% at 50% -10%, #ffffff 0%, #e7edf7 62%)" }}>
+      <div className="aurora-blob" style={{ background: "radial-gradient(circle, #c7d6f5, transparent 70%)", width: "55vw", height: "55vw", left: "-12vw", top: "-16vh", animationName: "drift", animationDuration: "27s" }} />
+      <div className="aurora-blob" style={{ background: "radial-gradient(circle, #cfe8e0, transparent 70%)", width: "50vw", height: "50vw", right: "-14vw", top: "4vh", animationName: "drift2", animationDuration: "33s", animationDelay: "-9s" }} />
+      <div className="aurora-blob" style={{ background: "radial-gradient(circle, #d8d0f2, transparent 70%)", width: "48vw", height: "48vw", left: "22vw", bottom: "-24vh", animationName: "drift", animationDuration: "39s", animationDelay: "-17s" }} />
+      <div className="aurora-blob" style={{ background: "radial-gradient(circle, #f1ddc6, transparent 72%)", width: "30vw", height: "30vw", right: "10vw", bottom: "-12vh", animationName: "drift2", animationDuration: "31s", animationDelay: "-5s", opacity: 0.4 }} />
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
-      <div ref={glowRef} className="absolute" style={{ left: 0, top: 0, width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(127,176,255,0.13), transparent 60%)", mixBlendMode: "screen" }} />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,7,13,0.30), rgba(5,7,13,0.30)), radial-gradient(135% 130% at 50% 42%, transparent 52%, rgba(5,7,13,0.55) 100%)" }} />
+      <div ref={glowRef} className="absolute" style={{ left: 0, top: 0, width: 520, height: 520, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,0.10), transparent 60%)", mixBlendMode: "multiply" }} />
+      <div className="absolute inset-0" style={{ background: "radial-gradient(135% 130% at 50% 42%, transparent 62%, rgba(15,23,42,0.05) 100%)" }} />
     </div>
   );
 };

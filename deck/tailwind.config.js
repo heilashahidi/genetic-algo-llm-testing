@@ -8,8 +8,8 @@ export default {
         mono: ["'JetBrains Mono'", "ui-monospace", "monospace"],
       },
       colors: {
-        accent: "#7fb0ff",
-        warm: "#ffc488",
+        accent: "#2563eb",
+        warm: "#b45309",
         lime: "#D2FF55",
       },
     },

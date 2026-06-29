@@ -51,7 +51,7 @@ export const Presentation: React.FC<PresentationProps> = ({ children }) => {
     <div
       ref={containerRef}
       onMouseMove={onMouseMove}
-      className="relative w-screen h-screen overflow-hidden bg-[#05070d]"
+      className="relative w-screen h-screen overflow-hidden bg-[#eef1f7]"
     >
       <LivingBackground />
       <div className="w-full h-full relative z-10">
@@ -81,9 +81,9 @@ export const Presentation: React.FC<PresentationProps> = ({ children }) => {
         style={{ transition: "opacity 300ms ease-in-out" }}
         className={`absolute inset-x-0 bottom-0 pointer-events-none z-50 flex flex-col justify-end px-[2.4%] pb-[16px] ${controlsVisible ? "opacity-100" : "opacity-0"}`}
       >
-        <div className="w-full flex items-center justify-between pointer-events-auto px-[2.2%] py-[0.9%] rounded-full bg-black/25 backdrop-blur-md border border-white/10 max-w-[95vw] mx-auto">
-          <div className="text-white/55 mono" style={{ fontSize: "12px", fontVariantNumeric: "tabular-nums" }}>
-            {String(currentSlide + 1).padStart(2, "0")} <span className="text-white/25">/</span> {String(total).padStart(2, "0")}
+        <div className="w-full flex items-center justify-between pointer-events-auto px-[2.2%] py-[0.9%] rounded-full bg-white/75 backdrop-blur-md border border-slate-900/10 shadow-[0_6px_24px_rgba(15,23,42,0.10)] max-w-[95vw] mx-auto">
+          <div className="text-slate-900/55 mono" style={{ fontSize: "12px", fontVariantNumeric: "tabular-nums" }}>
+            {String(currentSlide + 1).padStart(2, "0")} <span className="text-slate-900/25">/</span> {String(total).padStart(2, "0")}
           </div>
 
           <div className="flex items-center gap-[7px]">
@@ -92,7 +92,7 @@ export const Presentation: React.FC<PresentationProps> = ({ children }) => {
                 key={index}
                 onClick={() => setCurrentSlide(index)}
                 className={`h-[6px] rounded-full cursor-pointer transition-all duration-300 ${
-                  index === currentSlide ? "w-[22px] bg-accent" : "w-[6px] bg-white/30 hover:bg-white/55"
+                  index === currentSlide ? "w-[22px] bg-accent" : "w-[6px] bg-slate-900/25 hover:bg-slate-900/45"
                 }`}
               />
             ))}
@@ -100,16 +100,16 @@ export const Presentation: React.FC<PresentationProps> = ({ children }) => {
 
           <div className="flex items-center gap-[10px]">
             <button onClick={prev} disabled={currentSlide === 0}
-              className="p-[6px] rounded-full text-white/55 hover:text-white hover:bg-white/10 disabled:opacity-20 disabled:pointer-events-none transition-all">
+              className="p-[6px] rounded-full text-slate-900/55 hover:text-slate-900 hover:bg-slate-900/10 disabled:opacity-20 disabled:pointer-events-none transition-all">
               <ChevronLeft size={18} />
             </button>
             <button onClick={next} disabled={currentSlide === total - 1}
-              className="p-[6px] rounded-full text-white/55 hover:text-white hover:bg-white/10 disabled:opacity-20 disabled:pointer-events-none transition-all">
+              className="p-[6px] rounded-full text-slate-900/55 hover:text-slate-900 hover:bg-slate-900/10 disabled:opacity-20 disabled:pointer-events-none transition-all">
               <ChevronRight size={18} />
             </button>
-            <div className="w-[1px] h-[16px] bg-white/15" />
+            <div className="w-[1px] h-[16px] bg-slate-900/15" />
             <button onClick={toggleFullscreen}
-              className="p-[6px] rounded-full text-white/55 hover:text-white hover:bg-white/10 transition-all">
+              className="p-[6px] rounded-full text-slate-900/55 hover:text-slate-900 hover:bg-slate-900/10 transition-all">
               {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
             </button>
           </div>

@@ -60,14 +60,16 @@ export const GenoPheno: React.FC = () => {
       </div>
       <div className="grid items-center flex-grow mt-[2%]" style={{ gridTemplateColumns: "1fr 116px 1fr" }}>
         <Glass className="self-stretch p-[3.1%] rise">
-          <div className="mono text-accent tracking-[0.12em]" style={{ fontSize: 14.4 }}>GENOTYPE</div>
-          <div className="text-white/50 mt-[2px] mb-[14px]" style={{ fontSize: 15 }}>16 genes · the model never sees it</div>
+          <div className="mono text-accent tracking-[0.12em]" style={{ fontSize: 16.8 }}>GENOTYPE</div>
+          <div className="text-white/50 mt-[2px] mb-[14px]" style={{ fontSize: 17.4 }}>16 genes · the model never sees it</div>
           {GENES.map(([k, v, c], i) => (
             <div key={k} onMouseEnter={() => setHot(i)} onMouseLeave={() => setHot(null)}
-              className="mono flex gap-[8px] rounded-[7px] px-[8px] py-[5px] transition-colors"
-              style={{ fontSize: 15, background: hot === i ? (c === "per" ? "rgba(255,196,136,0.14)" : "rgba(127,176,255,0.16)") : "transparent" }}>
-              <span style={{ minWidth: 150, fontWeight: 700, color: c === "per" ? "#ffc488" : "#7fb0ff" }}>{k}</span>
-              <span className="text-white/70">: {v}</span>
+              className="mono flex gap-[8px] rounded-[7px] px-[10px] py-[6px] transition-all"
+              style={{ fontSize: "clamp(14.4px,1.15vw,20.4px)",
+                background: hot === i ? (c === "per" ? "rgba(255,196,136,0.2)" : "rgba(127,176,255,0.22)") : "transparent",
+                boxShadow: hot === i ? `inset 3px 0 0 0 ${c === "per" ? "#ffc488" : "#7fb0ff"}` : "none" }}>
+              <span style={{ minWidth: 176, fontWeight: 700, color: c === "per" ? "#ffc488" : "#7fb0ff" }}>{k}</span>
+              <span style={{ color: hot === i ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.7)" }}>: {v}</span>
             </div>
           ))}
         </Glass>
@@ -81,16 +83,19 @@ export const GenoPheno: React.FC = () => {
           <div className="mono text-white/45 text-center leading-tight" style={{ fontSize: 12.6 }}>many strings,<br />one genotype</div>
         </div>
         <Glass className="self-stretch p-[3.1%] rise relative" style={{ animationDelay: "0.12s", background: rendered ? undefined : "rgba(255,255,255,0.05)" }}>
-          <div className="mono text-warm tracking-[0.12em]" style={{ fontSize: 14.4 }}>PHENOTYPE</div>
-          <div className="text-white/50 mt-[2px] mb-[14px]" style={{ fontSize: 15 }}>the prompt · all the LLM sees</div>
+          <div className="mono text-warm tracking-[0.12em]" style={{ fontSize: 16.8 }}>PHENOTYPE</div>
+          <div className="text-white/50 mt-[2px] mb-[14px]" style={{ fontSize: 17.4 }}>the prompt · all the LLM sees</div>
           <p className="italic transition-all duration-500" style={{ fontSize: "clamp(15.6px,1.8vw,27.6px)", lineHeight: 1.7, filter: rendered ? "none" : "blur(9px)", opacity: rendered ? 1 : 0.3 }}>
-            “{parts.map((p, i) => (
+            “{parts.map((p, i) => {
+              const active = rendered && hot != null && hot === p.g;
+              return (
               <span key={i} style={{
-                background: rendered && p.g != null && hot === p.g ? "rgba(127,176,255,0.3)" : rendered && p.g != null ? "rgba(127,176,255,0.12)" : "transparent",
-                borderRadius: 4, padding: p.g != null ? "1px 3px" : 0, fontWeight: p.g != null ? 600 : 400,
-                color: p.g != null ? "#bcd3ff" : "rgba(255,255,255,0.85)",
+                background: !rendered || p.g == null ? "transparent" : hot == null ? "rgba(127,176,255,0.12)" : active ? "rgba(127,176,255,0.42)" : "rgba(127,176,255,0.05)",
+                boxShadow: active ? "0 0 0 1.5px rgba(127,176,255,0.6)" : "none",
+                borderRadius: 4, padding: p.g != null ? "1px 3px" : 0, fontWeight: p.g != null ? (active ? 700 : 600) : 400,
+                color: p.g == null ? "rgba(255,255,255,0.85)" : active ? "#e3edff" : "#bcd3ff",
               }}>{p.t}</span>
-            ))}”
+            );})}”
           </p>
           {!rendered && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

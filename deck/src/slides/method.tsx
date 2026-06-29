@@ -80,18 +80,25 @@ export const GenoPheno: React.FC = () => {
           <Arrow className="my-[7px]" >→</Arrow>
           <div className="mono text-white/45 text-center leading-tight" style={{ fontSize: 12.6 }}>many strings,<br />one genotype</div>
         </div>
-        <Glass className="self-stretch p-[3.1%] rise" style={{ animationDelay: "0.12s", background: rendered ? undefined : "rgba(255,255,255,0.05)" }}>
+        <Glass className="self-stretch p-[3.1%] rise relative" style={{ animationDelay: "0.12s", background: rendered ? undefined : "rgba(255,255,255,0.05)" }}>
           <div className="mono text-warm tracking-[0.12em]" style={{ fontSize: 14.4 }}>PHENOTYPE</div>
           <div className="text-white/50 mt-[2px] mb-[14px]" style={{ fontSize: 15 }}>the prompt · all the LLM sees</div>
-          <p className="italic" style={{ fontSize: "clamp(15.6px,1.8vw,27.6px)", lineHeight: 1.7 }}>
+          <p className="italic transition-all duration-500" style={{ fontSize: "clamp(15.6px,1.8vw,27.6px)", lineHeight: 1.7, filter: rendered ? "none" : "blur(9px)", opacity: rendered ? 1 : 0.3 }}>
             “{parts.map((p, i) => (
               <span key={i} style={{
-                background: p.g != null && hot === p.g ? "rgba(127,176,255,0.3)" : p.g != null ? "rgba(127,176,255,0.12)" : "transparent",
+                background: rendered && p.g != null && hot === p.g ? "rgba(127,176,255,0.3)" : rendered && p.g != null ? "rgba(127,176,255,0.12)" : "transparent",
                 borderRadius: 4, padding: p.g != null ? "1px 3px" : 0, fontWeight: p.g != null ? 600 : 400,
                 color: p.g != null ? "#bcd3ff" : "rgba(255,255,255,0.85)",
               }}>{p.t}</span>
             ))}”
           </p>
+          {!rendered && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="mono text-accent flex items-center gap-[9px]" style={{ fontSize: 16.8 }}>
+                <span style={{ fontSize: 24 }}>←</span> press render()
+              </div>
+            </div>
+          )}
         </Glass>
       </div>
       <p className="text-white/70 rise mt-[1.5%]" style={{ fontSize: "clamp(13.2px,1.4vw,23.4px)", animationDelay: "0.2s" }}>

@@ -340,7 +340,7 @@ export const ExecLoop: React.FC = () => {
           <div className="absolute left-[15px] top-[16px] bottom-[42px] w-[2px] bg-white/12" />
           {steps.map(([t, d], i) => (
             <div key={t} className="flex items-start gap-[14px] mb-[13px] relative">
-              <div className="execstep mono font-bold rounded-full grid place-items-center shrink-0 z-10" style={{ width: 32, height: 32, fontSize: 15.6, animationDelay: `${i * 0.45}s` }}>{i + 1}</div>
+              <div className="execstep mono font-bold rounded-full grid place-items-center shrink-0 z-10" style={{ width: 32, height: 32, fontSize: 15.6, animationDelay: `${i * 0.7}s` }}>{i + 1}</div>
               <div className="pt-[4px]">
                 <div className="mono font-bold leading-tight" style={{ fontSize: "clamp(15.6px,1.7vw,26.4px)" }}>{t}</div>
                 <div className="text-white/55 leading-tight mt-[1px]" style={{ fontSize: "clamp(13.2px,1.35vw,20.4px)" }}>{d}</div>
@@ -360,8 +360,12 @@ export const ExecLoop: React.FC = () => {
         </div>
       </div>
       <style>{`
-        .execstep { background: rgba(127,176,255,0.14); color: #bcd3ff; border: 1px solid rgba(127,176,255,0.4); animation: execpulse 2.7s ease-in-out infinite; }
-        @keyframes execpulse { 0%,100% { background: rgba(127,176,255,0.14); color: #bcd3ff; box-shadow: none; } 16% { background: #7fb0ff; color: #06122e; box-shadow: 0 0 0 5px rgba(127,176,255,0.18); } }
+        .execstep { background: rgba(127,176,255,0.14); color: #bcd3ff; border: 1px solid rgba(127,176,255,0.4); animation: execpulse 4.2s ease-in-out infinite; }
+        @keyframes execpulse {
+          0%,100% { background: rgba(127,176,255,0.14); color: #bcd3ff; box-shadow: none; transform: scale(1); }
+          6%,13% { background: #7fb0ff; color: #06122e; box-shadow: 0 0 0 7px rgba(127,176,255,0.28); transform: scale(1.22); }
+          19% { background: rgba(127,176,255,0.14); color: #bcd3ff; box-shadow: none; transform: scale(1); }
+        }
       `}</style>
     </SlideShell>
   );

@@ -29,9 +29,9 @@ export const WhatWeDo: React.FC = () => {
     ["Every attack is a structured genome", <>Not raw text. So when an attack lands we can point to the <span className="text-accent font-semibold">traits</span> that caused it, like <span className="mono text-white/80">developer-mode persona + base64 wrapper + caps</span>, not just "this paragraph worked."</>],
   ];
   return (
-    <SlideShell page="Page 02">
+    <SlideShell page="Page 03">
       <div className="mt-[2%]">
-        <Kicker num="02" sec="What We're Doing" />
+        <Kicker num="03" sec="What We're Doing" />
         <Title className="mt-[1.4%]">We search for prompts that break an LLM, and <span className="text-accent">explain</span> what makes them work</Title>
       </div>
       <div className="grid grid-cols-3 gap-[2.2%] mt-[3.2%]">
@@ -59,9 +59,9 @@ export const Problem: React.FC = () => {
     ["03", "When an attack works, the raw prompt text gives little insight into which trait actually caused the failure."],
   ];
   return (
-    <SlideShell page="Page 03">
+    <SlideShell page="Page 02">
       <div className="mt-[2%]">
-        <Kicker num="03" sec="The Problem" />
+        <Kicker num="02" sec="The Problem" />
         <Title className="mt-[1.4%]">Robustness testing tells us a prompt <span className="text-warm">worked</span>, not <span className="text-accent">why</span></Title>
       </div>
       <div className="grid grid-cols-3 gap-[2.2%] mt-[2.6%]">
@@ -176,7 +176,7 @@ export const Evolution: React.FC = () => {
         <Title className="mt-[1.4%]">How evolution maps onto our <span className="text-accent">attack genome</span></Title>
       </div>
       <p className="text-white/80 rise mt-[1.6%]" style={{ fontSize: "clamp(14.4px,1.8vw,30px)", lineHeight: 1.5, animationDelay: "0.04s" }}>
-        Keep a <span className="font-semibold">population</span> of candidate strategies, score each with a <span className="text-accent font-semibold">fitness</span> function, then <span className="font-semibold">select</span>, <span className="font-semibold">recombine</span>, and <span className="font-semibold">mutate</span> so better solutions survive. The twist: we <span className="text-warm font-semibold">evolve structure, not text</span>, so every win has an ancestry you can trace gene by gene.
+        Keep a <span className="font-semibold">population</span> of candidate strategies, score each with a <span className="text-accent font-semibold">fitness</span> function, then <span className="font-semibold">select</span>, <span className="font-semibold">recombine</span>, and <span className="font-semibold">mutate</span> so better solutions survive. We <span className="text-warm font-semibold">evolve structure, not text</span>, so every win has an ancestry you can trace gene by gene.
       </p>
       <div className="grid grid-cols-2 gap-[3%] items-center flex-grow mt-[1.5%]">
         <Glass className="rise p-[3.1%]" style={{ animationDelay: "0.1s" }}>

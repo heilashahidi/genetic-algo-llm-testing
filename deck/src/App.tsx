@@ -7,8 +7,8 @@ export default function App() {
   return (
     <Presentation>
       <Cover />
-      <WhatWeDo />
       <Problem />
+      <WhatWeDo />
       <Pipeline />
       <Target />
       <GAPrimer />
